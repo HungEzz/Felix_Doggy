@@ -36,25 +36,3 @@ frontend/
 │   ├── types/          # Định nghĩa kiểu dữ liệu TypeScript
 │   └── App.tsx         # Cấu hình Routing chính
 ```
-
-## 🚀 Cài đặt và Chạy dự án
-
-1. **Clone repository**:
-   ```bash
-   git clone https://github.com/luuvanphat/record-store-online.git
-   cd frontend
-   ```
-
-2. **Cài đặt thư viện**:
-   ```bash
-   npm install
-   ```
-
-3. **Chạy môi trường Development**:
-   ```bash
-   npm run dev
-   ```
-
-## 👤 Thông tin tác giả (Author)
-
-* **Họ và tên**: Lưu Văn Phát
