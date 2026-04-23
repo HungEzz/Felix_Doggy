@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login, logout, updateProfile } from '../store/userSlice';
 import type { RootState } from '../store';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const User: React.FC = () => {
   const dispatch = useDispatch();
@@ -13,18 +14,32 @@ const User: React.FC = () => {
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password || (!isLoginMode && !name)) {
       toast.error('Vui lòng điền đầy đủ thông tin', { duration: 2000 });
       return;
     }
 
-    dispatch(login({ name: name || 'Khách hàng', email, address }));
-    toast.success(isLoginMode ? 'Đăng nhập thành công' : 'Đăng ký thành công', { duration: 2000 });
+    try {
+      if (isLoginMode) {
+        const res: any = await api.post('/auth/login', { email, password });
+        localStorage.setItem('token', res.token);
+        dispatch(login({ name: res.user.fullName || 'Khách hàng', email: res.user.email, address: '' }));
+        toast.success('Đăng nhập thành công', { duration: 2000 });
+      } else {
+        const res: any = await api.post('/auth/register', { email, password, fullName: name });
+        toast.success('Đăng ký thành công! Vui lòng đăng nhập.', { duration: 3000 });
+        setIsLoginMode(true);
+        setPassword('');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại!', { duration: 3000 });
+    }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     dispatch(logout());
     toast.success('Đã đăng xuất', { duration: 2000 });
   };
