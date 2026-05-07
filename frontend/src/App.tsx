@@ -19,10 +19,12 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import ScrollToTop from './components/ScrollToTop';
+import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
 import { useDispatch } from 'react-redux';
 import { fetchProducts } from './store/productSlice';
+import { login } from './store/userSlice';
 import type { AppDispatch } from './store';
 
 const App: React.FC = () => {
@@ -30,6 +32,21 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     dispatch(fetchProducts());
+
+    // Restore auth state từ localStorage sau khi refresh trang.
+    // Token vẫn còn trong localStorage → khôi phục lại Redux user state.
+    const token = localStorage.getItem('token');
+    const userRaw = localStorage.getItem('user');
+    if (token && userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        dispatch(login({ name: user.name, email: user.email, role: user.role }));
+      } catch {
+        // localStorage bị corrupt → xóa để tránh lỗi
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    }
   }, [dispatch]);
 
   return (
@@ -52,7 +69,14 @@ const App: React.FC = () => {
           <Route path="account" element={<User />} />
         </Route>
 
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredRole="ADMIN" redirectTo="/account">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />

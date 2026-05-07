@@ -7,6 +7,9 @@ import { Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 
 const Cart: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  // Lấy stock hiện tại từ Redux (được cập nhật mỗi khi fetchProducts chạy)
+  // thay vì dùng item.stock (snapshot lúc add vào cart, có thể đã lỗi thời)
+  const productStock = useSelector((state: RootState) => state.products.stock);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -75,7 +78,7 @@ const Cart: React.FC = () => {
                     <button
                       onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))}
                       className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-30"
-                      disabled={item.quantity >= item.stock}
+                      disabled={item.quantity >= (productStock[item.id] ?? item.stock)}
                     >
                       <Plus size={14} />
                     </button>

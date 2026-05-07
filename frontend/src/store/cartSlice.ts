@@ -1,28 +1,48 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { Product, CartItem } from '../types';
-import type {  PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface CartState {
   items: CartItem[];
 }
 
-const initialState: CartState = {
-  items: [],
+// Đọc giỏ hàng từ localStorage khi khởi động — persist qua reload
+const loadCartFromStorage = (): CartState => {
+  try {
+    const raw = localStorage.getItem('cart');
+    if (!raw) return { items: [] };
+    const parsed = JSON.parse(raw);
+    // Validate shape: phải có items là array để tránh crash nếu dữ liệu bị corrupt
+    if (!parsed || !Array.isArray(parsed.items)) return { items: [] };
+    return parsed as CartState;
+  } catch {
+    return { items: [] };
+  }
 };
+
+// Hàm này được gọi từ main.tsx qua store.subscribe() để tự động lưu mỗi khi cart thay đổi
+export const saveCartToStorage = (state: CartState) => {
+  try {
+    localStorage.setItem('cart', JSON.stringify(state));
+  } catch {
+    // Bỏ qua lỗi quota exceeded
+  }
+};
+
+const initialState: CartState = loadCartFromStorage();
 
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Product>) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+    // quantity: số lượng muốn thêm vào (mặc định 1). Stock check thực hiện tại component.
+    addToCart: (state, action: PayloadAction<{ product: Product; quantity?: number }>) => {
+      const { product, quantity = 1 } = action.payload;
+      const existingItem = state.items.find(item => item.id === product.id);
       if (existingItem) {
-        // Khi đã tồn tại, chỉ tăng quantity, không kiểm tra stock ở đây
-        // (Stock được kiểm tra và giảm trước khi dispatch addToCart)
-        existingItem.quantity += 1;
+        existingItem.quantity += quantity;
       } else {
-        // Khi thêm mới, luôn cho phép add (stock đã được kiểm tra từ component)
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({ ...product, quantity });
       }
     },
     removeFromCart: (state, action: PayloadAction<number>) => {
