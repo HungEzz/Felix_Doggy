@@ -1,0 +1,34 @@
+import express from 'express';
+import cors from 'cors';
+import { generalLimiter } from './middlewares/rateLimit';
+import { authRoutes } from './modules/auth/auth.routes';
+import { productRoutes } from './modules/products/product.routes';
+import { orderRoutes } from './modules/orders/order.routes';
+import { adminRoutes } from './modules/admin/admin.routes';
+import { verifyAdmin } from './middlewares/auth';
+import { upload } from './middlewares/upload';
+import { env } from './config/env';
+
+export const app = express();
+
+app.set('trust proxy', 1);
+
+app.use(cors());
+app.use(express.json());
+app.use(generalLimiter);
+app.use('/uploads', express.static('uploads'));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Backward compatibility with previous upload endpoint.
+app.post('/api/upload', verifyAdmin, upload.single('image'), (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ message: 'No file uploaded' });
+    return;
+  }
+  const imgUrl = `http://localhost:${env.PORT}/uploads/${req.file.filename}`;
+  res.json({ imgUrl });
+});
