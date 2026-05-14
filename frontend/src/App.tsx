@@ -18,6 +18,13 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
+// Statistics pages
+import RevenueStats from './pages/admin/statistics/RevenueStats';
+import OrderStats from './pages/admin/statistics/OrderStats';
+import ProductStats from './pages/admin/statistics/ProductStats';
+import UserStats from './pages/admin/statistics/UserStats';
+import InventoryStats from './pages/admin/statistics/InventoryStats';
+
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
@@ -34,7 +41,6 @@ const App: React.FC = () => {
   React.useEffect(() => {
     dispatch(fetchProducts());
 
-    // Restore full auth state from localStorage after page refresh.
     const token = localStorage.getItem('token');
     const userRaw = localStorage.getItem('user');
     if (token && userRaw) {
@@ -89,6 +95,12 @@ const App: React.FC = () => {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
+          {/* Statistics routes */}
+          <Route path="statistics/revenue" element={<RevenueStats />} />
+          <Route path="statistics/orders" element={<OrderStats />} />
+          <Route path="statistics/products" element={<ProductStats />} />
+          <Route path="statistics/users" element={<UserStats />} />
+          <Route path="statistics/inventory" element={<InventoryStats />} />
         </Route>
       </Routes>
       <ChatBot />
