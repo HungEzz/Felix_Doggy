@@ -1,7 +1,7 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 import { store } from '../store';
-import { logout } from '../store/userSlice';
+import { logout, adminLogout } from '../store/userSlice';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // Hỗ trợ Docker API Gateway hoặc Local
@@ -17,10 +17,19 @@ const RETRYABLE_STATUS_CODES = [500, 502, 503, 504];
 const MAX_RETRY_ATTEMPTS = 3;
 const BASE_RETRY_DELAY_MS = 500;
 
+/**
+ * Determine which token to use based on current URL path.
+ * Admin pages (/admin/*) use admin_token, everything else uses token.
+ */
+function getActiveToken(): string | null {
+  const isAdminPage = window.location.pathname.startsWith('/admin');
+  return localStorage.getItem(isAdminPage ? 'admin_token' : 'token');
+}
+
 // Đính kèm token vào header
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getActiveToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,17 +44,32 @@ api.interceptors.response.use(
   async (error) => {
     const config = error.config as AxiosRequestConfig & { _retryCount?: number };
 
-    // Token hết hạn hoặc không hợp lệ (HTTP 401) — tự động đăng xuất
+    // Token hết hạn hoặc không hợp lệ (HTTP 401) — tự động đăng xuất session tương ứng
     if (error.response?.status === 401) {
-      const isLoggedIn = store.getState().user.isLoggedIn;
-      if (isLoggedIn) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        store.dispatch(logout());
-        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', {
-          id: 'session-expired-toast',
-          duration: 4000,
-        });
+      const isAdminPage = window.location.pathname.startsWith('/admin');
+
+      if (isAdminPage) {
+        const isAdminLoggedIn = store.getState().user.isAdminLoggedIn;
+        if (isAdminLoggedIn) {
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_user');
+          store.dispatch(adminLogout());
+          toast.error('Phiên admin đã hết hạn. Vui lòng đăng nhập lại.', {
+            id: 'admin-session-expired-toast',
+            duration: 4000,
+          });
+        }
+      } else {
+        const isLoggedIn = store.getState().user.isLoggedIn;
+        if (isLoggedIn) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          store.dispatch(logout());
+          toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', {
+            id: 'session-expired-toast',
+            duration: 4000,
+          });
+        }
       }
       return Promise.reject(error);
     }

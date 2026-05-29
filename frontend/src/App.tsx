@@ -32,7 +32,7 @@ import ChatBot from './components/ChatBot';
 
 import { useDispatch } from 'react-redux';
 import { fetchProducts } from './store/productSlice';
-import { login } from './store/userSlice';
+import { login, adminLogin } from './store/userSlice';
 import type { AppDispatch } from './store';
 
 const App: React.FC = () => {
@@ -41,6 +41,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     dispatch(fetchProducts());
 
+    // Restore user session
     const token = localStorage.getItem('token');
     const userRaw = localStorage.getItem('user');
     if (token && userRaw) {
@@ -59,6 +60,28 @@ const App: React.FC = () => {
       } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+      }
+    }
+
+    // Restore admin session (separate keys so two tabs don't conflict)
+    const adminToken = localStorage.getItem('admin_token');
+    const adminRaw = localStorage.getItem('admin_user');
+    if (adminToken && adminRaw) {
+      try {
+        const admin = JSON.parse(adminRaw);
+        dispatch(
+          adminLogin({
+            id: admin.id,
+            name: admin.name || admin.fullName || '',
+            email: admin.email,
+            phone: admin.phone || '',
+            address: admin.address || '',
+            role: admin.role,
+          }),
+        );
+      } catch {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
       }
     }
   }, [dispatch]);

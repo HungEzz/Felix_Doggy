@@ -20,7 +20,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isLoggedIn, profile: reduxProfile } = useSelector((s: RootState) => s.user);
+  const { isLoggedIn, profile: reduxProfile, isAdminLoggedIn } = useSelector((s: RootState) => s.user);
   const { profile, orders } = useAccount();
 
   // Close on outside click
@@ -179,7 +179,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
 
             {/* Menu items */}
             <div style={{ padding: '8px 0' }}>
-              {reduxProfile?.role?.toUpperCase() === 'ADMIN' && (
+              {(reduxProfile?.role?.toUpperCase() === 'ADMIN' || isAdminLoggedIn) && (
                 <>
                   <DropdownItem icon={<LayoutDashboard size={15} />} label="Admin Dashboard" onClick={() => go('/admin')} accent />
                   <div style={{ height: 1, background: 'var(--border)', margin: '6px 0' }} />

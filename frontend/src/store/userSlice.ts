@@ -11,13 +11,19 @@ export interface UserProfile {
 }
 
 interface UserState {
+  // User session (for /account, user-facing pages)
   isLoggedIn: boolean;
   profile: UserProfile | null;
+  // Admin session (for /admin pages) — separate so two tabs don't conflict
+  isAdminLoggedIn: boolean;
+  adminProfile: UserProfile | null;
 }
 
 const initialState: UserState = {
   isLoggedIn: false,
   profile: null,
+  isAdminLoggedIn: false,
+  adminProfile: null,
 };
 
 const userSlice = createSlice({
@@ -67,8 +73,59 @@ const userSlice = createSlice({
         }
       }
     },
+
+    // ── Admin session actions ──────────────────────────────────────────
+    adminLogin: (
+      state,
+      action: PayloadAction<{
+        id?: string;
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        role?: string;
+      }>,
+    ) => {
+      state.isAdminLoggedIn = true;
+      state.adminProfile = {
+        id: action.payload.id,
+        name: action.payload.name,
+        email: action.payload.email,
+        phone: action.payload.phone || '',
+        address: action.payload.address || '',
+        role: action.payload.role || 'ADMIN',
+      };
+    },
+    adminLogout: (state) => {
+      state.isAdminLoggedIn = false;
+      state.adminProfile = null;
+    },
+    updateAdminProfile: (state, action: PayloadAction<Partial<UserProfile>>) => {
+      if (state.adminProfile) {
+        state.adminProfile = { ...state.adminProfile, ...action.payload };
+        const stored = localStorage.getItem('admin_user');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            localStorage.setItem(
+              'admin_user',
+              JSON.stringify({ ...parsed, ...action.payload }),
+            );
+          } catch {
+            // ignore
+          }
+        }
+      }
+    },
   },
 });
 
-export const { login, logout, updateProfile } = userSlice.actions;
+export const {
+  login,
+  logout,
+  updateProfile,
+  adminLogin,
+  adminLogout,
+  updateAdminProfile,
+} = userSlice.actions;
 export default userSlice.reducer;

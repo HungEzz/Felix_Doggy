@@ -15,7 +15,7 @@ import {
   Boxes,
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { logout } from '../store/userSlice';
+import { adminLogout } from '../store/userSlice';
 import toast from 'react-hot-toast';
 
 const AdminLayout: React.FC = () => {
@@ -28,10 +28,10 @@ const AdminLayout: React.FC = () => {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    dispatch(logout());
-    toast.success('Đã đăng xuất', { duration: 2000 });
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    dispatch(adminLogout());
+    toast.success('Đã đăng xuất admin', { duration: 2000 });
     navigate('/');
   };
 

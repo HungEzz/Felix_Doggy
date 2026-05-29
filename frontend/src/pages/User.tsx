@@ -23,7 +23,7 @@ import {
   Shield,
   KeyRound,
 } from 'lucide-react';
-import { login, logout, updateProfile as updateReduxProfile } from '../store/userSlice';
+import { login, logout, adminLogin, updateProfile as updateReduxProfile } from '../store/userSlice';
 import type { RootState } from '../store';
 import toast from 'react-hot-toast';
 import api from '../services/api';
@@ -1254,34 +1254,29 @@ const AuthPage: React.FC = () => {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email, password });
         const u = res.user;
+        const profileData = {
+          id: u.id,
+          name: u.fullName || 'Khách hàng',
+          email: u.email,
+          phone: u.phone || '',
+          address: u.address || '',
+          role: u.role,
+        };
 
-        // Persist full profile to localStorage
-        localStorage.setItem('token', res.token);
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            id: u.id,
-            name: u.fullName || 'Khách hàng',
-            email: u.email,
-            phone: u.phone || '',
-            address: u.address || '',
-            role: u.role,
-          }),
-        );
-
-        dispatch(
-          login({
-            id: u.id,
-            name: u.fullName || 'Khách hàng',
-            email: u.email,
-            phone: u.phone || '',
-            address: u.address || '',
-            role: u.role,
-          }),
-        );
-
-        toast.success('Đăng nhập thành công');
-        if (u.role?.toUpperCase() === 'ADMIN') navigate('/admin');
+        if (u.role?.toUpperCase() === 'ADMIN') {
+          // Admin session: separate keys so user tab is not affected
+          localStorage.setItem('admin_token', res.token);
+          localStorage.setItem('admin_user', JSON.stringify(profileData));
+          dispatch(adminLogin(profileData));
+          toast.success('Đăng nhập admin thành công');
+          navigate('/admin');
+        } else {
+          // User session
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(profileData));
+          dispatch(login(profileData));
+          toast.success('Đăng nhập thành công');
+        }
       } else {
         await api.post('/auth/register', { email, password, fullName: name });
         toast.success('Vui lòng kiểm tra email để lấy mã OTP!');
@@ -1320,31 +1315,25 @@ const AuthPage: React.FC = () => {
     return (
       <OtpVerification
         email={otpEmail}
-        onVerified={({ token, user: u }) => {
-          // Auto-login: persist token + user, dispatch Redux, navigate
-          localStorage.setItem('token', token);
-          localStorage.setItem(
-            'user',
-            JSON.stringify({
-              id: u.id,
-              name: u.fullName || 'Khách hàng',
-              email: u.email,
-              phone: u.phone || '',
-              address: u.address || '',
-              role: u.role,
-            }),
-          );
-          dispatch(
-            login({
-              id: u.id,
-              name: u.fullName || 'Khách hàng',
-              email: u.email,
-              phone: u.phone || '',
-              address: u.address || '',
-              role: u.role,
-            }),
-          );
-          if (u.role?.toUpperCase() === 'ADMIN') navigate('/admin');
+        onVerified={({ token: t, user: u }) => {
+          const profileData = {
+            id: u.id,
+            name: u.fullName || 'Khách hàng',
+            email: u.email,
+            phone: u.phone || '',
+            address: u.address || '',
+            role: u.role,
+          };
+          if (u.role?.toUpperCase() === 'ADMIN') {
+            localStorage.setItem('admin_token', t);
+            localStorage.setItem('admin_user', JSON.stringify(profileData));
+            dispatch(adminLogin(profileData));
+            navigate('/admin');
+          } else {
+            localStorage.setItem('token', t);
+            localStorage.setItem('user', JSON.stringify(profileData));
+            dispatch(login(profileData));
+          }
         }}
         onBack={() => {
           setOtpStep(false);
