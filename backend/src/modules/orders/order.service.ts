@@ -3,6 +3,7 @@ import { env } from '../../config/env';
 import { withRetry } from '../../utils/retry';
 import { orderRepository } from './order.repository';
 import { authRepository } from '../auth/auth.repository';
+import { productCache } from '../products/product.cache';
 
 export const orderService = {
   getUserIdFromAuthHeader(authHeader?: string) {
@@ -30,6 +31,15 @@ export const orderService = {
       () => orderRepository.createCheckoutOrder(userId, customerEmail, customerPhone, shippingAddr, items),
       { maxAttempts: 3, baseDelayMs: 500, label: 'checkout transaction' },
     );
+
+    // Invalidate Redis cache for ordered products so stock is fresh
+    try {
+      for (const item of items) {
+        await productCache.deleteCachedProduct(item.id);
+      }
+    } catch {
+      // Non-critical — don't fail the order if cache invalidation fails
+    }
 
     // Save shipping info to user profile (fill empty fields only)
     if (userId) {
