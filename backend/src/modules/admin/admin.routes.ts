@@ -13,6 +13,7 @@ adminRoutes.get('/users', adminController.getUsers);
 adminRoutes.put('/users/:id/role', adminController.updateUserRole);
 adminRoutes.get('/orders', adminController.getOrders);
 adminRoutes.put('/orders/:id', adminController.updateOrderStatus);
+adminRoutes.delete('/orders/:id', adminController.deleteOrder);
 
 adminRoutes.post('/upload', upload.single('image'), (req: Request, res: Response) => {
   if (!req.file) {

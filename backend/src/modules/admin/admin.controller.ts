@@ -57,4 +57,17 @@ export const adminController = {
       res.status(500).json({ message: 'Error updating order' });
     }
   },
+
+  async deleteOrder(req: Request, res: Response) {
+    try {
+      const order = await adminService.deleteOrder(req.params.id);
+      res.json({ success: true, deletedOrderId: order.id });
+    } catch (error: any) {
+      console.error('Delete order error:', error);
+      if (error?.code === 'P2025') {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.status(500).json({ message: 'Error deleting order' });
+    }
+  },
 };

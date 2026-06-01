@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
 import { clearCart } from '../store/cartSlice';
 import { fetchProducts } from '../store/productSlice';
-import { updateProfile } from '../store/userSlice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -163,7 +162,6 @@ const Checkout: React.FC = () => {
     setIsSubmitting(true);
     try {
       const payload = {
-        customerName: formData.fullName,
         customerEmail: formData.email,
         customerPhone: formData.phone,
         shippingAddr: `${formData.address}, ${formData.city}`,
@@ -177,19 +175,6 @@ const Checkout: React.FC = () => {
       // Clear cart and refresh product stock from DB
       dispatch(clearCart());
       dispatch(fetchProducts());
-
-      // Sync shipping info back to user profile (Redux + localStorage)
-      if (userProfile) {
-        const profileUpdates: Record<string, string> = {};
-        if (!userProfile.name && formData.fullName.trim()) profileUpdates.name = formData.fullName.trim();
-        if (!userProfile.phone && formData.phone.trim()) profileUpdates.phone = formData.phone.trim();
-        if (!userProfile.address && formData.address.trim()) {
-          profileUpdates.address = `${formData.address.trim()}, ${formData.city.trim()}`;
-        }
-        if (Object.keys(profileUpdates).length > 0) {
-          dispatch(updateProfile(profileUpdates));
-        }
-      }
 
       toast.success('Đặt hàng thành công!', {
         style: {
@@ -218,12 +203,12 @@ const Checkout: React.FC = () => {
     `border p-3 w-full font-sans text-sm focus:outline-none transition-colors ${
       errors[field]
         ? 'border-red-500 bg-red-50'
-        : 'border-zinc-200 focus:border-black'
+        : 'border-rs-border focus:border-black'
     }`;
 
   return (
     <div className="max-w-[1200px] mx-auto px-6 py-12 md:py-20 w-full">
-      <h1 className="text-3xl font-display uppercase font-bold text-black mb-10 tracking-widest">
+      <h1 className="text-3xl font-display uppercase font-bold text-rs-black mb-10 tracking-widest">
         Thanh toán
       </h1>
 
@@ -332,7 +317,7 @@ const Checkout: React.FC = () => {
                 ].map(({ value, label }) => (
                   <label
                     key={value}
-                    className="flex items-center gap-3 border border-zinc-200 p-4 cursor-pointer hover:bg-zinc-50 transition-colors"
+                    className="flex items-center gap-3 border border-rs-border p-4 cursor-pointer hover:bg-rs-gray-light transition-colors"
                   >
                     <input
                       type="radio"
@@ -351,7 +336,7 @@ const Checkout: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting || selectedItems.length === 0}
-              className="w-full bg-black text-white py-4 uppercase tracking-widest text-sm font-bold hover:bg-zinc-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-rs-black text-white py-4 uppercase tracking-widest text-sm font-bold hover:bg-zinc-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
             </button>
@@ -359,7 +344,7 @@ const Checkout: React.FC = () => {
         </div>
 
         {/* ── Order Summary ────────────────────────────────────────────────── */}
-        <div className="w-full lg:w-1/3 bg-zinc-50 p-8 h-fit border border-zinc-200">
+        <div className="w-full lg:w-1/3 bg-rs-gray-light p-8 h-fit border border-rs-border">
           <h2 className="text-lg font-bold uppercase font-display mb-4 tracking-wider">
             Tóm tắt đơn hàng
           </h2>
@@ -425,7 +410,7 @@ const Checkout: React.FC = () => {
             </div>
             <div className="flex justify-between text-sm font-sans text-gray-500">
               <span>Giao hàng</span>
-              <span className="text-black font-bold text-xs uppercase tracking-wider">
+              <span className="text-rs-black font-bold text-xs uppercase tracking-wider">
                 Miễn phí
               </span>
             </div>

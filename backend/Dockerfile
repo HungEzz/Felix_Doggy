@@ -16,5 +16,5 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
-# Start server using tsx
-CMD ["npm", "run", "start"]
+# Start server - setup database before starting
+CMD ["sh", "-c", "npx prisma db push && npm run start"]

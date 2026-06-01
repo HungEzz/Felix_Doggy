@@ -425,3 +425,11 @@ Sử dụng middleware `express-rate-limit` để kiểm soát lưu lượng tru
 - **Global Error Handling:** Tích hợp bộ bắt lỗi (Interceptor) trong `api.ts`. Nếu Server trả về lỗi `429 (Too Many Requests)`, ứng dụng sẽ hiển thị thông báo Toast cảnh báo người dùng một cách thân thiện thay vì để ứng dụng bị treo.
 
 ---
+## Chat bot
+
+Chatbot tích hợp **DeepSeek V3.2 (`deepseek-chat`)** với function calling — có thể tìm sản phẩm, xem/sửa/xóa đơn, thêm vào giỏ tự động. Chi tiết xem [CHATBOT_CHANGES.md](./CHATBOT_CHANGES.md).
+
+Cấu hình API key trong `backend/.env` (local dev) hoặc root `.env` (docker):
+```env
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
+```

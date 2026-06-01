@@ -8,6 +8,7 @@ import {
   LogOut,
   Disc3,
   BarChart3,
+  TrendingUp,
   ChevronDown,
   DollarSign,
   ShoppingBag,
@@ -15,7 +16,7 @@ import {
   Boxes,
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { adminLogout } from '../store/userSlice';
+import { logout } from '../store/userSlice';
 import toast from 'react-hot-toast';
 
 const AdminLayout: React.FC = () => {
@@ -28,10 +29,10 @@ const AdminLayout: React.FC = () => {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_user');
-    dispatch(adminLogout());
-    toast.success('Đã đăng xuất admin', { duration: 2000 });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    dispatch(logout());
+    toast.success('Đã đăng xuất', { duration: 2000 });
     navigate('/');
   };
 

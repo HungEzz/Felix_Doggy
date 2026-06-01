@@ -55,7 +55,7 @@ const OrderSuccess: React.FC = () => {
 
         {/* Order Code */}
         <div
-          className={`my-10 py-6 px-8 bg-zinc-50 border border-zinc-200 transition-all duration-500 delay-[400ms] ${
+          className={`my-10 py-6 px-8 bg-rs-gray-light border border-rs-border transition-all duration-500 delay-[400ms] ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -69,13 +69,13 @@ const OrderSuccess: React.FC = () => {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="border border-zinc-200 p-5">
+          <div className="border border-rs-border p-5">
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Giao hàng</p>
             <p className="text-xs font-sans text-gray-600 leading-relaxed">
               Dự kiến 3–5 ngày làm việc
             </p>
           </div>
-          <div className="border border-zinc-200 p-5">
+          <div className="border border-rs-border p-5">
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Hỗ trợ</p>
             <p className="text-xs font-sans text-gray-600 leading-relaxed">
               support@recordstore.vn
@@ -91,13 +91,13 @@ const OrderSuccess: React.FC = () => {
         >
           <Link
             to="/"
-            className="bg-black text-white px-10 py-4 uppercase tracking-widest text-[10px] font-bold hover:bg-zinc-800 transition-colors font-sans"
+            className="bg-rs-black text-white px-10 py-4 uppercase tracking-widest text-[10px] font-bold hover:bg-zinc-800 transition-colors font-sans"
           >
             Về trang chủ
           </Link>
           <Link
             to="/vinyl"
-            className="border border-black text-black px-10 py-4 uppercase tracking-widest text-[10px] font-bold hover:bg-black hover:text-white transition-all duration-300 font-sans"
+            className="border border-rs-black text-rs-black px-10 py-4 uppercase tracking-widest text-[10px] font-bold hover:bg-rs-black hover:text-white transition-all duration-300 font-sans"
           >
             Tiếp tục mua sắm
           </Link>
