@@ -66,7 +66,8 @@ const AdminLayout: React.FC = () => {
       }}>
         {/* Logo */}
         <div
-          onClick={() => navigate('/')}
+          onClick={() => window.open('/', '_blank')}
+          title="Mở trang chủ (tab mới)"
           style={{
             padding: '20px 20px',
             borderBottom: '1px solid #e8e8e6',

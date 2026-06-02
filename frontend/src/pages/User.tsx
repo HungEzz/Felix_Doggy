@@ -1491,7 +1491,7 @@ const User: React.FC = () => {
               <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reduxProfile.email}</p>
               {reduxProfile?.role?.toUpperCase() === 'ADMIN' && (
                 <div style={{ marginTop: 10 }}>
-                  <button onClick={() => navigate('/admin')} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-soft)', border: '1px solid rgba(29,185,84,0.3)', borderRadius: 'var(--radius-full)', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+                  <button onClick={() => window.open('/admin', '_blank')} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-soft)', border: '1px solid rgba(29,185,84,0.3)', borderRadius: 'var(--radius-full)', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                     <LayoutDashboard size={11} /> Trang Admin
                   </button>
                 </div>

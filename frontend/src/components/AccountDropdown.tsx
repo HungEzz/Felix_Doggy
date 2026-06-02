@@ -181,7 +181,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
             <div style={{ padding: '8px 0' }}>
               {(reduxProfile?.role?.toUpperCase() === 'ADMIN' || isAdminLoggedIn) && (
                 <>
-                  <DropdownItem icon={<LayoutDashboard size={15} />} label="Admin Dashboard" onClick={() => go('/admin')} accent />
+                  <DropdownItem icon={<LayoutDashboard size={15} />} label="Admin Dashboard" onClick={() => { window.open('/admin', '_blank'); setOpen(false); }} accent />
                   <div style={{ height: 1, background: 'var(--border)', margin: '6px 0' }} />
                 </>
               )}
