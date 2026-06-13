@@ -10,13 +10,16 @@ const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // Use STARTTLS on port 587 (more reliable on cloud hosting WAFs/firewalls)
-  family: 4,     // Force IPv4 to bypass Render's broken IPv6 routing
   auth: {
     user: env.SMTP_USER,
     pass: env.SMTP_PASS,
   },
   tls: {
     rejectUnauthorized: false,
+  },
+  // Strictly force IPv4 resolution by overriding the DNS lookup at the socket connection level
+  lookup: (hostname, options, callback) => {
+    dns.lookup(hostname, { family: 4 }, callback);
   },
 });
 
