@@ -89,16 +89,41 @@ const callGemini = async (
   if (!env.GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY');
 
   const contents = [];
+  let lastRole: 'user' | 'model' | null = null;
+
   for (const h of history) {
+    const role = h.role === 'assistant' ? 'model' : 'user';
+    const text = (h.content || '').trim();
+    if (!text) continue;
+
+    // Gemini requires the first message to be from 'user'
+    if (contents.length === 0 && role === 'model') {
+      continue;
+    }
+
+    if (lastRole === role) {
+      // Merge consecutive messages of the same role
+      const lastIndex = contents.length - 1;
+      contents[lastIndex].parts[0].text += `\n${text}`;
+    } else {
+      contents.push({
+        role,
+        parts: [{ text }],
+      });
+      lastRole = role;
+    }
+  }
+
+  // Add the current user message
+  if (lastRole === 'user' && contents.length > 0) {
+    const lastIndex = contents.length - 1;
+    contents[lastIndex].parts[0].text += `\n${message}`;
+  } else {
     contents.push({
-      role: h.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: h.content || '' }],
+      role: 'user',
+      parts: [{ text: message }],
     });
   }
-  contents.push({
-    role: 'user',
-    parts: [{ text: message }],
-  });
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
