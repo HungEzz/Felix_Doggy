@@ -398,6 +398,18 @@ npm run test:coverage   # Run with coverage report
 
 ---
 
+## 🔌 API Documentation
+
+An interactive Swagger UI is built into the backend to allow quick discovery and testing of all API endpoints.
+
+* **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend) or [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway)
+* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json)
+
+> [!NOTE]
+> For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///home/hungez/Documents/record-store-ecommerce/backend/README.md#api-documentation).
+
+---
+
 ## 🧠 System Design Highlights
 
 ### 1. Layered Module Architecture

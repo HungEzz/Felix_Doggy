@@ -10,6 +10,7 @@ import chatRoutes from './modules/chat/chat.routes';
 import { verifyAdmin } from './middlewares/auth';
 import { upload } from './middlewares/upload';
 import { env } from './config/env';
+import { setupSwagger } from './config/swagger';
 
 export const app = express();
 
@@ -24,6 +25,7 @@ app.use(generalLimiter);
 
 if (process.env.NODE_ENV !== 'production') {
   app.use('/uploads', express.static('uploads'));
+  setupSwagger(app);
 }
 
 // Health check endpoint for monitoring & keeping backend awake (Render free tier)

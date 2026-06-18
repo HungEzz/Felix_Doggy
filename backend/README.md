@@ -396,57 +396,266 @@ DEEPSEEK_API_KEY="your-deepseek-key"
 
 ---
 
-## 10. API Overview
+## 10. API Documentation
 
-### Public Endpoints
+### Swagger UI URLs
+An interactive Swagger UI is served in non-production environments to allow quick API discovery and testing:
+- **Direct Backend URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- **Nginx API Gateway URL:** [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
+- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json)
 
-| Route Group       | Purpose                                                       |
-| ----------------- | ------------------------------------------------------------- |
-| `POST /api/auth/register` | User registration with OTP email verification        |
-| `POST /api/auth/login` | JWT-based login (blocked for unverified accounts)        |
-| `POST /api/auth/verify-otp` | OTP verification → auto-login on success            |
-| `POST /api/auth/resend-otp` | Resend OTP with cooldown/rate limiting              |
-| `POST /api/auth/forgot-password` | Request password-reset OTP                    |
-| `POST /api/auth/reset-password` | Reset password with OTP verification             |
-| `GET  /api/products` | List all products (optional `?category=` filter)          |
-| `GET  /api/products/:id` | Get product details by ID                             |
-| `POST /api/orders/checkout` | Create an order (guest or authenticated)            |
-| `POST /api/chat` | AI chatbot interaction                                       |
+---
 
-### Authenticated Endpoints (JWT Required)
+### Using Swagger UI
 
-| Route Group       | Purpose                                                       |
-| ----------------- | ------------------------------------------------------------- |
-| `PUT  /api/auth/profile` | Update user profile (name, phone, address)            |
-| `PUT  /api/auth/password` | Change password (requires current password)          |
-| `GET  /api/orders/my-orders` | List current user's order history                |
+Follow these steps to authenticate and test protected API endpoints:
 
-### Admin Endpoints (Admin JWT Required)
+1. **Obtain a JWT Token:**
+   - Locate the **`POST /api/auth/login`** endpoint in Swagger.
+   - Click **Try it out** and replace the request body with one of the pre-seeded account credentials listed in [Demo Accounts](#demo-accounts).
+   - Click **Execute** and copy the resulting string returned inside the `"token"` field in the response JSON.
+2. **Authorize Swagger UI:**
+   - Click the green **Authorize** button (lock icon) on the top-right of the Swagger page.
+   - Paste the **raw JWT token string** directly into the Value field.
+   - > [!IMPORTANT]
+     > Do **NOT** prepend `Bearer ` to the token. Since the security scheme is configured as standard HTTP Bearer (`BearerAuth`), Swagger UI automatically prepends the `Bearer ` prefix before transmitting headers. Adding it manually will cause double-prefix headers (`Bearer Bearer <token>`) which will be rejected by the Express `verifyUser` middleware as an `Invalid or expired token` error (401).
+   - Click **Authorize** and then click **Close**.
+3. **Execute Protected Endpoints:**
+   - You can now expand any protected endpoint (indicated by a closed padlock icon, e.g. `GET /api/orders/my-orders` or `GET /api/admin/stats`), click **Try it out**, fill in parameters, and click **Execute** to see live database responses.
 
-| Route Group       | Purpose                                                       |
-| ----------------- | ------------------------------------------------------------- |
-| `GET  /api/admin/stats` | Dashboard summary (users, products, orders, revenue)  |
-| `GET  /api/admin/users` | List all users (paginated)                            |
-| `PUT  /api/admin/users/:id/role` | Update user role (USER ↔ ADMIN)              |
-| `GET  /api/admin/orders` | List all orders with details (paginated)             |
-| `PUT  /api/admin/orders/:id` | Update order status                               |
-| `POST /api/admin/upload` | Upload product image                                |
-| `POST /api/products` | Create product                                           |
-| `PUT  /api/products/:id` | Update product                                       |
-| `DELETE /api/products/:id` | Delete product (blocked if order items exist)      |
+---
 
-### Statistics Endpoints (Admin Only)
+### Demo Accounts
 
-| Route Group       | Purpose                                                       |
-| ----------------- | ------------------------------------------------------------- |
-| `/api/admin/statistics/revenue` | Revenue trends and summary                  |
-| `/api/admin/statistics/orders` | Order analytics and status breakdown         |
-| `/api/admin/statistics/products` | Top sellers and category performance       |
-| `/api/admin/statistics/users` | User growth and top customers                |
-| `/api/admin/statistics/inventory` | Stock levels, alerts, and valuation       |
-| `/api/admin/statistics/export/*` | JSON export endpoints for all five domains |
+The database seeder prepares the following active accounts for local testing:
 
-All statistics endpoints support query parameters: `?period=today|week|month|year|custom&startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+| Role | Email | Password | Status |
+|------|-------|----------|--------|
+| **ADMIN** | `admin@gmail.com` | `admin123` | Active & Verified |
+| **USER** (Customer) | `user@gmail.com` | `user123456` | Active & Verified |
+
+---
+
+### Authentication & Authorization Architecture
+
+- **JWT Authentication:** Stateful user session management is handled via stateless JWTs. The token payload contains the user's database ID (`{ userId: string }`) and is signed using `JWT_SECRET` with a lifespan of **7 days**.
+- **Role-Based Access Control (RBAC):**
+  - **`GUEST` (Unauthenticated):** Allowed to browse public catalog (`GET /api/products`), view individual products, interact with the AI chatbot, and perform checkout (`POST /api/orders/checkout`).
+  - **`USER` (Verified Customer):** Allowed all guest actions, plus modifying personal profile (`PUT /api/auth/profile`), changing password (`PUT /api/auth/password`), and viewing personal order history (`GET /api/orders/my-orders`).
+  - **`ADMIN` (Store Administrator):** Allowed all user actions, plus user role promotion (`PUT /api/admin/users/:id/role`), system-wide order status updates (`PUT /api/admin/orders/:id`), product CRUD operations (`POST/PUT/DELETE /api/products`), product image uploads (`POST /api/admin/upload`), and access to the complete Statistics dashboard.
+
+---
+
+### Common API Flows
+
+#### 1. Customer Registration & Verification
+```mermaid
+sequenceDiagram
+    participant C as Customer (Client)
+    participant S as Express Server
+    participant DB as PostgreSQL
+    participant E as Nodemailer (SMTP)
+
+    C->>S: POST /api/auth/register (email, password)
+    S->>DB: Create user (isVerified: false)
+    S->>S: Generate 6-digit OTP & bcrypt hash
+    S->>DB: Save hashed OTP (expires in 5 min)
+    S->>E: Send OTP code email (Console log fallback)
+    S-->>C: Response (requireOtp: true, message: OTP Sent)
+    
+    C->>S: POST /api/auth/verify-otp (email, code)
+    S->>DB: Verify OTP matches hash & not expired
+    S->>DB: Set User isVerified = true
+    S-->>C: Response (JWT Token, User profile)
+```
+
+#### 2. Catalog Browsing & E-Commerce Checkout
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    participant RC as Redis Cache
+    participant DB as PostgreSQL
+
+    C->>S: GET /api/products
+    S->>RC: Check cache (products:all)
+    alt Cache Hit
+        RC-->>S: Return cached products list
+    else Cache Miss / Redis Down
+        S->>DB: Query products
+        S->>RC: Cache products (TTL 1h)
+        DB-->>S: Return products list
+    end
+    S-->>C: JSON list of products
+
+    C->>S: POST /api/orders/checkout (items, address)
+    Note over S, DB: Runs in single Prisma $transaction with retry
+    S->>DB: Verify product stock availability
+    S->>DB: Decrement product stock
+    S->>DB: Create Order & OrderItem records
+    S->>RC: Invalidate products cache (flushall)
+    S-->>C: HTTP 201 Created (Order details)
+```
+
+#### 3. Admin Product Management
+```mermaid
+sequenceDiagram
+    participant A as Admin Client
+    participant S as Server
+    participant C as Cloudinary (Image Host)
+    participant RC as Redis Cache
+    participant DB as PostgreSQL
+
+    A->>S: POST /api/admin/upload (multipart image)
+    S->>C: Upload file
+    C-->>S: Return Cloudinary CDN URL
+    S-->>A: HTTP 200 (imgUrl)
+
+    A->>S: POST /api/products (title, price, imgUrl, stock)
+    S->>DB: Insert product
+    S->>RC: Invalidate products cache (flushall)
+    S-->>A: HTTP 201 Created (Product details)
+```
+
+---
+
+### API Payload Examples
+
+#### 1. Registration
+- **Request:** `POST /api/auth/register`
+  ```json
+  {
+    "email": "newuser@example.com",
+    "password": "SecureP@ssword123",
+    "fullName": "Nguyen Van A"
+  }
+  ```
+- **Response:** `HTTP 201 Created`
+  ```json
+  {
+    "requireOtp": true,
+    "email": "newuser@example.com",
+    "message": "Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP."
+  }
+  ```
+
+#### 2. OTP Verification
+- **Request:** `POST /api/auth/verify-otp`
+  ```json
+  {
+    "email": "newuser@example.com",
+    "code": "583921"
+  }
+  ```
+- **Response:** `HTTP 200 OK`
+  ```json
+  {
+    "message": "Xác thực tài khoản thành công!",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "bd7bb11a-acac-4556-b758-2b95c3d2b25a",
+      "email": "newuser@example.com",
+      "fullName": "Nguyen Van A",
+      "phone": null,
+      "address": null,
+      "role": "USER"
+    }
+  }
+  ```
+
+#### 3. Login
+- **Request:** `POST /api/auth/login`
+  ```json
+  {
+    "email": "admin@gmail.com",
+    "password": "admin123"
+  }
+  ```
+- **Response:** `HTTP 200 OK`
+  ```json
+  {
+    "message": "Login successful",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "a050d004-4212-42cb-9131-e1264471116e",
+      "email": "admin@gmail.com",
+      "fullName": "System Admin",
+      "phone": null,
+      "address": null,
+      "role": "ADMIN"
+    }
+  }
+  ```
+
+#### 4. Browse Products
+- **Request:** `GET /api/products?category=vinyl`
+- **Response:** `HTTP 200 OK`
+  ```json
+  [
+    {
+      "id": 1,
+      "title": "Abbey Road",
+      "artist": "The Beatles",
+      "price": 29.99,
+      "imgUrl": "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=600&h=600&fit=crop",
+      "category": "vinyl",
+      "stock": 5,
+      "description": "Remastered 180g vinyl pressing."
+    }
+  ]
+  ```
+
+#### 5. E-Commerce Checkout
+- **Request:** `POST /api/orders/checkout`
+  ```json
+  {
+    "customerEmail": "user@gmail.com",
+    "customerPhone": "0901234567",
+    "customerName": "Normal User",
+    "shippingAddr": "789 Hai Ba Trung, Q3, TP.HCM",
+    "items": [
+      {
+        "id": 1,
+        "quantity": 1
+      }
+    ]
+  }
+  ```
+- **Response:** `HTTP 201 Created`
+  ```json
+  {
+    "message": "Order created successfully",
+    "order": {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "userId": "3d91a551-e3ef-4281-903e-e3aa442ba4d0",
+      "customerEmail": "user@gmail.com",
+      "customerPhone": "0901234567",
+      "shippingAddr": "789 Hai Ba Trung, Q3, TP.HCM",
+      "totalAmount": 29.99,
+      "status": "PENDING",
+      "createdAt": "2026-06-18T15:05:00.000Z",
+      "orderItems": [
+        {
+          "id": 482,
+          "orderId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          "productId": 1,
+          "quantity": 1,
+          "priceAtTime": 29.99
+        }
+      ]
+    }
+  }
+  ```
+
+#### 6. Admin Image Upload
+- **Request:** `POST /api/admin/upload` (Form-data)
+  - Key: `image`, Value: `album_cover.png` (binary file)
+- **Response:** `HTTP 200 OK`
+  ```json
+  {
+    "imgUrl": "https://res.cloudinary.com/dgtsbqngb/image/upload/v1718000000/record-store/1718000000-album.png"
+  }
+  ```
 
 ---
 

@@ -1,0 +1,2280 @@
+openapi: 3.1.0
+info:
+  title: Classic Records API
+  description: |
+    REST API for the Classic Records e-commerce platform — a record store
+    selling Vinyl, CD, and Merch products.
+
+    ## Authentication
+    Protected endpoints require a JWT Bearer token obtained via `POST /api/auth/login`
+    or `POST /api/auth/verify-otp`. Pass it as `Authorization: Bearer <token>`.
+
+    ## Authorization Roles
+    | Role    | Description                                      |
+    |---------|--------------------------------------------------|
+    | `GUEST` | Unauthenticated visitor. Can browse and checkout. |
+    | `USER`  | Registered, verified customer.                   |
+    | `ADMIN` | Full administrative access.                      |
+
+    ## Rate Limiting
+    All endpoints are subject to a global rate limit (100 req / 10 s).
+    Specific endpoints apply stricter limits as documented.
+  version: 1.0.0
+  contact:
+    name: Classic Records Dev Team
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://record-store-api.onrender.com
+    description: Production (Render)
+
+tags:
+  - name: Health
+    description: Server health and diagnostics
+  - name: Auth
+    description: Registration, login, OTP verification, password management, and profile
+  - name: Products
+    description: Product catalog (public read, admin write)
+  - name: Orders
+    description: Customer checkout and order history
+  - name: Admin
+    description: Admin dashboard — user management, order management, image upload
+  - name: Statistics
+    description: Admin analytics — revenue, orders, products, users, inventory
+  - name: Chat
+    description: AI shopping assistant (DeepSeek / Gemini powered)
+
+# ─── Security Schemes ────────────────────────────────────────────────────────────
+security: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token issued on login or OTP verification.
+        Payload contains `{ userId: string }`, expires in 7 days.
+
+  # ─── Reusable Schemas ────────────────────────────────────────────────────────
+  schemas:
+    # ── Domain Models ──────────────────────────────────────────────────────────
+    User:
+      type: object
+      description: Full User entity (internal — never returned to clients directly).
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        fullName:
+          type: [string, "null"]
+          example: "Nguyễn Văn A"
+        phone:
+          type: [string, "null"]
+          example: "+84901234567"
+        address:
+          type: [string, "null"]
+          example: "123 Lê Lợi, Q1, TP.HCM"
+        password:
+          type: string
+          description: Bcrypt-hashed password. Never returned in responses.
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          default: USER
+          example: "USER"
+        isVerified:
+          type: boolean
+          default: false
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, email, password, role, isVerified, createdAt, updatedAt]
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Abbey Road"
+        artist:
+          type: string
+          example: "The Beatles"
+        price:
+          type: number
+          format: float
+          example: 29.99
+        imgUrl:
+          type: string
+          format: uri
+          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/abbey-road.jpg"
+        category:
+          type: string
+          enum: [vinyl, cd, merch]
+          example: "vinyl"
+        stock:
+          type: integer
+          minimum: 0
+          example: 50
+        description:
+          type: [string, "null"]
+          example: "Remastered 180g vinyl pressing."
+      required: [id, title, artist, price, imgUrl, category, stock]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        userId:
+          type: [string, "null"]
+          format: uuid
+          description: "Null for guest checkouts."
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        customerEmail:
+          type: [string, "null"]
+          example: "buyer@example.com"
+        customerPhone:
+          type: [string, "null"]
+          example: "0901234567"
+        shippingAddr:
+          type: [string, "null"]
+          example: "456 Nguyễn Huệ, Q1, TP.HCM"
+        totalAmount:
+          type: number
+          format: float
+          example: 59.98
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SHIPPED, COMPLETED, CANCELLED]
+          default: PENDING
+          example: "PENDING"
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, totalAmount, status, createdAt]
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        orderId:
+          type: string
+          format: uuid
+        productId:
+          type: integer
+          example: 3
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        priceAtTime:
+          type: number
+          format: float
+          description: Snapshot of product price at time of purchase.
+          example: 29.99
+      required: [id, orderId, productId, quantity, priceAtTime]
+
+    # ── Public Response DTOs ───────────────────────────────────────────────────
+    UserPublic:
+      type: object
+      description: User object returned in auth responses (excludes password and isVerified).
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        fullName:
+          type: [string, "null"]
+          example: "Nguyễn Văn A"
+        phone:
+          type: [string, "null"]
+          example: "+84901234567"
+        address:
+          type: [string, "null"]
+          example: "123 Lê Lợi, Q1, TP.HCM"
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          example: "USER"
+      required: [id, email, role]
+
+    UserAdminView:
+      type: object
+      description: User object returned in admin user listings.
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: [string, "null"]
+        role:
+          type: string
+          enum: [USER, ADMIN]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, role, createdAt]
+
+    OrderWithRelations:
+      type: object
+      description: Order with nested user and order items (including product details).
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          properties:
+            user:
+              type: [object, "null"]
+              properties:
+                fullName:
+                  type: [string, "null"]
+                email:
+                  type: string
+                  format: email
+            orderItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItemWithProduct'
+
+    OrderItemWithProduct:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/OrderItem'
+        - type: object
+          properties:
+            product:
+              $ref: '#/components/schemas/Product'
+
+    # ── Request DTOs ───────────────────────────────────────────────────────────
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "newuser@example.com"
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: "SecureP@ss1"
+        fullName:
+          type: string
+          maxLength: 128
+          example: "Nguyễn Văn B"
+      required: [email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          example: "SecureP@ss1"
+      required: [email, password]
+
+    VerifyOtpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        code:
+          type: string
+          pattern: '^\d{6}$'
+          description: 6-digit numeric OTP code.
+          example: "482913"
+      required: [email, code]
+
+    ResendOtpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+      required: [email]
+
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+      required: [email]
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        code:
+          type: string
+          pattern: '^\d{6}$'
+          example: "482913"
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: "NewSecureP@ss2"
+      required: [email, code, newPassword]
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 128
+          example: "Nguyễn Văn A"
+        phone:
+          type: string
+          maxLength: 20
+          description: "Must match pattern: /^(0|\\+84)[0-9]{9,10}$/"
+          example: "0901234567"
+        address:
+          type: string
+          maxLength: 500
+          example: "123 Lê Lợi, Q1, TP.HCM"
+      required: [fullName]
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          example: "OldP@ssword1"
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: "NewP@ssword2"
+      required: [currentPassword, newPassword]
+
+    ProductInput:
+      type: object
+      description: Request body for creating or updating a product.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          example: "Dark Side of the Moon"
+        artist:
+          type: string
+          minLength: 1
+          example: "Pink Floyd"
+        price:
+          oneOf:
+            - type: number
+            - type: string
+          description: Must parse to a positive float.
+          example: 34.99
+        imgUrl:
+          type: string
+          format: uri
+          minLength: 1
+          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/dark-side.jpg"
+        category:
+          type: string
+          enum: [vinyl, cd, merch]
+          example: "vinyl"
+        stock:
+          oneOf:
+            - type: integer
+            - type: string
+          description: Must parse to a non-negative integer.
+          example: 25
+        description:
+          type: [string, "null"]
+          example: "50th anniversary remaster."
+      required: [title, artist, price, imgUrl, category, stock]
+
+    CheckoutRequest:
+      type: object
+      properties:
+        customerEmail:
+          type: string
+          format: email
+          example: "buyer@example.com"
+        customerPhone:
+          type: string
+          example: "0901234567"
+        customerName:
+          type: string
+          description: Optional. If provided and user is authenticated with an empty fullName, it will be saved to their profile.
+          example: "Trần Thị C"
+        shippingAddr:
+          type: string
+          example: "789 Hai Bà Trưng, Q3, TP.HCM"
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: Product ID.
+                example: 3
+              quantity:
+                type: integer
+                minimum: 1
+                example: 2
+            required: [id, quantity]
+      required: [customerEmail, customerPhone, shippingAddr, items]
+
+    UpdateUserRoleRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          example: "ADMIN"
+      required: [role]
+
+    UpdateOrderStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SHIPPED, COMPLETED, CANCELLED]
+          example: "COMPLETED"
+      required: [status]
+
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Có vinyl nào của The Beatles không?"
+        history:
+          type: array
+          description: Previous conversation turns.
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                enum: [user, assistant]
+              content:
+                type: string
+        context:
+          type: object
+          description: Client-side context (cart contents, current page path).
+          properties:
+            cart:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  quantity:
+                    type: integer
+            path:
+              type: string
+              description: Current frontend route path.
+              example: "/products"
+      required: [message]
+
+    # ── Specific Response Shapes ───────────────────────────────────────────────
+    RegisterResponse:
+      type: object
+      properties:
+        requireOtp:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+          example: "newuser@example.com"
+        message:
+          type: string
+          example: "Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP."
+      required: [requireOtp, email, message]
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        token:
+          type: string
+          description: JWT token valid for 7 days.
+          example: "eyJhbGciOiJIUzI1NiIs..."
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      required: [message, token, user]
+
+    LoginUnverifiedResponse:
+      type: object
+      description: Returned when user credentials are correct but account is not verified.
+      properties:
+        message:
+          type: string
+          example: "Tài khoản chưa được xác thực. Vui lòng nhập mã OTP."
+        requireOtp:
+          type: boolean
+          example: true
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+      required: [message, requireOtp, email]
+
+    VerifyOtpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Xác thực tài khoản thành công!"
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIs..."
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      required: [message, token, user]
+
+    UpdateProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Cập nhật thông tin thành công"
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      required: [message, user]
+
+    MessageResponse:
+      type: object
+      description: Generic response containing only a message string.
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    CheckoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Order created successfully"
+        order:
+          allOf:
+            - $ref: '#/components/schemas/Order'
+            - type: object
+              properties:
+                orderItems:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OrderItem'
+      required: [message, order]
+
+    AdminStatsResponse:
+      type: object
+      properties:
+        users:
+          type: integer
+          example: 142
+        products:
+          type: integer
+          example: 67
+        orders:
+          type: integer
+          example: 305
+        revenue:
+          type: number
+          format: float
+          description: Sum of totalAmount for all COMPLETED orders.
+          example: 12450.75
+      required: [users, products, orders, revenue]
+
+    PaginatedUsers:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAdminView'
+        total:
+          type: integer
+          example: 142
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        totalPages:
+          type: integer
+          example: 15
+      required: [data, total, page, limit, totalPages]
+
+    PaginatedOrders:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderWithRelations'
+        total:
+          type: integer
+          example: 305
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        totalPages:
+          type: integer
+          example: 31
+      required: [data, total, page, limit, totalPages]
+
+    UpdatedUserRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [USER, ADMIN]
+      required: [id, email, role]
+
+    UploadResponse:
+      type: object
+      properties:
+        imgUrl:
+          type: string
+          format: uri
+          description: Cloudinary URL of the uploaded image.
+          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/1718000000-album.jpg"
+      required: [imgUrl]
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: AI assistant text response (may contain basic HTML).
+          example: "Chúng tôi có 3 đĩa vinyl của The Beatles..."
+        actions:
+          type: array
+          description: Side-effect actions the frontend should execute (e.g. add items to cart).
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [add_to_cart]
+              product:
+                $ref: '#/components/schemas/Product'
+              quantity:
+                type: integer
+                minimum: 1
+        role:
+          type: string
+          enum: [GUEST, USER, ADMIN]
+          description: Resolved role of the requesting user.
+          example: "GUEST"
+      required: [response, actions, role]
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        timestamp:
+          type: string
+          format: date-time
+      required: [status, timestamp]
+
+    # ── Statistics Response DTOs ───────────────────────────────────────────────
+    RevenueStatsResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+              format: float
+              example: 12450.75
+            completedOrders:
+              type: integer
+              example: 89
+            avgOrderValue:
+              type: number
+              format: float
+              example: 139.89
+            totalOrders:
+              type: integer
+              example: 120
+          required: [totalRevenue, completedOrders, avgOrderValue, totalOrders]
+        chartData:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartDataPoint'
+        period:
+          $ref: '#/components/schemas/PeriodRange'
+      required: [summary, chartData, period]
+
+    OrderStatsResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 120
+            statusCounts:
+              type: array
+              items:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [PENDING, COMPLETED, CANCELLED, SHIPPED, PROCESSING]
+                  count:
+                    type: integer
+                required: [status, count]
+          required: [total, statusCounts]
+        chartData:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartDataPoint'
+        recentOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderWithRelations'
+        period:
+          $ref: '#/components/schemas/PeriodRange'
+      required: [summary, chartData, recentOrders, period]
+
+    ProductStatsResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalProducts:
+              type: integer
+              example: 67
+          required: [totalProducts]
+        topProducts:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+              totalQuantity:
+                type: integer
+              totalRevenue:
+                type: number
+                format: float
+              orderCount:
+                type: integer
+              product:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  artist:
+                    type: string
+                  category:
+                    type: string
+                  price:
+                    type: number
+                    format: float
+                  stock:
+                    type: integer
+        categoryStats:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+              revenue:
+                type: number
+                format: float
+            required: [category, count, revenue]
+        period:
+          $ref: '#/components/schemas/PeriodRange'
+      required: [summary, topProducts, categoryStats, period]
+
+    UserStatsResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalUsers:
+              type: integer
+              example: 142
+            newUsersInPeriod:
+              type: integer
+              example: 23
+          required: [totalUsers, newUsersInPeriod]
+        chartData:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartDataPoint'
+        topCustomers:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                format: uuid
+              totalSpent:
+                type: number
+                format: float
+              orderCount:
+                type: integer
+              user:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  fullName:
+                    type: [string, "null"]
+                  email:
+                    type: string
+                    format: email
+                  createdAt:
+                    type: string
+                    format: date-time
+        period:
+          $ref: '#/components/schemas/PeriodRange'
+      required: [summary, chartData, topCustomers, period]
+
+    InventoryStatsResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalProducts:
+              type: integer
+              example: 67
+            totalStockValue:
+              type: number
+              format: float
+              description: Sum of (price × stock) across all products.
+              example: 48230.50
+            lowStockCount:
+              type: integer
+              description: Products with stock in range (0, 5].
+              example: 4
+            outOfStockCount:
+              type: integer
+              description: Products with stock == 0.
+              example: 2
+          required: [totalProducts, totalStockValue, lowStockCount, outOfStockCount]
+        allProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        lowStockProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        outOfStockProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        categoryBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+                description: Number of distinct products.
+              value:
+                type: number
+                format: float
+                description: Monetary value of stock (price × stock).
+              items:
+                type: integer
+                description: Total stock units.
+            required: [category, count, value, items]
+      required: [summary, allProducts, lowStockProducts, outOfStockProducts, categoryBreakdown]
+
+    # ── Shared Fragments ───────────────────────────────────────────────────────
+    ChartDataPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-06-15"
+        revenue:
+          type: number
+          format: float
+          example: 349.95
+        count:
+          type: integer
+          example: 5
+      required: [date, revenue, count]
+
+    PeriodRange:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      required: [start, end]
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Error description"
+      required: [message]
+
+    RateLimitResponse:
+      type: object
+      description: Returned when rate limit is exceeded (HTTP 429).
+      properties:
+        message:
+          type: string
+          example: "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 10 giây."
+      required: [message]
+
+  # ─── Shared Parameters ──────────────────────────────────────────────────────
+  parameters:
+    PeriodParam:
+      name: period
+      in: query
+      description: Time period for statistics aggregation.
+      schema:
+        type: string
+        enum: [today, week, month, year, custom]
+        default: month
+    StartDateParam:
+      name: startDate
+      in: query
+      description: "Start date (YYYY-MM-DD). Required when period=custom."
+      schema:
+        type: string
+        format: date
+        example: "2026-01-01"
+    EndDateParam:
+      name: endDate
+      in: query
+      description: "End date (YYYY-MM-DD). Required when period=custom."
+      schema:
+        type: string
+        format: date
+        example: "2026-06-30"
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-based). Omit for unpaginated results.
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    LimitParam:
+      name: limit
+      in: query
+      description: Items per page. Omit for unpaginated results.
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+
+  # ─── Shared Responses ───────────────────────────────────────────────────────
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noToken:
+              summary: No token provided
+              value:
+                message: "No token provided"
+            invalidToken:
+              summary: Invalid or expired token
+              value:
+                message: "Invalid or expired token"
+            userNotFound:
+              summary: Token valid but user deleted
+              value:
+                message: "User not found"
+    Forbidden:
+      description: Authenticated but insufficient role (admin-only endpoint).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Access Denied: Admins Only"
+    BadRequest:
+      description: Validation or business rule error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: "Internal Server Error"
+    RateLimited:
+      description: Rate limit exceeded (HTTP 429).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RateLimitResponse'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PATHS
+# ═══════════════════════════════════════════════════════════════════════════════
+paths:
+  # ── Health ───────────────────────────────────────────────────────────────────
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Returns server status. Used for uptime monitoring and keeping Render free-tier alive.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  # ── Auth ─────────────────────────────────────────────────────────────────────
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new account
+      description: |
+        Creates a new user with `isVerified=false`, generates a 6-digit OTP,
+        and sends it to the provided email. If the email already exists but is
+        unverified, the account credentials are updated.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful. OTP sent to email.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Validation error or email already verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emailRequired:
+                  summary: Missing fields
+                  value:
+                    message: "Email and password are required"
+                emailExists:
+                  summary: Verified email already exists
+                  value:
+                    message: "Email already exists"
+                shortPassword:
+                  summary: Password too short
+                  value:
+                    message: "Mật khẩu phải có ít nhất 8 ký tự"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: |
+        Authenticates a user. Returns JWT token and user profile on success.
+        Rate-limited by `strictLimiter` (10 req / 10 s).
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Missing credentials or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing:
+                  summary: Missing fields
+                  value:
+                    message: "Email and password are required"
+                invalid:
+                  summary: Wrong email or password
+                  value:
+                    message: "Invalid credentials"
+        '403':
+          description: Account exists but is not yet verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUnverifiedResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/verify-otp:
+    post:
+      tags: [Auth]
+      summary: Verify OTP
+      description: |
+        Verifies the 6-digit OTP sent during registration. On success, marks
+        the user as verified and returns a JWT (auto-login).
+        Rate-limited by `otpLimiter` (15 req / 10 s).
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpRequest'
+      responses:
+        '200':
+          description: OTP verified successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyOtpResponse'
+        '400':
+          description: Invalid or expired OTP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                expired:
+                  summary: OTP expired
+                  value:
+                    message: "Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại."
+                incorrect:
+                  summary: Wrong OTP code
+                  value:
+                    message: "Mã OTP không chính xác"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/resend-otp:
+    post:
+      tags: [Auth]
+      summary: Resend OTP
+      description: |
+        Resends the verification OTP to an unverified account. Enforces 60-second
+        cooldown between sends and a maximum of 5 OTPs per hour per email.
+        Rate-limited by `otpLimiter` (15 req / 10 s).
+      operationId: resendOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendOtpRequest'
+      responses:
+        '200':
+          description: New OTP sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: "Mã OTP mới đã được gửi đến email của bạn"
+        '400':
+          description: Validation error, cooldown, or rate limit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cooldown:
+                  summary: Cooldown active
+                  value:
+                    message: "Vui lòng đợi 45 giây trước khi gửi lại"
+                rateLimit:
+                  summary: Hourly limit exceeded
+                  value:
+                    message: "Bạn đã gửi quá nhiều mã OTP. Vui lòng thử lại sau 1 giờ."
+                alreadyVerified:
+                  summary: Account already verified
+                  value:
+                    message: "Tài khoản đã được xác thực"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Forgot password
+      description: |
+        Sends a password-reset OTP to the provided email. Always returns the
+        same success message regardless of whether the email exists, to
+        prevent user enumeration.
+        Rate-limited by `otpLimiter` (15 req / 10 s).
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: OTP sent (or generic message if email not found).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: "Nếu email tồn tại trong hệ thống, mã OTP đã được gửi đến email của bạn."
+        '400':
+          description: Missing email or rate-limit/cooldown.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password with OTP
+      description: |
+        Verifies the password-reset OTP and sets a new password. Cleans up
+        all OTP records for the email after success.
+        Rate-limited by `otpLimiter` (15 req / 10 s).
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập."
+        '400':
+          description: Invalid OTP, expired OTP, or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/profile:
+    put:
+      tags: [Auth]
+      summary: Update profile
+      description: Updates the authenticated user's profile (fullName, phone, address).
+      operationId: updateProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfileResponse'
+        '400':
+          description: Validation error (empty name, invalid phone, etc.).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/password:
+    put:
+      tags: [Auth]
+      summary: Change password
+      description: |
+        Changes the password of the authenticated user. Requires the current
+        password. Rate-limited by `strictLimiter` (10 req / 10 s).
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: "Mật khẩu đã được thay đổi thành công"
+        '400':
+          description: Wrong current password, too short, etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Products ─────────────────────────────────────────────────────────────────
+  /api/products:
+    get:
+      tags: [Products]
+      summary: List all products
+      description: Returns all products. Optionally filter by category. Results are cached in Redis (TTL 1 hour).
+      operationId: getProducts
+      parameters:
+        - name: category
+          in: query
+          description: Filter by product category.
+          schema:
+            type: string
+            enum: [vinyl, cd, merch]
+      responses:
+        '200':
+          description: List of products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Products]
+      summary: Create a product
+      description: Creates a new product. **Admin only.**
+      operationId: createProduct
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Product created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyTitle:
+                  summary: Missing required fields
+                  value:
+                    message: "Tên sản phẩm, nghệ sĩ và hình ảnh không được để trống."
+                invalidPrice:
+                  summary: Invalid price
+                  value:
+                    message: "Giá phải là số dương hợp lệ."
+                invalidCategory:
+                  summary: Invalid category
+                  value:
+                    message: "Danh mục không hợp lệ. Chỉ chấp nhận: vinyl, cd, merch."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/products/{id}:
+    get:
+      tags: [Products]
+      summary: Get a product by ID
+      description: Returns a single product. Cached in Redis (TTL 1 hour).
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Product found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Product not found"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Products]
+      summary: Update a product
+      description: Replaces all fields of a product. **Admin only.**
+      operationId: updateProduct
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Product updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      description: |
+        Deletes a product. **Admin only.** Will fail if the product has been
+        referenced in any order. To hide a product instead, set its stock to 0.
+      operationId: deleteProduct
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Product deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: "Product deleted"
+        '400':
+          description: Product has existing orders and cannot be deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Không thể xóa sản phẩm này vì nó đã có trong đơn hàng của khách. Để ẩn sản phẩm, bạn có thể chỉnh số lượng tồn kho về 0."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Orders ───────────────────────────────────────────────────────────────────
+  /api/orders/checkout:
+    post:
+      tags: [Orders]
+      summary: Checkout (create order)
+      description: |
+        Creates a new order. Supports both authenticated and guest checkouts.
+        If an `Authorization` header is present, the order is linked to the
+        user and empty profile fields may be auto-filled.
+        Rate-limited by `strictLimiter` (10 req / 10 s).
+        Runs inside a database transaction with retry (3 attempts).
+      operationId: checkout
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+      responses:
+        '201':
+          description: Order created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          description: Empty cart, product not found, or insufficient stock.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyCart:
+                  summary: Cart is empty
+                  value:
+                    message: "Cart is empty"
+                notFound:
+                  summary: Product not found
+                  value:
+                    message: "Product ID 999 not found"
+                noStock:
+                  summary: Insufficient stock
+                  value:
+                    message: "Not enough stock for Abbey Road"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/orders/my-orders:
+    get:
+      tags: [Orders]
+      summary: Get my orders
+      description: Returns all orders belonging to the authenticated user, most recent first.
+      operationId: getMyOrders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's orders with product details.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderWithRelations'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Admin ────────────────────────────────────────────────────────────────────
+  /api/admin/stats:
+    get:
+      tags: [Admin]
+      summary: Get dashboard stats
+      description: Returns aggregate counts (users, products, orders) and total revenue from COMPLETED orders. **Admin only.**
+      operationId: getAdminStats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: List users
+      description: |
+        Returns all users. Supports optional pagination via `page` and `limit`.
+        When paginated, returns a wrapper object; otherwise returns a flat array.
+        **Admin only.**
+      operationId: getAdminUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: User list (paginated or flat).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PaginatedUsers'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/UserAdminView'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/users/{id}/role:
+    put:
+      tags: [Admin]
+      summary: Update user role
+      description: Changes a user's role. **Admin only.**
+      operationId: updateUserRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRoleRequest'
+      responses:
+        '200':
+          description: Role updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedUserRole'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/orders:
+    get:
+      tags: [Admin]
+      summary: List all orders
+      description: |
+        Returns all orders with user and product relations. Supports optional
+        pagination. **Admin only.**
+      operationId: getAdminOrders
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Order list (paginated or flat).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PaginatedOrders'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/OrderWithRelations'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/orders/{id}:
+    put:
+      tags: [Admin]
+      summary: Update order status
+      description: Updates the status of an order. **Admin only.**
+      operationId: updateOrderStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderStatusRequest'
+      responses:
+        '200':
+          description: Order status updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/upload:
+    post:
+      tags: [Admin]
+      summary: Upload product image
+      description: |
+        Uploads an image to Cloudinary. Accepts JPEG, PNG, GIF, WebP.
+        Max file size: 5 MB. **Admin only.**
+      operationId: adminUploadImage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: "Image file (JPEG, PNG, GIF, or WebP). Max 5 MB."
+              required: [image]
+      responses:
+        '200':
+          description: Image uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: No file or invalid file type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "No file uploaded"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/upload:
+    post:
+      tags: [Admin]
+      summary: Upload product image (legacy)
+      description: |
+        Backward-compatible upload endpoint. Identical behavior to
+        `POST /api/admin/upload`. **Admin only.**
+      operationId: legacyUploadImage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+              required: [image]
+      responses:
+        '200':
+          description: Image uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  # ── Statistics ───────────────────────────────────────────────────────────────
+  /api/admin/statistics/revenue:
+    get:
+      tags: [Statistics]
+      summary: Revenue statistics
+      description: Revenue metrics aggregated by day for the given period. **Admin only.**
+      operationId: getRevenueStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: Revenue statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/orders:
+    get:
+      tags: [Statistics]
+      summary: Order statistics
+      description: Order count by status and time-series chart data. **Admin only.**
+      operationId: getOrderStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: Order statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/products:
+    get:
+      tags: [Statistics]
+      summary: Product statistics
+      description: Top-selling products and category breakdown. **Admin only.**
+      operationId: getProductStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: Product statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/users:
+    get:
+      tags: [Statistics]
+      summary: User statistics
+      description: User registration trends and top customers. **Admin only.**
+      operationId: getUserStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: User statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/inventory:
+    get:
+      tags: [Statistics]
+      summary: Inventory statistics
+      description: Stock levels, low-stock alerts, and category breakdown. **Admin only.** Not time-period dependent.
+      operationId: getInventoryStats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Inventory statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/export/revenue:
+    get:
+      tags: [Statistics]
+      summary: Export revenue data
+      description: Returns raw COMPLETED order data with relations for client-side export. **Admin only.**
+      operationId: exportRevenue
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: Revenue export data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderWithRelations'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/export/orders:
+    get:
+      tags: [Statistics]
+      summary: Export orders data
+      description: Returns all orders within a period for client-side export. **Admin only.**
+      operationId: exportOrders
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PeriodParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+      responses:
+        '200':
+          description: Orders export data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderWithRelations'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/export/products:
+    get:
+      tags: [Statistics]
+      summary: Export products data
+      description: Returns all products sorted by ID. **Admin only.**
+      operationId: exportProducts
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Products export data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/export/users:
+    get:
+      tags: [Statistics]
+      summary: Export users data
+      description: Returns all users with core attributes. **Admin only.**
+      operationId: exportUsers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Users export data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserAdminView'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/statistics/export/inventory:
+    get:
+      tags: [Statistics]
+      summary: Export inventory data
+      description: Returns all products sorted by stock ascending. **Admin only.**
+      operationId: exportInventory
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Inventory export data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Chat ─────────────────────────────────────────────────────────────────────
+  /api/chat:
+    post:
+      tags: [Chat]
+      summary: Send message to AI assistant
+      description: |
+        Sends a message to the AI shopping assistant. The assistant can search
+        products, view orders (for authenticated users), and perform admin
+        operations (for admin users). Uses DeepSeek (primary), Gemini (backup),
+        or a local keyword fallback.
+
+        Authentication is optional — if a valid Bearer token is provided, the
+        assistant gains access to user-specific or admin tools.
+      operationId: handleChat
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: AI assistant response with optional frontend actions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Missing message field.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Message is required"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          description: AI service or internal error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
