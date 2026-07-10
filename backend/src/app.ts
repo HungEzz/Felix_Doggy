@@ -11,6 +11,7 @@ import { verifyAdmin } from './middlewares/auth';
 import { upload } from './middlewares/upload';
 import { env } from './config/env';
 import { setupSwagger } from './config/swagger';
+import { prisma } from './config/prisma';
 
 export const app = express();
 
@@ -28,9 +29,20 @@ if (process.env.NODE_ENV !== 'production') {
   setupSwagger(app);
 }
 
-// Health check endpoint for monitoring & keeping backend awake (Render free tier)
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
+// Health check endpoint for monitoring & keeping backend awake (Render free tier & Supabase)
+app.get('/api/health', async (_req, res) => {
+  try {
+    // Perform a simple query to keep Supabase database active
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', database: 'connected', timestamp: new Date() });
+  } catch (error: any) {
+    res.status(500).json({ 
+      status: 'error', 
+      database: 'disconnected', 
+      error: error.message || error, 
+      timestamp: new Date() 
+    });
+  }
 });
 
 // Diagnostic endpoint to check AI keys and connectivity directly from Render
