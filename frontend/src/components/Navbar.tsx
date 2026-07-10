@@ -232,7 +232,7 @@ const Navbar: React.FC = () => {
       <style>{`
         .navbar-inner { padding: 0 32px; }
         .mobile-menu-btn { display: none !important; }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .navbar-inner { padding: 0 12px; }
           .desktop-nav { display: none !important; }
           .desktop-search { display: none !important; }

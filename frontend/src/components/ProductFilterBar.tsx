@@ -36,7 +36,7 @@ const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
   return (
     <div style={{ marginBottom: 32 }}>
       {/* Top row: search + controls */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="filter-top-row" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         {/* Search */}
         <div className="search-bar" style={{ flex: '1 1 240px', maxWidth: 360 }}>
           <Search size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
@@ -55,7 +55,7 @@ const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
+        <div className="filter-actions-row" style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           {/* Sort dropdown */}
           <div style={{ position: 'relative' }}>
             <button
@@ -126,7 +126,7 @@ const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
 
       {/* Filter pills */}
       {filterOptions && onFilterSelect && filterOptions.length > 1 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+        <div className="filter-pills-container" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
           {filterOptions.map(opt => {
             const isSelected = selectedFilter === opt;
             return (
@@ -164,6 +164,36 @@ const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
           })}
         </div>
       )}
+      {/* Responsive overrides */}
+      <style>{`
+        @media (max-width: 640px) {
+          .filter-top-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+          }
+          .filter-top-row .search-bar {
+            max-width: none !important;
+            width: 100% !important;
+          }
+          .filter-actions-row {
+            width: 100% !important;
+            justify-content: space-between !important;
+            margin-left: 0 !important;
+          }
+          .filter-pills-container {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            padding: 4px 2px 8px !important;
+            margin-top: 12px !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+          .filter-pills-container::-webkit-scrollbar {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
