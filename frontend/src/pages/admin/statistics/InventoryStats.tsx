@@ -89,7 +89,7 @@ const InventoryStats: React.FC = () => {
     <div>
       {/* Custom header — no time filter for inventory */}
       <div style={{ marginBottom: 28 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, gap: 16 }}>
+        <div className="stats-header-inner" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{
               width: 48, height: 48, borderRadius: 12,
@@ -131,7 +131,7 @@ const InventoryStats: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
             <StatCard
               title="Tổng sản phẩm"
               value={data?.summary.totalProducts ?? 0}
@@ -161,7 +161,7 @@ const InventoryStats: React.FC = () => {
           </div>
 
           {/* Charts row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+          <div className="stats-charts-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Low stock bar */}
             <ChartCard title="Sản phẩm tồn kho thấp nhất" subtitle="Top 10 sản phẩm cần nhập hàng sớm" minHeight={280}>
               {stockBarData.length === 0 ? (

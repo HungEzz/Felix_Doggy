@@ -293,11 +293,12 @@ const ChatBot: React.FC = () => {
       {/* CHAT WINDOW */}
       {isOpen && (
         <div
+          className="chatbot-window"
           style={{
             position: 'fixed',
             bottom: '88px',
-            right: '24px',
-            width: '380px',
+            right: '16px',
+            width: 'min(380px, calc(100vw - 32px))',
             height: isMinimized ? '60px' : '560px',
             background: '#fff',
             borderRadius: '20px',
@@ -560,11 +561,12 @@ const ChatBot: React.FC = () => {
 
       {/* TOGGLE BUTTON */}
       <button
+        className="chatbot-toggle"
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: 'fixed',
           bottom: '24px',
-          right: '24px',
+          right: '16px',
           width: '60px',
           height: '60px',
           borderRadius: '50%',

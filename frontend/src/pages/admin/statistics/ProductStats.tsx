@@ -96,7 +96,7 @@ const ProductStats: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          <div className="stats-grid-container cols-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             <StatCard
               title="Tổng sản phẩm"
               value={data?.summary.totalProducts ?? 0}
@@ -120,7 +120,7 @@ const ProductStats: React.FC = () => {
           </div>
 
           {/* Charts row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+          <div className="stats-charts-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Top products bar */}
             <ChartCard title="Top sản phẩm bán chạy" subtitle="Số lượng bán theo sản phẩm" minHeight={300}>
               {barData.length === 0 ? (

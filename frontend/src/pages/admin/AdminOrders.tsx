@@ -94,13 +94,13 @@ const AdminOrders: React.FC = () => {
       </div>
 
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="p-4 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <h2 className="text-xl font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>
               Chi tiết đơn hàng #{selectedOrder.id.substring(0, 8)}
             </h2>
             
-            <div className="grid grid-cols-2 gap-6 text-sm mb-8 p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm mb-8 p-4 sm:p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.2em] font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Khách hàng</p>
                 <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{selectedOrder.user?.fullName || 'Khách vãng lai'}</p>

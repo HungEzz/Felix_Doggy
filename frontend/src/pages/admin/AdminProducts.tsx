@@ -106,7 +106,7 @@ const AdminProducts: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
         <div>
           <h1 className="text-3xl font-display font-bold uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Quản lý Sản phẩm</h1>
           <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Danh sách Vinyl, CD và Merchandise</p>

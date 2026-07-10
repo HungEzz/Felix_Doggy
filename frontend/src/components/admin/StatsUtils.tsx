@@ -165,7 +165,7 @@ export const StatsPageHeader: React.FC<StatsPageHeaderProps> = ({
   title, subtitle, icon, color, filter, onFilterChange, onExport, exporting,
 }) => (
   <div style={{ marginBottom: 28 }}>
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, gap: 16 }}>
+    <div className="stats-header-inner" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{
           width: 48, height: 48, borderRadius: 12,
@@ -209,7 +209,7 @@ export const StatsPageHeader: React.FC<StatsPageHeaderProps> = ({
       </button>
     </div>
 
-    <div style={{
+    <div className="stats-time-filter" style={{
       background: 'var(--bg-card)',
       border: '1px solid var(--border)',
       borderRadius: 12,
@@ -223,7 +223,7 @@ export const StatsPageHeader: React.FC<StatsPageHeaderProps> = ({
 // ─── Loading Skeleton ───────────────────────────────────────────────────────────
 export const StatsSkeleton: React.FC = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+    <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
       {[0, 1, 2, 3].map((i) => (
         <div key={i} style={{
           height: 120, borderRadius: 14,
@@ -371,7 +371,7 @@ export const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
 export const fmtCurrency = (v: number) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 export const fmtDate = (d: string) => new Date(d).toLocaleDateString('vi-VN');
 
-// Add shimmer keyframe via style tag (called once)
+// Add shimmer keyframe and responsive media query styles via style tag (called once)
 if (typeof document !== 'undefined') {
   const id = 'stats-shimmer-style';
   if (!document.getElementById(id)) {
@@ -380,6 +380,56 @@ if (typeof document !== 'undefined') {
     style.textContent = `
       @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      
+      /* Responsive Header & Grid overrides */
+      @media (max-width: 768px) {
+        .stats-header-inner {
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 12px !important;
+        }
+        .stats-header-inner button {
+          align-self: flex-start !important;
+        }
+      }
+      
+      .stats-grid-container {
+        display: grid !important;
+        gap: 14px !important;
+      }
+      
+      @media (min-width: 1025px) {
+        .stats-grid-container.cols-5 { grid-template-columns: repeat(5, 1fr) !important; }
+        .stats-grid-container.cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
+        .stats-grid-container.cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
+      }
+      
+      @media (max-width: 1024px) and (min-width: 641px) {
+        .stats-grid-container.cols-5 { grid-template-columns: repeat(3, 1fr) !important; }
+        .stats-grid-container.cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+        .stats-grid-container.cols-3 { grid-template-columns: repeat(2, 1fr) !important; }
+      }
+      
+      @media (max-width: 640px) {
+        .stats-grid-container.cols-5,
+        .stats-grid-container.cols-4,
+        .stats-grid-container.cols-3 {
+          grid-template-columns: 1fr !important;
+        }
+      }
+      
+      .stats-charts-row {
+        display: grid !important;
+        gap: 16px !important;
+      }
+      
+      @media (min-width: 901px) {
+        .stats-charts-row { grid-template-columns: 2fr 1fr !important; }
+      }
+      
+      @media (max-width: 900px) {
+        .stats-charts-row { grid-template-columns: 1fr !important; }
+      }
     `;
     document.head.appendChild(style);
   }

@@ -54,6 +54,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
         position: 'relative',
         width: '100%',
         height: 'min(85vh, 680px)',
+        minHeight: 320,
         overflow: 'hidden',
         background: 'var(--bg-secondary)',
         borderRadius: 'var(--radius-xl)',
@@ -85,7 +86,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
       </div>
 
       {/* Vinyl decorative */}
-      <div style={{
+      <div className="hero-vinyl" style={{
         position: 'absolute',
         right: '8%', top: '50%',
         transform: 'translateY(-50%)',
@@ -104,6 +105,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
       {/* Content */}
       <div
         key={`content-${current}`}
+        className="hero-content"
         style={{
           position: 'relative', zIndex: 2,
           height: '100%',
@@ -261,6 +263,15 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
         @keyframes slideRight {
           from { transform: translateX(-40px); opacity: 0; }
           to   { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+          .hero-content {
+            max-width: 100% !important;
+            padding: 24px 20px !important;
+          }
+          .hero-vinyl {
+            display: none !important;
+          }
         }
       `}</style>
     </div>

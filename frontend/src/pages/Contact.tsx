@@ -10,7 +10,7 @@ const Contact: React.FC = () => {
 
       <div className="max-w-[1200px] mx-auto py-16 px-6">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="h-[420px] rounded-[32px] overflow-hidden border border-token shadow-sm">
+          <div className="h-[280px] md:h-[420px] rounded-[32px] overflow-hidden border border-token shadow-sm">
             <iframe
               title="Bản đồ TP.HCM"
               src="https://www.openstreetmap.org/export/embed.html?bbox=106.688%2C10.788%2C106.714%2C10.816&layer=mapnik&marker=10.802%2C106.701"

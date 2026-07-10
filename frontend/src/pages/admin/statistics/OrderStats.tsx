@@ -104,7 +104,7 @@ const OrderStats: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+          <div className="stats-grid-container cols-5" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
             <StatCard title="Tổng đơn" value={data?.summary.total ?? 0} icon={<ShoppingBag size={16} />} color="#3b82f6" />
             <StatCard title="Chờ xử lý" value={getCount('PENDING')} icon={<Clock size={16} />} color={CHART_COLORS.amber} />
             <StatCard title="Đang giao" value={getCount('SHIPPED')} icon={<Truck size={16} />} color={CHART_COLORS.purple} />
@@ -113,7 +113,7 @@ const OrderStats: React.FC = () => {
           </div>
 
           {/* Charts row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="charts-row-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* Pie chart */}
             <ChartCard title="Phân bổ trạng thái" subtitle="Tỷ lệ đơn hàng theo trạng thái" minHeight={280}>
               {pieData.length === 0 ? (
@@ -223,9 +223,16 @@ const OrderStats: React.FC = () => {
                 </table>
               </div>
             )}
-          </div>
         </div>
+      </div>
       )}
+      <style>{`
+        @media (max-width: 900px) {
+          .charts-row-split {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

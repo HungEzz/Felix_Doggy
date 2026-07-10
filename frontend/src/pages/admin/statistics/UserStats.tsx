@@ -80,7 +80,7 @@ const UserStats: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          <div className="stats-grid-container cols-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             <StatCard
               title="Tổng khách hàng"
               value={data?.summary.totalUsers ?? 0}

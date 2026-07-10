@@ -181,7 +181,7 @@ const OverviewTab: React.FC<{
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+      <div className="user-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
         {stats.map((s, i) => (
           <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ color: s.color, opacity: 0.8 }}>{s.icon}</div>
@@ -234,7 +234,7 @@ const OverviewTab: React.FC<{
 
       {/* Quick actions */}
       <SectionCard title="Thao tác nhanh">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+        <div className="user-actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {[
             { icon: <UserIcon size={18} />, label: 'Cập nhật thông tin', tab: 'profile' as Tab },
             { icon: <Lock size={18} />,    label: 'Đổi mật khẩu',       tab: 'security' as Tab },
@@ -335,7 +335,7 @@ const ProfileTab: React.FC = () => {
         title="Thông tin cá nhân & Địa chỉ"
         subtitle="Thông tin này sẽ được tự động điền vào form thanh toán"
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+        <div className="user-profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
           <div style={{ gridColumn: '1 / -1' }}>
             <FormField
               label="Họ và tên"
@@ -1479,9 +1479,9 @@ const User: React.FC = () => {
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', flexGrow: 1 }}>
       <div className="container-main" style={{ paddingTop: 40, paddingBottom: 80 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }}>
+        <div className="user-layout" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }}>
           {/* Sidebar */}
-          <aside style={{ position: 'sticky', top: 96 }}>
+          <aside className="user-sidebar" style={{ position: 'sticky', top: 96 }}>
             {/* Profile card */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-xl)', padding: '22px', marginBottom: 12, textAlign: 'center' }}>
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, fontFamily: 'var(--font-display)', margin: '0 auto 12px', boxShadow: 'var(--shadow-accent)' }}>
@@ -1541,10 +1541,31 @@ const User: React.FC = () => {
 
       <style>{`
         @media (max-width: 900px) {
-          .container-main > div[style*="grid-template-columns: 260px"] {
+          .user-layout {
             grid-template-columns: 1fr !important;
           }
-          aside { position: static !important; }
+          .user-sidebar {
+            position: static !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .user-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .user-actions-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .user-profile-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .otp-input-group {
+            gap: 6px !important;
+          }
+          .otp-input-group input {
+            width: 42px !important;
+            height: 50px !important;
+            font-size: 18px !important;
+          }
         }
       `}</style>
     </div>

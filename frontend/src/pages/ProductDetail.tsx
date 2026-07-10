@@ -98,9 +98,9 @@ const ProductDetail: React.FC = () => {
         </nav>
 
         {/* Main layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+        <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
           {/* Image */}
-          <div style={{ position: 'sticky', top: 96 }}>
+          <div className="pd-image" style={{ position: 'sticky', top: 96 }}>
             <div style={{
               borderRadius: 'var(--radius-xl)',
               overflow: 'hidden',
@@ -202,7 +202,7 @@ const ProductDetail: React.FC = () => {
             )}
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 32 }}>
+            <div className="pd-cta" style={{ display: 'flex', gap: 12, marginBottom: 32 }}>
               <button
                 onClick={handleAddToCart}
                 disabled={isAdded || isOutOfStock || isAtMax}
@@ -290,11 +290,23 @@ const ProductDetail: React.FC = () => {
 
       <style>{`
         @media (max-width: 900px) {
-          .container-main > div[style*="grid-template-columns: 1fr 1fr"] {
+          .pd-grid {
             grid-template-columns: 1fr !important;
+            gap: 32px !important;
           }
-          .container-main > div[style*="position: sticky"] {
+          .pd-image {
             position: static !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .pd-cta {
+            flex-direction: column !important;
+          }
+          .pd-cta button:first-child {
+            order: 0;
+          }
+          .pd-cta button {
+            width: 100% !important;
           }
         }
       `}</style>

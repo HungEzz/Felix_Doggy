@@ -70,7 +70,7 @@ const Home: React.FC = () => {
       {/* ── CATEGORY CARDS ──────────────────────────────────────────── */}
       <div className="container-main section-sm">
         <Section>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div className="home-categories" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {categories.map(({ label, to, icon, count, color, bg }) => (
               <Link
                 key={to}
@@ -122,7 +122,7 @@ const Home: React.FC = () => {
               <h2 className="section-title">What Everyone's Playing</h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            <div className="home-trending" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
               {trendingAll.map((p, i) => (
                 <div key={p.id} style={{ opacity: 0, animation: `fadeUp 0.5s ease ${i * 0.08}s forwards` }}>
                   <Link to={`/product/${p.id}`} style={{ textDecoration: 'none' }}>
@@ -177,7 +177,7 @@ const Home: React.FC = () => {
       }}>
         <div className="container-main" style={{ padding: '56px 32px' }}>
           <Section>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, textAlign: 'center' }}>
+            <div className="home-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, textAlign: 'center' }}>
               {stats.map(({ label, value }, i) => (
                 <div key={i}>
                   <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 800, color: 'var(--accent)', marginBottom: 8 }}>{value}</p>
@@ -246,4 +246,26 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+// Responsive styles for Home grids
+const HomeStyles = () => (
+  <style>{`
+    @media (max-width: 900px) {
+      .home-categories { grid-template-columns: repeat(2, 1fr) !important; }
+      .home-trending { grid-template-columns: repeat(2, 1fr) !important; }
+      .home-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
+    }
+    @media (max-width: 560px) {
+      .home-categories { grid-template-columns: 1fr !important; }
+      .home-trending { grid-template-columns: 1fr !important; }
+    }
+  `}</style>
+);
+
+const HomeWithStyles: React.FC = () => (
+  <>
+    <Home />
+    <HomeStyles />
+  </>
+);
+
+export default HomeWithStyles;

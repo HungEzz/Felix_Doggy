@@ -83,7 +83,7 @@ const RevenueStats: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
             <StatCard
               title="Tổng doanh thu"
               value={fmtCurrency(data?.summary.totalRevenue ?? 0)}
