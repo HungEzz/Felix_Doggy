@@ -40,11 +40,11 @@ export const authService = {
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     if (password.length > MAX_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu không được vượt quá ${MAX_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`Password must not exceed ${MAX_PASSWORD_LENGTH} characters`);
     }
 
     const existing = await authRepository.findUserByEmail(email);
@@ -72,7 +72,7 @@ export const authService = {
     return {
       requireOtp: true,
       email,
-      message: 'Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP.',
+      message: 'Registration successful! Please check your email for the OTP code.',
     };
   },
 
@@ -124,26 +124,26 @@ export const authService = {
     const { email, code } = input;
 
     if (!email || !code) {
-      throw new Error('Email và mã OTP là bắt buộc');
+      throw new Error('Email and OTP code are required');
     }
 
     if (code.length !== OTP_LENGTH || !/^\d+$/.test(code)) {
-      throw new Error('Mã OTP không hợp lệ');
+      throw new Error('Invalid OTP code');
     }
 
     const user = await authRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error('Email không tồn tại');
+      throw new Error('Email does not exist');
     }
 
     if (user.isVerified) {
-      return { message: 'Tài khoản đã được xác thực trước đó' };
+      return { message: 'Account has already been verified' };
     }
 
     // Find valid (non-expired) OTPs for this email
     const validOtps = await otpRepository.findValidOtps(email);
     if (validOtps.length === 0) {
-      throw new Error('Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.');
+      throw new Error('OTP code has expired. Please request a new one.');
     }
 
     // Check the code against all valid OTPs (most recent first)
@@ -157,7 +157,7 @@ export const authService = {
     }
 
     if (!matched) {
-      throw new Error('Mã OTP không chính xác');
+      throw new Error('Incorrect OTP code');
     }
 
     // Mark user as verified and clean up OTPs
@@ -171,7 +171,7 @@ export const authService = {
     const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, { expiresIn: '7d' });
 
     return {
-      message: 'Xác thực tài khoản thành công!',
+      message: 'Account verified successfully!',
       token,
       user: {
         id: user.id,
@@ -192,16 +192,16 @@ export const authService = {
     const { email } = input;
 
     if (!email) {
-      throw new Error('Email là bắt buộc');
+      throw new Error('Email is required');
     }
 
     const user = await authRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error('Email không tồn tại trong hệ thống');
+      throw new Error('Email does not exist in the system');
     }
 
     if (user.isVerified) {
-      throw new Error('Tài khoản đã được xác thực');
+      throw new Error('Account is already verified');
     }
 
     // Cooldown check: 60 seconds between sends
@@ -210,7 +210,7 @@ export const authService = {
       const elapsed = Date.now() - latestOtp.createdAt.getTime();
       const remaining = Math.ceil((OTP_COOLDOWN_SECONDS * 1000 - elapsed) / 1000);
       if (remaining > 0) {
-        throw new Error(`Vui lòng đợi ${remaining} giây trước khi gửi lại`);
+        throw new Error(`Please wait ${remaining} seconds before requesting a new OTP`);
       }
     }
 
@@ -218,7 +218,7 @@ export const authService = {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const recentCount = await otpRepository.countRecentOtps(email, oneHourAgo);
     if (recentCount >= OTP_MAX_PER_HOUR) {
-      throw new Error('Bạn đã gửi quá nhiều mã OTP. Vui lòng thử lại sau 1 giờ.');
+      throw new Error('Too many OTP requests. Please try again after 1 hour.');
     }
 
     // Generate and send new OTP
@@ -229,7 +229,7 @@ export const authService = {
 
     await sendOtpEmail(email, otp);
 
-    return { message: 'Mã OTP mới đã được gửi đến email của bạn' };
+    return { message: 'A new OTP has been sent to your email' };
   },
 
   async updateProfile(
@@ -239,26 +239,26 @@ export const authService = {
     const { fullName, phone, address } = input;
 
     if (!fullName || !fullName.trim()) {
-      throw new Error('Họ tên không được để trống');
+      throw new Error('Full name is required');
     }
 
     if (fullName.length > MAX_NAME_LENGTH) {
-      throw new Error(`Họ tên không được vượt quá ${MAX_NAME_LENGTH} ký tự`);
+      throw new Error(`Full name must not exceed ${MAX_NAME_LENGTH} characters`);
     }
 
     // Validate phone format if provided
     if (phone && phone.trim()) {
       const cleaned = phone.replace(/\s/g, '');
       if (cleaned.length > MAX_PHONE_LENGTH) {
-        throw new Error('Số điện thoại không hợp lệ');
+        throw new Error('Invalid phone number');
       }
       if (!/^(0|\+84)[0-9]{9,10}$/.test(cleaned)) {
-        throw new Error('Số điện thoại không hợp lệ');
+        throw new Error('Invalid phone number');
       }
     }
 
     if (address && address.length > MAX_ADDRESS_LENGTH) {
-      throw new Error(`Địa chỉ không được vượt quá ${MAX_ADDRESS_LENGTH} ký tự`);
+      throw new Error(`Address must not exceed ${MAX_ADDRESS_LENGTH} characters`);
     }
 
     const user = await authRepository.updateUser(userId, {
@@ -284,25 +284,25 @@ export const authService = {
     const { currentPassword, newPassword } = input;
 
     if (!currentPassword || !newPassword) {
-      throw new Error('Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới');
+      throw new Error('Please enter both current and new password');
     }
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu mới phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`New password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     if (newPassword.length > MAX_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu không được vượt quá ${MAX_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`Password must not exceed ${MAX_PASSWORD_LENGTH} characters`);
     }
 
     const user = await authRepository.findUserById(userId);
     if (!user) {
-      throw new Error('Người dùng không tồn tại');
+      throw new Error('User does not exist');
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      throw new Error('Mật khẩu hiện tại không chính xác');
+      throw new Error('Current password is incorrect');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -311,7 +311,7 @@ export const authService = {
     // TODO(security): Consider invalidating all other active sessions/tokens
     // after a password change to prevent compromised sessions from remaining active.
 
-    return { message: 'Mật khẩu đã được thay đổi thành công' };
+    return { message: 'Password changed successfully' };
   },
 
   /**
@@ -322,11 +322,11 @@ export const authService = {
     const { email } = input;
 
     if (!email) {
-      throw new Error('Email là bắt buộc');
+      throw new Error('Email is required');
     }
 
     // Generic message returned regardless of whether the email exists
-    const successMessage = 'Nếu email tồn tại trong hệ thống, mã OTP đã được gửi đến email của bạn.';
+    const successMessage = 'If the email exists in the system, an OTP has been sent to your email.';
 
     const user = await authRepository.findUserByEmail(email);
     if (!user || !user.isVerified) {
@@ -340,7 +340,7 @@ export const authService = {
       const elapsed = Date.now() - latestOtp.createdAt.getTime();
       const remaining = Math.ceil((OTP_COOLDOWN_SECONDS * 1000 - elapsed) / 1000);
       if (remaining > 0) {
-        throw new Error(`Vui lòng đợi ${remaining} giây trước khi gửi lại`);
+        throw new Error(`Please wait ${remaining} seconds before requesting a new OTP`);
       }
     }
 
@@ -348,7 +348,7 @@ export const authService = {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const recentCount = await otpRepository.countRecentOtps(email, oneHourAgo);
     if (recentCount >= OTP_MAX_PER_HOUR) {
-      throw new Error('Bạn đã gửi quá nhiều mã OTP. Vui lòng thử lại sau 1 giờ.');
+      throw new Error('Too many OTP requests. Please try again after 1 hour.');
     }
 
     // Generate and send OTP
@@ -369,30 +369,30 @@ export const authService = {
     const { email, code, newPassword } = input;
 
     if (!email || !code || !newPassword) {
-      throw new Error('Email, mã OTP và mật khẩu mới là bắt buộc');
+      throw new Error('Email, OTP code, and new password are required');
     }
 
     if (code.length !== OTP_LENGTH || !/^\d+$/.test(code)) {
-      throw new Error('Mã OTP không hợp lệ');
+      throw new Error('Invalid OTP code');
     }
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu mới phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`New password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     if (newPassword.length > MAX_PASSWORD_LENGTH) {
-      throw new Error(`Mật khẩu không được vượt quá ${MAX_PASSWORD_LENGTH} ký tự`);
+      throw new Error(`Password must not exceed ${MAX_PASSWORD_LENGTH} characters`);
     }
 
     const user = await authRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error('Email không tồn tại');
+      throw new Error('Email does not exist');
     }
 
     // Find valid (non-expired) OTPs for this email
     const validOtps = await otpRepository.findValidOtps(email);
     if (validOtps.length === 0) {
-      throw new Error('Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.');
+      throw new Error('OTP code has expired. Please request a new one.');
     }
 
     // Check the code against all valid OTPs (most recent first)
@@ -406,7 +406,7 @@ export const authService = {
     }
 
     if (!matched) {
-      throw new Error('Mã OTP không chính xác');
+      throw new Error('Incorrect OTP code');
     }
 
     // Update password and clean up OTPs
@@ -417,7 +417,7 @@ export const authService = {
     // TODO(security): Consider invalidating all active sessions/tokens
     // after a password reset to prevent compromised sessions from remaining active.
 
-    return { message: 'Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập.' };
+    return { message: 'Password reset successfully. Please log in.' };
   },
 
   async loginWithGoogle(googleToken: string) {

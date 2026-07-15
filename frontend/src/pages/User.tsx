@@ -52,11 +52,11 @@ interface Order {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ORDER_STATUS_CONFIG = {
-  PENDING:    { label: 'Chờ xác nhận', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: <Clock size={13} /> },
-  PROCESSING: { label: 'Đang xử lý',   color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', icon: <AlertCircle size={13} /> },
-  SHIPPED:    { label: 'Đang giao',    color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', icon: <Truck size={13} /> },
-  COMPLETED:  { label: 'Đã giao',      color: '#1db954', bg: 'rgba(29,185,84,0.12)',  icon: <CheckCircle size={13} /> },
-  CANCELLED:  { label: 'Đã hủy',       color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <XCircle size={13} /> },
+  PENDING:    { label: 'Pending',   color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: <Clock size={13} /> },
+  PROCESSING: { label: 'Processing',color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', icon: <AlertCircle size={13} /> },
+  SHIPPED:    { label: 'Shipped',   color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', icon: <Truck size={13} /> },
+  COMPLETED:  { label: 'Completed', color: '#1db954', bg: 'rgba(29,185,84,0.12)',  icon: <CheckCircle size={13} /> },
+  CANCELLED:  { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <XCircle size={13} /> },
 };
 
 const StatusBadge: React.FC<{ status: keyof typeof ORDER_STATUS_CONFIG }> = ({ status }) => {
@@ -151,9 +151,9 @@ const OverviewTab: React.FC<{
   const { profile: reduxProfile } = useSelector((s: RootState) => s.user);
 
   const stats = [
-    { label: 'Tổng đơn hàng', value: orders.length, icon: <Package size={20} />, color: 'var(--accent)' },
-    { label: 'Đã giao thành công', value: orders.filter((o) => o.status === 'COMPLETED').length, icon: <CheckCircle size={20} />, color: '#1db954' },
-    { label: 'Đang xử lý', value: orders.filter((o) => ['PENDING', 'PROCESSING', 'SHIPPED'].includes(o.status)).length, icon: <Clock size={20} />, color: '#f59e0b' },
+    { label: 'Total Orders', value: orders.length, icon: <Package size={20} />, color: 'var(--accent)' },
+    { label: 'Successfully Delivered', value: orders.filter((o) => o.status === 'COMPLETED').length, icon: <CheckCircle size={20} />, color: '#1db954' },
+    { label: 'Processing', value: orders.filter((o) => ['PENDING', 'PROCESSING', 'SHIPPED'].includes(o.status)).length, icon: <Clock size={20} />, color: '#f59e0b' },
   ];
 
   const recentOrders = orders.slice(0, 3);
@@ -167,8 +167,8 @@ const OverviewTab: React.FC<{
           {initials}
         </div>
         <div>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Xin chào trở lại 👋</p>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--text-primary)', marginBottom: 4 }}>{reduxProfile?.name || 'Khách hàng'}</h2>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Welcome back 👋</p>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: 'var(--text-primary)', marginBottom: 4 }}>{reduxProfile?.name || 'Customer'}</h2>
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{reduxProfile?.email}</p>
         </div>
         {reduxProfile?.role?.toUpperCase() === 'ADMIN' && (
@@ -195,10 +195,10 @@ const OverviewTab: React.FC<{
 
       {/* Recent orders */}
       <SectionCard
-        title="Đơn hàng gần đây"
+        title="Recent Orders"
         action={
           <button onClick={() => setTab('orders')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-            Xem tất cả <ChevronRight size={14} />
+            View all <ChevronRight size={14} />
           </button>
         }
       >
@@ -209,9 +209,9 @@ const OverviewTab: React.FC<{
         ) : recentOrders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <Package size={36} style={{ color: 'var(--text-muted)', marginBottom: 10 }} strokeWidth={1} />
-            <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Chưa có đơn hàng nào</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No orders yet</p>
             <button onClick={() => (window.location.href = '/vinyl')} style={{ marginTop: 12, fontSize: 12, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-              Bắt đầu mua sắm →
+              Start shopping →
             </button>
           </div>
         ) : (
@@ -221,7 +221,7 @@ const OverviewTab: React.FC<{
                 <Package size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>#{order.id.split('-')[0].toUpperCase()}</p>
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleDateString('vi-VN')} · {order.orderItems.length} sản phẩm</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleDateString('en-US')} · {order.orderItems.length} items</p>
                 </div>
                 <StatusBadge status={order.status} />
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>${order.totalAmount.toFixed(2)}</span>
@@ -233,12 +233,12 @@ const OverviewTab: React.FC<{
       </SectionCard>
 
       {/* Quick actions */}
-      <SectionCard title="Thao tác nhanh">
+      <SectionCard title="Quick Actions">
         <div className="user-actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {[
-            { icon: <UserIcon size={18} />, label: 'Cập nhật thông tin', tab: 'profile' as Tab },
-            { icon: <Lock size={18} />,    label: 'Đổi mật khẩu',       tab: 'security' as Tab },
-            { icon: <Settings size={18} />, label: 'Cài đặt',            tab: 'settings' as Tab },
+            { icon: <UserIcon size={18} />, label: 'Update profile', tab: 'profile' as Tab },
+            { icon: <Lock size={18} />,    label: 'Change password',       tab: 'security' as Tab },
+            { icon: <Settings size={18} />, label: 'Settings',            tab: 'settings' as Tab },
           ].map((item, i) => (
             <button key={i} onClick={() => setTab(item.tab)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px 16px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, transition: 'all 0.2s ease' }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.background = 'var(--accent-soft)'; }}
@@ -277,9 +277,9 @@ const ProfileTab: React.FC = () => {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!fullName.trim()) e.fullName = 'Vui lòng nhập họ tên';
+    if (!fullName.trim()) e.fullName = 'Please enter your name';
     if (phone && !/^(0|\+84)[0-9]{9,10}$/.test(phone.replace(/\s/g, '')))
-      e.phone = 'Số điện thoại không hợp lệ';
+      e.phone = 'Invalid phone number';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -321,9 +321,9 @@ const ProfileTab: React.FC = () => {
         } catch {/* ignore */}
       }
 
-      toast.success('Thông tin đã được cập nhật');
+      toast.success('Profile updated successfully');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Lỗi khi cập nhật thông tin');
+      toast.error(error.response?.data?.message || 'Error updating profile');
     } finally {
       setSaving(false);
     }
@@ -332,16 +332,16 @@ const ProfileTab: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <SectionCard
-        title="Thông tin cá nhân & Địa chỉ"
-        subtitle="Thông tin này sẽ được tự động điền vào form thanh toán"
+        title="Personal Details & Address"
+        subtitle="This information will be autofilled during checkout"
       >
         <div className="user-profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
           <div style={{ gridColumn: '1 / -1' }}>
             <FormField
-              label="Họ và tên"
+              label="Full Name"
               value={fullName}
               onChange={setFullName}
-              placeholder="Nguyễn Văn A"
+              placeholder="John Doe"
               error={errors.fullName}
             />
           </div>
@@ -351,7 +351,7 @@ const ProfileTab: React.FC = () => {
             disabled
           />
           <FormField
-            label="Số điện thoại"
+            label="Phone Number"
             value={phone}
             onChange={setPhone}
             type="tel"
@@ -360,14 +360,14 @@ const ProfileTab: React.FC = () => {
           />
           <div style={{ gridColumn: '1 / -1' }}>
             <FormField
-              label="Địa chỉ giao hàng mặc định"
+              label="Default Shipping Address"
               value={address}
               onChange={setAddress}
-              placeholder="123 Đường ABC, Quận 1, TP.HCM"
+              placeholder="123 ABC Street, City"
             />
             <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 5 }}>
               <MapPin size={10} style={{ display: 'inline', marginRight: 4 }} />
-              Địa chỉ này sẽ được dùng mặc định khi thanh toán
+              This address will be used as default for checkout
             </p>
           </div>
         </div>
@@ -386,18 +386,18 @@ const ProfileTab: React.FC = () => {
             transition: 'all 0.2s',
           }}
         >
-          {saving ? 'Đang lưu...' : (
-            <><Check size={14} /> Lưu thay đổi</>
+          {saving ? 'Saving...' : (
+            <><Check size={14} /> Save changes</>
           )}
         </button>
       </SectionCard>
 
       {/* Non-editable account info */}
-      <SectionCard title="Thông tin tài khoản" subtitle="Thông tin không thể thay đổi">
+      <SectionCard title="Account Details" subtitle="Non-editable information">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
-            { label: 'Email đăng nhập', value: reduxProfile?.email, badge: 'ĐÃ XÁC NHẬN' },
-            { label: 'Vai trò', value: reduxProfile?.role === 'ADMIN' ? 'Quản trị viên' : 'Khách hàng' },
+            { label: 'Sign-in Email', value: reduxProfile?.email, badge: 'VERIFIED' },
+            { label: 'Role', value: reduxProfile?.role === 'ADMIN' ? 'Admin' : 'Customer' },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
               <div>
@@ -433,10 +433,10 @@ const OrdersTab: React.FC<{ orders: Order[]; ordersLoading: boolean }> = ({ orde
       <SectionCard>
         <div style={{ textAlign: 'center', padding: '60px 0' }}>
           <Package size={52} style={{ color: 'var(--text-muted)', marginBottom: 16 }} strokeWidth={1} />
-          <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 8 }}>Chưa có đơn hàng nào</h3>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>Hãy khám phá bộ sưu tập của chúng tôi</p>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 8 }}>No orders yet</h3>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>Explore our collection</p>
           <a href="/vinyl" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--accent)', color: '#000', borderRadius: 'var(--radius-full)', padding: '11px 24px', textDecoration: 'none', fontWeight: 700, fontSize: 13 }}>
-            Mua sắm ngay
+            Shop now
           </a>
         </div>
       </SectionCard>
@@ -458,8 +458,8 @@ const OrdersTab: React.FC<{ orders: Order[]; ordersLoading: boolean }> = ({ orde
                   <StatusBadge status={order.status} />
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                  {new Date(order.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                  {' · '}{order.orderItems.length} sản phẩm
+                  {new Date(order.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  {' · '}{order.orderItems.length} items
                 </p>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -474,7 +474,7 @@ const OrdersTab: React.FC<{ orders: Order[]; ordersLoading: boolean }> = ({ orde
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16, padding: '10px 14px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
                     <MapPin size={14} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 2 }} />
                     <div>
-                      <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Địa chỉ giao hàng</p>
+                      <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Shipping Address</p>
                       <p style={{ fontSize: 13, color: 'var(--text-primary)' }}>{order.shippingAddr}</p>
                     </div>
                   </div>
@@ -485,7 +485,7 @@ const OrdersTab: React.FC<{ orders: Order[]; ordersLoading: boolean }> = ({ orde
                       <img src={item.product?.imgUrl} alt={item.product?.title} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', objectFit: 'cover', border: '1px solid var(--border)', flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {item.product?.title || `Sản phẩm #${item.productId}`}
+                          {item.product?.title || `Product #${item.productId}`}
                         </p>
                         <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.product?.artist} · x{item.quantity}</p>
                       </div>
@@ -496,7 +496,7 @@ const OrdersTab: React.FC<{ orders: Order[]; ordersLoading: boolean }> = ({ orde
                   ))}
                 </div>
                 <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Tổng cộng:</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Total:</span>
                   <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: 'var(--text-primary)' }}>${order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
@@ -521,9 +521,9 @@ const SecurityTab: React.FC = () => {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!current) e.current = 'Nhập mật khẩu hiện tại';
-    if (!next || next.length < 8) e.next = 'Mật khẩu mới ít nhất 8 ký tự';
-    if (next !== confirm) e.confirm = 'Mật khẩu xác nhận không khớp';
+    if (!current) e.current = 'Enter current password';
+    if (!next || next.length < 8) e.next = 'New password must be at least 8 characters';
+    if (next !== confirm) e.confirm = 'Confirm password does not match';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -536,10 +536,10 @@ const SecurityTab: React.FC = () => {
         currentPassword: current,
         newPassword: next,
       });
-      toast.success('Mật khẩu đã được thay đổi');
+      toast.success('Password updated successfully');
       setCurrent(''); setNext(''); setConfirm('');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Lỗi khi đổi mật khẩu');
+      toast.error(error.response?.data?.message || 'Error changing password');
     } finally {
       setSaving(false);
     }
@@ -552,11 +552,11 @@ const SecurityTab: React.FC = () => {
   );
 
   return (
-    <SectionCard title="Đổi mật khẩu" subtitle="Để bảo mật, hãy dùng mật khẩu mạnh">
+    <SectionCard title="Change Password" subtitle="For security, please use a strong password">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
-        <FormField label="Mật khẩu hiện tại" value={current} onChange={setCurrent} type={showCurrent ? 'text' : 'password'} placeholder="••••••••" error={errors.current} suffix={<EyeToggle show={showCurrent} toggle={() => setShowCurrent((s) => !s)} />} />
-        <FormField label="Mật khẩu mới" value={next} onChange={setNext} type={showNext ? 'text' : 'password'} placeholder="Tối thiểu 6 ký tự" error={errors.next} suffix={<EyeToggle show={showNext} toggle={() => setShowNext((s) => !s)} />} />
-        <FormField label="Xác nhận mật khẩu mới" value={confirm} onChange={setConfirm} type="password" placeholder="••••••••" error={errors.confirm} />
+        <FormField label="Current Password" value={current} onChange={setCurrent} type={showCurrent ? 'text' : 'password'} placeholder="••••••••" error={errors.current} suffix={<EyeToggle show={showCurrent} toggle={() => setShowCurrent((s) => !s)} />} />
+        <FormField label="New Password" value={next} onChange={setNext} type={showNext ? 'text' : 'password'} placeholder="Minimum 8 characters" error={errors.next} suffix={<EyeToggle show={showNext} toggle={() => setShowNext((s) => !s)} />} />
+        <FormField label="Confirm New Password" value={confirm} onChange={setConfirm} type="password" placeholder="••••••••" error={errors.confirm} />
 
         {next && (
           <div style={{ display: 'flex', gap: 4, marginTop: -8 }}>
@@ -567,7 +567,7 @@ const SecurityTab: React.FC = () => {
         )}
 
         <button onClick={handleSave} disabled={saving} style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 8, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 'var(--radius-full)', padding: '11px 24px', fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'var(--font-sans)' }}>
-          {saving ? 'Đang lưu...' : 'Đổi mật khẩu'}
+          {saving ? 'Saving...' : 'Change Password'}
         </button>
       </div>
     </SectionCard>
@@ -587,11 +587,11 @@ const SettingsTab: React.FC = () => {
   );
 
   return (
-    <SectionCard title="Cài đặt tài khoản" subtitle="Tùy chỉnh trải nghiệm của bạn">
+    <SectionCard title="Account Settings" subtitle="Customize your experience">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {[
-          { label: 'Thông báo đơn hàng', desc: 'Nhận thông báo về trạng thái đơn hàng', value: notifyOrders, onChange: setNotifyOrders },
-          { label: 'Khuyến mãi & Ưu đãi', desc: 'Nhận email về sản phẩm mới và ưu đãi đặc biệt', value: notifyPromos, onChange: setNotifyPromos },
+          { label: 'Order Notifications', desc: 'Receive notifications about order statuses', value: notifyOrders, onChange: setNotifyOrders },
+          { label: 'Promotions & Offers', desc: 'Receive emails about new products and special offers', value: notifyPromos, onChange: setNotifyPromos },
         ].map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '18px 0', borderBottom: i < 1 ? '1px solid var(--border)' : 'none' }}>
             <div>
@@ -666,17 +666,17 @@ const OtpVerification: React.FC<{
   const handleVerify = async () => {
     const code = otp.join('');
     if (code.length !== 6) {
-      setError('Vui lòng nhập đủ 6 chữ số');
+      setError('Please enter a 6-digit code');
       return;
     }
     setVerifying(true);
     setError('');
     try {
       const res: any = await api.post('/auth/verify-otp', { email, code });
-      toast.success('Xác thực thành công!');
+      toast.success('Verification successful!');
       onVerified({ token: res.token, user: res.user });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Mã OTP không chính xác');
+      setError(err.response?.data?.message || 'Incorrect OTP code');
       setOtp(Array(6).fill(''));
       inputRefs.current[0]?.focus();
     } finally {
@@ -690,12 +690,12 @@ const OtpVerification: React.FC<{
     setError('');
     try {
       await api.post('/auth/resend-otp', { email });
-      toast.success('Mã OTP mới đã được gửi');
+      toast.success('A new OTP code has been sent');
       setCountdown(60);
       setOtp(Array(6).fill(''));
       inputRefs.current[0]?.focus();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Không thể gửi lại OTP');
+      toast.error(err.response?.data?.message || 'Failed to resend OTP');
     } finally {
       setResending(false);
     }
@@ -724,10 +724,10 @@ const OtpVerification: React.FC<{
             <Shield size={28} style={{ color: 'var(--accent)' }} />
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 26, color: 'var(--text-primary)', marginBottom: 8 }}>
-            Xác thực email
+            Email Verification
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-            Chúng tôi đã gửi mã xác thực 6 số đến
+            We have sent a 6-digit verification code to
           </p>
           <p style={{
             fontSize: 14, fontWeight: 700, color: 'var(--accent)',
@@ -800,9 +800,9 @@ const OtpVerification: React.FC<{
           }}
         >
           {verifying ? (
-            <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Đang xác thực...</>
+            <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Verifying...</>
           ) : (
-            <><CheckCircle size={14} /> Xác nhận</>
+            <><CheckCircle size={14} /> Confirm</>
           )}
         </button>
 
@@ -810,7 +810,7 @@ const OtpVerification: React.FC<{
         <div style={{ textAlign: 'center', marginTop: 24 }}>
           {countdown > 0 ? (
             <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-              Gửi lại mã sau <span style={{ color: 'var(--accent)', fontWeight: 700, fontFamily: "'Courier New', monospace" }}>
+              Resend code in <span style={{ color: 'var(--accent)', fontWeight: 700, fontFamily: "'Courier New', monospace" }}>
                 {String(Math.floor(countdown / 60)).padStart(2, '0')}:{String(countdown % 60).padStart(2, '0')}
               </span>
             </p>
@@ -827,7 +827,7 @@ const OtpVerification: React.FC<{
               }}
             >
               <RefreshCw size={13} style={resending ? { animation: 'spin 1s linear infinite' } : undefined} />
-              {resending ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+              {resending ? 'Sending...' : 'Resend OTP code'}
             </button>
           )}
         </div>
@@ -838,7 +838,7 @@ const OtpVerification: React.FC<{
             onClick={onBack}
             style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
           >
-            ← Quay lại đăng nhập
+            ← Back to login
           </button>
         </div>
 
@@ -877,18 +877,18 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Vui lòng nhập email hợp lệ');
+      setError('Please enter a valid email address');
       return;
     }
     setSubmitting(true);
     setError('');
     try {
       await api.post('/auth/forgot-password', { email });
-      toast.success('Mã OTP đã được gửi đến email của bạn');
+      toast.success('OTP code has been sent to your email');
       setStep('otp');
       setCountdown(60);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra');
+      setError(err.response?.data?.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -923,7 +923,7 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleVerifyOtp = () => {
     const code = otp.join('');
     if (code.length !== 6) {
-      setError('Vui lòng nhập đủ 6 chữ số');
+      setError('Please enter a 6-digit code');
       return;
     }
     setError('');
@@ -945,12 +945,12 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setError('');
     try {
       await api.post('/auth/forgot-password', { email });
-      toast.success('Mã OTP mới đã được gửi');
+      toast.success('A new OTP code has been sent');
       setCountdown(60);
       setOtp(Array(6).fill(''));
       inputRefs.current[0]?.focus();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Không thể gửi lại OTP');
+      toast.error(err.response?.data?.message || 'Failed to resend OTP');
     } finally {
       setResending(false);
     }
@@ -960,11 +960,11 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword || newPassword.length < 8) {
-      setError('Mật khẩu mới phải có ít nhất 8 ký tự');
+      setError('New password must be at least 8 characters');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
+      setError('Confirm password does not match');
       return;
     }
     setSubmitting(true);
@@ -975,10 +975,10 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         code: otp.join(''),
         newPassword,
       });
-      toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.');
+      toast.success('Password reset successfully! Please log in.');
       onBack();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra');
+      setError(err.response?.data?.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -986,9 +986,9 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   // Step configs
   const stepConfig = {
-    email: { icon: <Mail size={28} />, title: 'Quên mật khẩu', subtitle: 'Nhập email đã đăng ký để nhận mã xác nhận' },
-    otp: { icon: <Shield size={28} />, title: 'Nhập mã OTP', subtitle: `Chúng tôi đã gửi mã 6 số đến ${maskEmail(email)}` },
-    newPassword: { icon: <KeyRound size={28} />, title: 'Tạo mật khẩu mới', subtitle: 'Nhập mật khẩu mới cho tài khoản của bạn' },
+    email: { icon: <Mail size={28} />, title: 'Forgot Password', subtitle: 'Enter your registered email to receive a verification code' },
+    otp: { icon: <Shield size={28} />, title: 'Enter OTP', subtitle: `We have sent a 6-digit code to ${maskEmail(email)}` },
+    newPassword: { icon: <KeyRound size={28} />, title: 'Create New Password', subtitle: 'Enter a new password for your account' },
   };
 
   const cfg = stepConfig[step];
@@ -1049,9 +1049,9 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}>
               {submitting ? (
-                <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Đang gửi...</>
+                <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Sending...</>
               ) : (
-                <><Mail size={14} /> Gửi mã xác nhận</>
+                <><Mail size={14} /> Send verification code</>
               )}
             </button>
           </form>
@@ -1112,14 +1112,14 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}
             >
-              <CheckCircle size={14} /> Tiếp tục
+              <CheckCircle size={14} /> Continue
             </button>
 
             {/* Resend */}
             <div style={{ textAlign: 'center', marginTop: 24 }}>
               {countdown > 0 ? (
                 <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                  Gửi lại mã sau <span style={{ color: '#e74c3c', fontWeight: 700, fontFamily: "'Courier New', monospace" }}>
+                  Resend code in <span style={{ color: '#e74c3c', fontWeight: 700, fontFamily: "'Courier New', monospace" }}>
                     {String(Math.floor(countdown / 60)).padStart(2, '0')}:{String(countdown % 60).padStart(2, '0')}
                   </span>
                 </p>
@@ -1136,7 +1136,7 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   }}
                 >
                   <RefreshCw size={13} style={resending ? { animation: 'spin 1s linear infinite' } : undefined} />
-                  {resending ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+                  {resending ? 'Sending...' : 'Resend OTP code'}
                 </button>
               )}
             </div>
@@ -1147,11 +1147,11 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         {step === 'newPassword' && (
           <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <FormField
-              label="Mật khẩu mới"
+              label="New Password"
               value={newPassword}
               onChange={setNewPassword}
               type={showPw ? 'text' : 'password'}
-              placeholder="Tối thiểu 8 ký tự"
+              placeholder="Minimum 8 characters"
               suffix={
                 <button type="button" onClick={() => setShowPw((s) => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', padding: 0 }}>
                   {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -1159,7 +1159,7 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               }
             />
             <FormField
-              label="Xác nhận mật khẩu"
+              label="Confirm Password"
               value={confirmPassword}
               onChange={setConfirmPassword}
               type="password"
@@ -1193,9 +1193,9 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}>
               {submitting ? (
-                <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Đang xử lý...</>
+                <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Processing...</>
               ) : (
-                <><KeyRound size={14} /> Đặt lại mật khẩu</>
+                <><KeyRound size={14} /> Reset password</>
               )}
             </button>
           </form>
@@ -1207,7 +1207,7 @@ const ForgotPasswordFlow: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             onClick={step === 'otp' ? () => { setStep('email'); setError(''); } : onBack}
             style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
           >
-            {step === 'otp' ? '← Nhập lại email' : '← Quay lại đăng nhập'}
+            {step === 'otp' ? '← Change email' : '← Back to login'}
           </button>
         </div>
 
@@ -1308,9 +1308,9 @@ const AuthPage: React.FC = () => {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!isLogin && !name.trim()) e.name = 'Nhập họ tên';
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Email không hợp lệ';
-    if (!password || password.length < 8) e.password = 'Mật khẩu ít nhất 8 ký tự';
+    if (!isLogin && !name.trim()) e.name = 'Enter full name';
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Invalid email address';
+    if (!password || password.length < 8) e.password = 'Password must be at least 8 characters';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -1325,7 +1325,7 @@ const AuthPage: React.FC = () => {
         const u = res.user;
         const profileData = {
           id: u.id,
-          name: u.fullName || 'Khách hàng',
+          name: u.fullName || 'Customer',
           email: u.email,
           phone: u.phone || '',
           address: u.address || '',
@@ -1337,18 +1337,18 @@ const AuthPage: React.FC = () => {
           localStorage.setItem('admin_token', res.token);
           localStorage.setItem('admin_user', JSON.stringify(profileData));
           dispatch(adminLogin(profileData));
-          toast.success('Đăng nhập admin thành công');
+          toast.success('Admin login successful');
           navigate('/admin');
         } else {
           // User session
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(profileData));
           dispatch(login(profileData));
-          toast.success('Đăng nhập thành công');
+          toast.success('Login successful');
         }
       } else {
         await api.post('/auth/register', { email, password, fullName: name });
-        toast.success('Vui lòng kiểm tra email để lấy mã OTP!');
+        toast.success('Please check your email to retrieve the OTP code!');
         setOtpEmail(email);
         setOtpStep(true);
       }
@@ -1356,18 +1356,18 @@ const AuthPage: React.FC = () => {
       // Handle unverified account — redirect to OTP screen
       if (error.response?.status === 403 && error.response?.data?.requireOtp) {
         const unverifiedEmail = error.response.data.email || email;
-        toast('Tài khoản chưa xác thực. Vui lòng nhập mã OTP.', { icon: '🔒' });
+        toast('Account not verified. Please enter your OTP code.', { icon: '🔒' });
         setOtpEmail(unverifiedEmail);
         setOtpStep(true);
         // Auto-resend OTP for convenience
         try {
           await api.post('/auth/resend-otp', { email: unverifiedEmail });
-          toast.success('Đã gửi lại mã OTP đến email của bạn');
+          toast.success('OTP code has been sent to your email');
         } catch {
           // Silently ignore resend error (might be in cooldown)
         }
       } else {
-        toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        toast.error(error.response?.data?.message || 'An error occurred');
       }
     } finally {
       setSubmitting(false);
@@ -1387,7 +1387,7 @@ const AuthPage: React.FC = () => {
         onVerified={({ token: t, user: u }) => {
           const profileData = {
             id: u.id,
-            name: u.fullName || 'Khách hàng',
+            name: u.fullName || 'Customer',
             email: u.email,
             phone: u.phone || '',
             address: u.address || '',
@@ -1420,20 +1420,20 @@ const AuthPage: React.FC = () => {
             <UserIcon size={24} color="#000" />
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, color: 'var(--text-primary)', marginBottom: 6 }}>
-            {isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
+            {isLogin ? 'Sign In' : 'Sign Up'}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            {isLogin ? 'Chào mừng trở lại với Classic Records' : 'Tham gia cộng đồng nhạc của chúng tôi'}
+            {isLogin ? 'Welcome back to Classic Records' : 'Join our music community'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {!isLogin && (
-            <FormField label="Họ và tên" value={name} onChange={setName} placeholder="Nguyễn Văn A" error={errors.name} />
+            <FormField label="Full Name" value={name} onChange={setName} placeholder="John Doe" error={errors.name} />
           )}
           <FormField label="Email" value={email} onChange={setEmail} type="email" placeholder="email@example.com" error={errors.email} />
           <FormField
-            label="Mật khẩu"
+            label="Password"
             value={password}
             onChange={setPassword}
             type={showPw ? 'text' : 'password'}
@@ -1453,7 +1453,7 @@ const AuthPage: React.FC = () => {
                 onClick={() => setForgotStep(true)}
                 style={{ fontSize: 12, fontWeight: 600, color: '#e74c3c', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
               >
-                Quên mật khẩu?
+                Forgot password?
               </button>
             </div>
           )}
@@ -1463,7 +1463,7 @@ const AuthPage: React.FC = () => {
             disabled={submitting}
             style={{ marginTop: 4, width: '100%', padding: '14px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 'var(--radius-full)', fontSize: 14, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1, fontFamily: 'var(--font-sans)', boxShadow: 'var(--shadow-accent)', transition: 'all 0.2s' }}
           >
-            {submitting ? 'Đang xử lý...' : isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
+            {submitting ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
 
@@ -1479,10 +1479,10 @@ const AuthPage: React.FC = () => {
 
         <div style={{ textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10 }}>
-            {isLogin ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
+            {isLogin ? "Don't have an account?" : 'Already have an account?'}
           </p>
           <button onClick={() => { setIsLogin((l) => !l); setErrors({}); }} style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
-            {isLogin ? 'Đăng ký ngay →' : '← Quay lại đăng nhập'}
+            {isLogin ? 'Sign up now →' : '← Back to sign in'}
           </button>
         </div>
       </div>
@@ -1493,11 +1493,11 @@ const AuthPage: React.FC = () => {
 // ─── Main User Page ───────────────────────────────────────────────────────────
 
 const NAV_ITEMS: { tab: Tab; label: string; icon: React.ReactNode }[] = [
-  { tab: 'overview',  label: 'Tổng quan',     icon: <LayoutDashboard size={17} /> },
-  { tab: 'profile',   label: 'Thông tin',      icon: <UserIcon size={17} /> },
-  { tab: 'orders',    label: 'Đơn hàng',       icon: <Package size={17} /> },
-  { tab: 'security',  label: 'Bảo mật',        icon: <Lock size={17} /> },
-  { tab: 'settings',  label: 'Cài đặt',        icon: <Settings size={17} /> },
+  { tab: 'overview',  label: 'Overview',     icon: <LayoutDashboard size={17} /> },
+  { tab: 'profile',   label: 'Profile',      icon: <UserIcon size={17} /> },
+  { tab: 'orders',    label: 'Orders',       icon: <Package size={17} /> },
+  { tab: 'security',  label: 'Security',     icon: <Lock size={17} /> },
+  { tab: 'settings',  label: 'Settings',     icon: <Settings size={17} /> },
 ];
 
 const User: React.FC = () => {
@@ -1551,7 +1551,7 @@ const User: React.FC = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     dispatch(logout());
-    toast.success('Đã đăng xuất');
+    toast.success('Logged out successfully');
     navigate('/');
   };
 
@@ -1566,12 +1566,12 @@ const User: React.FC = () => {
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, fontFamily: 'var(--font-display)', margin: '0 auto 12px', boxShadow: 'var(--shadow-accent)' }}>
                 {initials}
               </div>
-              <p style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reduxProfile.name || 'Khách hàng'}</p>
+              <p style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reduxProfile.name || 'Customer'}</p>
               <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reduxProfile.email}</p>
               {reduxProfile?.role?.toUpperCase() === 'ADMIN' && (
                 <div style={{ marginTop: 10 }}>
                   <button onClick={() => window.open('/admin', '_blank')} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-soft)', border: '1px solid rgba(29,185,84,0.3)', borderRadius: 'var(--radius-full)', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
-                    <LayoutDashboard size={11} /> Trang Admin
+                    <LayoutDashboard size={11} /> Admin Panel
                   </button>
                 </div>
               )}
@@ -1602,7 +1602,7 @@ const User: React.FC = () => {
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
               >
                 <LogOut size={17} style={{ flexShrink: 0 }} />
-                Đăng xuất
+                Log Out
               </button>
             </nav>
           </aside>

@@ -12,7 +12,7 @@ const Cart: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // Re-fetch stock mới nhất từ server mỗi khi vào trang Cart
+  // Re-fetch latest stock from server upon visiting Cart page
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
@@ -26,9 +26,9 @@ const Cart: React.FC = () => {
       const next = new Set(prev);
       cartItems.forEach(item => {
         const stock = productStock[item.id] ?? item.stock;
-        // Chỉ auto-add nếu còn hàng
+        // Auto-add only if in stock
         if (!next.has(item.id) && stock > 0) next.add(item.id);
-        // Auto-deselect nếu hết hàng
+        // Auto-deselect if out of stock
         if (stock <= 0) next.delete(item.id);
       });
       // Remove IDs that no longer exist in cart
@@ -39,7 +39,7 @@ const Cart: React.FC = () => {
     });
   }, [cartItems, productStock]);
 
-  // Auto-clamp quantity khi stock giảm (ví dụ: user có 5 trong giỏ nhưng stock chỉ còn 2)
+  // Auto-clamp quantity when stock decreases
   useEffect(() => {
     cartItems.forEach(item => {
       const stock = productStock[item.id];
@@ -49,7 +49,7 @@ const Cart: React.FC = () => {
     });
   }, [productStock, cartItems, dispatch]);
 
-  // Chỉ tính những item còn hàng VÀ được chọn
+  // Calculate items in stock and selected
   const selectedItems = cartItems.filter(i => {
     const stock = productStock[i.id] ?? i.stock;
     return selectedIds.has(i.id) && stock > 0;
@@ -92,10 +92,10 @@ const Cart: React.FC = () => {
           marginBottom: 12,
           letterSpacing: '-0.02em',
         }}>
-          Giỏ hàng trống
+          Your cart is empty
         </h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: 32, fontSize: 15 }}>
-          Chưa có sản phẩm nào trong giỏ hàng.
+          There are no products in your cart.
         </p>
         <Link
           to="/vinyl"
@@ -110,7 +110,7 @@ const Cart: React.FC = () => {
             boxShadow: 'var(--shadow-accent)',
           }}
         >
-          Tiếp tục mua sắm
+          Continue Shopping
         </Link>
       </div>
     );
@@ -141,9 +141,9 @@ const Cart: React.FC = () => {
           color: 'var(--text-primary)',
           letterSpacing: '-0.02em',
         }}>
-          Giỏ hàng
+          Shopping Cart
           <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.6em', marginLeft: 12 }}>
-            ({cartItems.reduce((a, i) => a + i.quantity, 0)} sản phẩm)
+            ({cartItems.reduce((a, i) => a + i.quantity, 0)} items)
           </span>
         </h1>
 
@@ -169,7 +169,7 @@ const Cart: React.FC = () => {
               cursor: 'pointer',
             }}
           />
-          Chọn tất cả ({cartItems.length})
+          Select all ({cartItems.length})
         </label>
       </div>
 
@@ -257,7 +257,7 @@ const Cart: React.FC = () => {
                         color: '#fff',
                         textTransform: 'uppercase',
                         letterSpacing: '0.1em',
-                      }}>Hết hàng</span>
+                      }}>Out of stock</span>
                     </div>
                   )}
                 </Link>
@@ -308,7 +308,7 @@ const Cart: React.FC = () => {
                         {item.category || 'vinyl'}
                       </span>
 
-                      {/* Badge hết hàng */}
+                      {/* Badge out of stock */}
                       {isOutOfStock && (
                         <span style={{
                           display: 'inline-flex',
@@ -324,11 +324,11 @@ const Cart: React.FC = () => {
                           padding: '2px 10px',
                           borderRadius: 'var(--radius-full)',
                         }}>
-                          <AlertTriangle size={10} /> Hết hàng
+                          <AlertTriangle size={10} /> Out of stock
                         </span>
                       )}
 
-                      {/* Cảnh báo stock giảm */}
+                      {/* Warning stock reduction */}
                       {isOverStock && (
                         <span style={{
                           display: 'inline-flex',
@@ -342,21 +342,21 @@ const Cart: React.FC = () => {
                           padding: '2px 10px',
                           borderRadius: 'var(--radius-full)',
                         }}>
-                          <AlertTriangle size={10} /> Chỉ còn {currentStock}
+                          <AlertTriangle size={10} /> Only {currentStock} left
                         </span>
                       )}
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                    {/* Qty control — ẩn khi hết hàng */}
+                    {/* Qty control — hidden if out of stock */}
                     {isOutOfStock ? (
                       <span style={{
                         fontSize: 12,
                         color: '#ef4444',
                         fontWeight: 600,
                         fontStyle: 'italic',
-                      }}>Sản phẩm này đã hết hàng</span>
+                      }}>This product is out of stock</span>
                     ) : (
                       <div style={{
                         display: 'flex',
@@ -423,7 +423,7 @@ const Cart: React.FC = () => {
                       onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                     >
                       <Trash2 size={15} strokeWidth={1.5} />
-                      Xóa
+                      Remove
                     </button>
                   </div>
                 </div>
@@ -452,29 +452,29 @@ const Cart: React.FC = () => {
             paddingBottom: 16,
             borderBottom: '1px solid var(--border)',
           }}>
-            Tổng đơn hàng
+            Order Summary
           </h2>
 
           {/* Selected items summary */}
           <div style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
-              {selectedItems.length} / {cartItems.length} sản phẩm được chọn
+              {selectedItems.length} / {cartItems.length} items selected
             </p>
             {outOfStockCount > 0 && (
               <p style={{ fontSize: 11, color: '#ef4444', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                 <AlertTriangle size={12} />
-                {outOfStockCount} sản phẩm đã hết hàng
+                {outOfStockCount} products are out of stock
               </p>
             )}
             {selectedItems.length === 0 && (
               <p style={{ fontSize: 12, color: 'var(--warm-rose)', fontWeight: 600 }}>
-                Vui lòng chọn ít nhất 1 sản phẩm
+                Please select at least 1 item
               </p>
             )}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10 }}>
-            <span>Tạm tính</span>
+            <span>Subtotal</span>
             <span>${totalPrice.toFixed(2)}</span>
           </div>
           <div style={{
@@ -483,8 +483,8 @@ const Cart: React.FC = () => {
             marginBottom: 20, paddingBottom: 20,
             borderBottom: '1px solid var(--border)',
           }}>
-            <span>Giao hàng</span>
-            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 12 }}>Miễn phí</span>
+            <span>Shipping</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 12 }}>Free</span>
           </div>
 
           <div style={{
@@ -494,7 +494,7 @@ const Cart: React.FC = () => {
             color: 'var(--text-primary)',
             marginBottom: 24,
           }}>
-            <span>Tổng cộng</span>
+            <span>Total</span>
             <span style={{ color: selectedItems.length > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
               ${totalPrice.toFixed(2)}
             </span>
@@ -517,7 +517,7 @@ const Cart: React.FC = () => {
               transition: 'all 0.2s ease',
             }}
           >
-            Thanh toán an toàn <ArrowRight size={15} />
+            Secure Checkout <ArrowRight size={15} />
           </button>
 
           <Link
@@ -535,7 +535,7 @@ const Cart: React.FC = () => {
             onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--text-primary)')}
             onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}
           >
-            Tiếp tục mua sắm
+            Continue Shopping
           </Link>
         </div>
       </div>

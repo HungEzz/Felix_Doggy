@@ -61,7 +61,7 @@ const mockOrder = {
   userId: 'user-1',
   customerEmail: 'buyer@example.com',
   customerPhone: '0912345678',
-  shippingAddr: '123 Đường ABC',
+  shippingAddr: '123 ABC Street',
   totalAmount: 300000,
   status: 'PENDING',
   createdAt: new Date(),
@@ -75,7 +75,7 @@ const checkoutBody = {
   customerEmail: 'buyer@example.com',
   customerPhone: '0912345678',
   customerName: 'Buyer Name',
-  shippingAddr: '123 Đường ABC',
+  shippingAddr: '123 ABC Street',
   items: [{ id: 'prod-1', quantity: 2 }],
 };
 
@@ -110,13 +110,14 @@ describe('orderService.checkout', () => {
 
     const result = await orderService.checkout(checkoutBody, 'Bearer valid.jwt.token');
 
-    expect(result).toEqual(mockOrder);
+    expect(result).toEqual({ order: mockOrder });
     expect(mockOrderRepo.createCheckoutOrder).toHaveBeenCalledWith(
       'user-1',
       checkoutBody.customerEmail,
       checkoutBody.customerPhone,
       checkoutBody.shippingAddr,
       checkoutBody.items,
+      'cod',
     );
   });
 
@@ -127,13 +128,14 @@ describe('orderService.checkout', () => {
 
     const result = await orderService.checkout(checkoutBody, undefined);
 
-    expect(result.userId).toBeNull();
+    expect(result.order.userId).toBeNull();
     expect(mockOrderRepo.createCheckoutOrder).toHaveBeenCalledWith(
       null,
       checkoutBody.customerEmail,
       checkoutBody.customerPhone,
       checkoutBody.shippingAddr,
       checkoutBody.items,
+      'cod',
     );
   });
 
@@ -153,7 +155,7 @@ describe('orderService.checkout', () => {
       expect.objectContaining({
         fullName: 'Buyer Name',
         phone: '0912345678',
-        address: '123 Đường ABC',
+        address: '123 ABC Street',
       }),
     );
   });
@@ -204,7 +206,7 @@ describe('orderService.checkout', () => {
 
     // Should NOT throw — cache failure is non-critical
     const result = await orderService.checkout(checkoutBody, undefined);
-    expect(result).toEqual(mockOrder);
+    expect(result).toEqual({ order: mockOrder });
   });
 
   it('🔴 [EC-5] still succeeds even if profile update throws (non-critical)', async () => {
@@ -216,7 +218,7 @@ describe('orderService.checkout', () => {
 
     // Profile update failure is non-critical — order should still succeed
     const result = await orderService.checkout(checkoutBody, 'Bearer valid.jwt.token');
-    expect(result).toEqual(mockOrder);
+    expect(result).toEqual({ order: mockOrder });
   });
 });
 

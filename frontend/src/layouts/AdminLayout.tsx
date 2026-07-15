@@ -34,23 +34,23 @@ const AdminLayout: React.FC = () => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
     dispatch(adminLogout());
-    toast.success('Đã đăng xuất admin', { duration: 2000 });
+    toast.success('Admin logged out', { duration: 2000 });
     navigate('/');
   };
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={18} /> },
-    { name: 'Sản phẩm', path: '/admin/products', icon: <Package size={18} /> },
-    { name: 'Đơn hàng', path: '/admin/orders', icon: <ShoppingCart size={18} /> },
-    { name: 'Khách hàng', path: '/admin/users', icon: <Users size={18} /> },
+    { name: 'Products', path: '/admin/products', icon: <Package size={18} /> },
+    { name: 'Orders', path: '/admin/orders', icon: <ShoppingCart size={18} /> },
+    { name: 'Customers', path: '/admin/users', icon: <Users size={18} /> },
   ];
 
   const statsItems = [
-    { name: 'Doanh thu', path: '/admin/statistics/revenue', icon: <DollarSign size={15} /> },
-    { name: 'Đơn hàng', path: '/admin/statistics/orders', icon: <ShoppingBag size={15} /> },
-    { name: 'Sản phẩm', path: '/admin/statistics/products', icon: <Package size={15} /> },
-    { name: 'Khách hàng', path: '/admin/statistics/users', icon: <UserCheck size={15} /> },
-    { name: 'Kho hàng', path: '/admin/statistics/inventory', icon: <Boxes size={15} /> },
+    { name: 'Revenue', path: '/admin/statistics/revenue', icon: <DollarSign size={15} /> },
+    { name: 'Orders', path: '/admin/statistics/orders', icon: <ShoppingBag size={15} /> },
+    { name: 'Products', path: '/admin/statistics/products', icon: <Package size={15} /> },
+    { name: 'Customers', path: '/admin/statistics/users', icon: <UserCheck size={15} /> },
+    { name: 'Inventory', path: '/admin/statistics/inventory', icon: <Boxes size={15} /> },
   ];
 
   const isStatsActive = location.pathname.startsWith('/admin/statistics');
@@ -62,7 +62,7 @@ const AdminLayout: React.FC = () => {
       {/* Logo */}
       <div
         onClick={() => window.open('/', '_blank')}
-        title="Mở trang chủ (tab mới)"
+        title="Open homepage (new tab)"
         style={{
           padding: '20px 20px',
           borderBottom: '1px solid var(--border)',
@@ -165,7 +165,7 @@ const AdminLayout: React.FC = () => {
             }}
           >
             <BarChart3 size={18} style={{ color: isStatsActive ? '#1db954' : 'inherit' }} />
-            <span style={{ flex: 1, textAlign: 'left' }}>Thống kê</span>
+            <span style={{ flex: 1, textAlign: 'left' }}>Statistics</span>
             <ChevronDown
               size={14}
               style={{
@@ -250,7 +250,7 @@ const AdminLayout: React.FC = () => {
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
         >
           <LogOut size={18} />
-          <span>Đăng xuất</span>
+          <span>Log Out</span>
         </button>
       </div>
     </>

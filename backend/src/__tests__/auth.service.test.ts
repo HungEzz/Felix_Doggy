@@ -119,7 +119,7 @@ describe('authService.login', () => {
       ...verifiedUser,
       fullName: 'Nguyen Van A',
       phone: '0912345678',
-      address: '123 Đường ABC',
+      address: '123 ABC Street',
     };
     mockAuthRepo.findUserByEmail.mockResolvedValue(userWithProfile);
     bcryptMock.compare.mockResolvedValue(true as never);
@@ -128,7 +128,7 @@ describe('authService.login', () => {
 
     expect(result.user.fullName).toBe('Nguyen Van A');
     expect(result.user.phone).toBe('0912345678');
-    expect(result.user.address).toBe('123 Đường ABC');
+    expect(result.user.address).toBe('123 ABC Street');
   });
 
   // ── Edge cases ───────────────────────────────────────────────────────────
@@ -225,7 +225,7 @@ describe('authService.register', () => {
   it('🔴 [EC-6] throws when password is shorter than 8 characters', async () => {
     await expect(
       authService.register({ email: 'a@b.com', password: 'short' }),
-    ).rejects.toThrow(/ít nhất 8 ký tự/);
+    ).rejects.toThrow(/at least 8 characters/);
   });
 
   it('🔴 [EC-7] throws when email or password are missing', async () => {
@@ -256,7 +256,7 @@ describe('authService.changePassword', () => {
       newPassword: 'newPassword1',
     });
 
-    expect(result).toEqual({ message: 'Mật khẩu đã được thay đổi thành công' });
+    expect(result).toEqual({ message: 'Password changed successfully' });
     expect(mockAuthRepo.updatePassword).toHaveBeenCalledWith('user-1', '$2b$newHashed');
   });
 
@@ -271,7 +271,7 @@ describe('authService.changePassword', () => {
         currentPassword: 'wrongOld',
         newPassword: 'newPassword1',
       }),
-    ).rejects.toThrow('Mật khẩu hiện tại không chính xác');
+    ).rejects.toThrow('Current password is incorrect');
   });
 
   it('🔴 [EC-9] throws when new password is too short', async () => {
@@ -280,7 +280,7 @@ describe('authService.changePassword', () => {
         currentPassword: 'oldPassword1',
         newPassword: 'short',
       }),
-    ).rejects.toThrow(/ít nhất 8 ký tự/);
+    ).rejects.toThrow(/at least 8 characters/);
   });
 });
 

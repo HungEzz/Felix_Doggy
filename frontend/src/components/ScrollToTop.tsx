@@ -5,7 +5,7 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Cuộn lên đầu trang mỗi khi đường dẫn (URL) thay đổi
+    // Scroll to top of the page whenever the pathname (URL) changes
     window.scrollTo(0, 0);
   }, [pathname]);
 

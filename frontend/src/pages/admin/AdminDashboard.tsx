@@ -16,24 +16,24 @@ const AdminDashboard: React.FC = () => {
         const ordersData: any = await api.get('/admin/orders');
         setRecentOrders(ordersData.slice(0, 5));
       } catch (error) {
-        toast.error('Không thể tải dữ liệu Dashboard');
+        toast.error('Unable to load dashboard data');
       }
     };
     fetchDashboardData();
   }, []);
 
   const statCards = [
-    { title: 'Tổng doanh thu', value: `$${stats.revenue.toFixed(2)}`, icon: <DollarSign size={24} style={{ color: 'var(--text-primary)' }} /> },
-    { title: 'Tổng đơn hàng', value: stats.orders, icon: <ShoppingBag size={24} style={{ color: 'var(--text-primary)' }} /> },
-    { title: 'Khách hàng', value: stats.users, icon: <Users size={24} style={{ color: 'var(--text-primary)' }} /> },
-    { title: 'Sản phẩm', value: stats.products, icon: <Disc3 size={24} style={{ color: 'var(--text-primary)' }} /> },
+    { title: 'Total Revenue', value: `$${stats.revenue.toFixed(2)}`, icon: <DollarSign size={24} style={{ color: 'var(--text-primary)' }} /> },
+    { title: 'Total Orders', value: stats.orders, icon: <ShoppingBag size={24} style={{ color: 'var(--text-primary)' }} /> },
+    { title: 'Customers', value: stats.users, icon: <Users size={24} style={{ color: 'var(--text-primary)' }} /> },
+    { title: 'Products', value: stats.products, icon: <Disc3 size={24} style={{ color: 'var(--text-primary)' }} /> },
   ];
 
   return (
     <div className="space-y-10">
       <div>
         <h1 className="text-3xl font-display font-bold uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
-        <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Tổng quan hoạt động kinh doanh</p>
+        <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Business activity overview</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -52,16 +52,16 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          <h2 className="text-lg font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Đơn hàng gần đây</h2>
+          <h2 className="text-lg font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Recent Orders</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}>
-                  <th className="pb-4 font-bold">Mã Đơn</th>
-                  <th className="pb-4 font-bold">Khách Hàng</th>
-                  <th className="pb-4 font-bold">Ngày</th>
-                  <th className="pb-4 font-bold">Tổng Tiền</th>
-                  <th className="pb-4 font-bold text-right">Trạng Thái</th>
+                  <th className="pb-4 font-bold">Order ID</th>
+                  <th className="pb-4 font-bold">Customer</th>
+                  <th className="pb-4 font-bold">Date</th>
+                  <th className="pb-4 font-bold">Total Price</th>
+                  <th className="pb-4 font-bold text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="text-sm" style={{ color: 'var(--text-primary)' }}>
@@ -69,10 +69,10 @@ const AdminDashboard: React.FC = () => {
                   <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td 
                       className="py-4 font-bold cursor-pointer transition-colors" 
-                      title="Click để sao chép toàn bộ mã đơn"
+                      title="Click to copy full order ID"
                       onClick={() => {
                         navigator.clipboard.writeText(order.id);
-                        toast.success('Đã sao chép toàn bộ mã đơn!');
+                        toast.success('Full order ID copied!');
                       }}
                     >
                       #{order.id.split('-')[0]}...
@@ -89,14 +89,14 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </tbody>
             </table>
-            {recentOrders.length === 0 && <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>Chưa có đơn hàng nào.</p>}
+            {recentOrders.length === 0 && <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>No orders yet.</p>}
           </div>
         </div>
 
         <div className="p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          <h2 className="text-lg font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Thông báo</h2>
+          <h2 className="text-lg font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>Notifications</h2>
           <div className="space-y-6">
-             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Mọi thứ đang hoạt động tốt.</p>
+             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Everything is operating smoothly.</p>
           </div>
         </div>
       </div>

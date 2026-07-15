@@ -127,16 +127,16 @@ const Checkout: React.FC = () => {
 
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ và tên.';
+    if (!formData.fullName.trim()) newErrors.fullName = 'Please enter your full name.';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) newErrors.email = 'Vui lòng nhập email.';
-    else if (!emailRegex.test(formData.email)) newErrors.email = 'Email không hợp lệ.';
-    if (!formData.address.trim()) newErrors.address = 'Vui lòng nhập địa chỉ.';
-    if (!formData.city.trim()) newErrors.city = 'Vui lòng nhập thành phố.';
+    if (!formData.email.trim()) newErrors.email = 'Please enter your email.';
+    else if (!emailRegex.test(formData.email)) newErrors.email = 'Invalid email address.';
+    if (!formData.address.trim()) newErrors.address = 'Please enter your shipping address.';
+    if (!formData.city.trim()) newErrors.city = 'Please enter your city.';
     const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
-    if (!formData.phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại.';
+    if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number.';
     else if (!phoneRegex.test(formData.phone.replace(/\s/g, '')))
-      newErrors.phone = 'Số điện thoại không hợp lệ (VD: 0901234567).';
+      newErrors.phone = 'Invalid phone number (e.g., 0901234567).';
     return newErrors;
   };
 
@@ -156,7 +156,7 @@ const Checkout: React.FC = () => {
       return;
     }
     if (selectedItems.length === 0) {
-      toast.error('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+      toast.error('Please select at least one item to checkout.');
       return;
     }
 
@@ -197,7 +197,7 @@ const Checkout: React.FC = () => {
       dispatch(clearCart());
       dispatch(fetchProducts());
 
-      toast.success('Đặt hàng thành công!', {
+      toast.success('Order placed successfully!', {
         className: 'toast-custom',
       });
 
@@ -206,7 +206,7 @@ const Checkout: React.FC = () => {
       const msg =
         error.response?.data?.message ||
         error.message ||
-        'Có lỗi xảy ra khi đặt hàng';
+        'An error occurred while placing order';
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
@@ -223,7 +223,7 @@ const Checkout: React.FC = () => {
   return (
     <div className="max-w-[1200px] mx-auto px-6 py-12 md:py-20 w-full text-primary">
       <h1 className="text-3xl font-display uppercase font-bold text-primary mb-10 tracking-widest">
-        Thanh toán
+        Checkout
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-16">
@@ -233,14 +233,14 @@ const Checkout: React.FC = () => {
             {/* Shipping info */}
             <section>
               <h2 className="text-lg font-bold uppercase font-display mb-6 pb-2 border-b border-token tracking-wider">
-                Thông tin giao hàng
+                Shipping Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <input
                     type="text"
                     name="fullName"
-                    placeholder="Họ và tên *"
+                    placeholder="Full Name *"
                     value={formData.fullName}
                     onChange={handleChange}
                     className={inputClass('fullName')}
@@ -272,7 +272,7 @@ const Checkout: React.FC = () => {
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="Số điện thoại * (VD: 0901234567)"
+                    placeholder="Phone Number * (e.g. 0901234567)"
                     value={formData.phone}
                     onChange={handleChange}
                     className={inputClass('phone')}
@@ -288,7 +288,7 @@ const Checkout: React.FC = () => {
                   <input
                     type="text"
                     name="address"
-                    placeholder="Địa chỉ *"
+                    placeholder="Address *"
                     value={formData.address}
                     onChange={handleChange}
                     className={inputClass('address')}
@@ -304,7 +304,7 @@ const Checkout: React.FC = () => {
                   <input
                     type="text"
                     name="city"
-                    placeholder="Thành phố *"
+                    placeholder="City *"
                     value={formData.city}
                     onChange={handleChange}
                     className={inputClass('city')}
@@ -321,12 +321,12 @@ const Checkout: React.FC = () => {
             {/* Payment method */}
             <section>
               <h2 className="text-lg font-bold uppercase font-display mb-6 pb-2 border-b border-token tracking-wider">
-                Phương thức thanh toán
+                Payment Method
               </h2>
               <div className="space-y-3">
                 {[
-                  { value: 'cod', label: 'Thanh toán khi nhận hàng (COD)', desc: 'Thanh toán bằng tiền mặt khi nhận hàng' },
-                  { value: 'payos', label: 'Thanh toán online (PayOS)', desc: 'QR Code / Chuyển khoản ngân hàng / Ví điện tử' },
+                  { value: 'cod', label: 'Cash on Delivery (COD)', desc: 'Pay in cash upon delivery' },
+                  { value: 'payos', label: 'Online Payment (PayOS)', desc: 'QR Code / Bank Transfer / E-wallet' },
                 ].map(({ value, label, desc }) => (
                   <label
                     key={value}
@@ -371,7 +371,7 @@ const Checkout: React.FC = () => {
                 }
               }}
             >
-              {isSubmitting ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+              {isSubmitting ? 'Processing...' : 'Confirm Order'}
             </button>
           </form>
         </div>
@@ -379,7 +379,7 @@ const Checkout: React.FC = () => {
         {/* ── Order Summary ────────────────────────────────────────────────── */}
         <div className="w-full lg:w-1/3 bg-card p-8 h-fit border border-token text-primary">
           <h2 className="text-lg font-bold uppercase font-display mb-4 tracking-wider">
-            Tóm tắt đơn hàng
+            Order Summary
           </h2>
 
           {/* Select all */}
@@ -392,7 +392,7 @@ const Checkout: React.FC = () => {
               style={{ accentColor: 'var(--accent)' }}
             />
             <span className="text-[10px] font-bold uppercase tracking-widest group-hover:opacity-60 transition-opacity">
-              Chọn tất cả ({cartItems.length} sản phẩm)
+              Select all ({cartItems.length} items)
             </span>
           </label>
 
@@ -440,24 +440,24 @@ const Checkout: React.FC = () => {
 
           <div className="border-t border-token pt-4 space-y-2 mb-4">
             <div className="flex justify-between text-sm font-sans text-secondary">
-              <span>Tạm tính ({selectedItems.length} sản phẩm)</span>
+              <span>Subtotal ({selectedItems.length} items)</span>
               <span>${totalPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm font-sans text-secondary">
-              <span>Giao hàng</span>
+              <span>Shipping</span>
               <span className="text-accent font-bold text-xs uppercase tracking-wider">
-                Miễn phí
+                Free
               </span>
             </div>
           </div>
           <div className="border-t border-token pt-4 flex justify-between font-bold text-lg font-sans">
-            <span>Tổng cộng</span>
+            <span>Total</span>
             <span>${totalPrice.toFixed(2)}</span>
           </div>
 
           {selectedItems.length === 0 && (
             <p className="text-red-500 text-xs mt-3 text-center font-semibold">
-              Vui lòng chọn ít nhất 1 sản phẩm
+              Please select at least 1 item
             </p>
           )}
         </div>

@@ -5,22 +5,22 @@
    DESIGN TOKENS
    ============================================================ */
 @theme {
-  /* Thay đổi token font */
+  /* Font tokens customization */
   --font-mono:  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-display: 'Plus Jakarta Sans', sans-serif; /* Mềm mại và cao cấp hơn Syne */
-  --font-sans:  'Inter', 'DM Sans', sans-serif;    /* Cực kỳ dễ đọc */
+  --font-display: 'Plus Jakarta Sans', sans-serif; /* Softer and more premium than Syne */
+  --font-sans:  'Inter', 'DM Sans', sans-serif;    /* Extremely readable */
 }
 
 :root {
   /* Light Mode */
-  --bg-primary:    #ffffff; /* Trắng tinh khiết cho sạch sẽ */
+  --bg-primary:    #ffffff; /* Pure white for cleanliness */
   --bg-secondary:  #f2f1ee;
   --bg-card:       #ffffff;
   --bg-glass:      rgba(255,255,255,0.7);
   --bg-overlay:    rgba(250,250,248,0.85);
 
-  --text-primary:  #111827; /* Đậm hơn một chút (màu Slate 900) */
-  --text-secondary:#4b5563; /* Màu Slate 600 giúp đọc nội dung dài không mỏi */
+  --text-primary:  #111827; /* Slightly darker (Slate 900) */
+  --text-secondary:#4b5563; /* Slate 600 color for fatigue-free reading of long content */
   --text-muted:    #9a9690;
   --text-inverse:  #fafaf8;
 
@@ -44,7 +44,7 @@
 
   --radius-sm:     8px;
   --radius-md:     14px;
-  --radius-lg:     24px;    /* Tăng độ bo tròn để tạo cảm giác "mềm mại" */
+  --radius-lg:     24px;    /* Increased rounding for a "softer" feel */
   --radius-xl:     28px;
   --radius-full:   9999px;
 }

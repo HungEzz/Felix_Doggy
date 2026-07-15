@@ -46,23 +46,23 @@ const OrderStats: React.FC = () => {
     await exportToExcel(
       'export/orders',
       { period: filter.period, ...(filter.period === 'custom' ? { startDate: filter.startDate, endDate: filter.endDate } : {}) },
-      'don-hang',
+      'orders',
       [
-        { key: 'orderId', label: 'Mã đơn' },
-        { key: 'status', label: 'Trạng thái' },
+        { key: 'orderId', label: 'Order ID' },
+        { key: 'status', label: 'Status' },
         { key: 'customerEmail', label: 'Email' },
-        { key: 'customerName', label: 'Tên KH' },
-        { key: 'shippingAddr', label: 'Địa chỉ' },
-        { key: 'itemCount', label: 'SP' },
-        { key: 'totalAmount', label: 'Tổng ($)', format: (v) => Number(v).toFixed(2) },
-        { key: 'createdAt', label: 'Ngày đặt', format: (v) => fmtDate(v) },
+        { key: 'customerName', label: 'Customer Name' },
+        { key: 'shippingAddr', label: 'Address' },
+        { key: 'itemCount', label: 'Items' },
+        { key: 'totalAmount', label: 'Total ($)', format: (v) => Number(v).toFixed(2) },
+        { key: 'createdAt', label: 'Date Placed', format: (v) => fmtDate(v) },
       ],
       (orders: any[]) =>
         orders.map((o: any) => ({
           orderId: o.id,
           status: o.status,
           customerEmail: o.customerEmail || o.user?.email || '',
-          customerName: o.user?.fullName || 'Khách vãng lai',
+          customerName: o.user?.fullName || 'Guest',
           shippingAddr: o.shippingAddr || '',
           itemCount: o.orderItems?.length || 0,
           totalAmount: o.totalAmount,
@@ -89,8 +89,8 @@ const OrderStats: React.FC = () => {
   return (
     <div>
       <StatsPageHeader
-        title="Thống kê Đơn hàng"
-        subtitle="Theo dõi trạng thái và xu hướng đơn hàng"
+        title="Order Statistics"
+        subtitle="Track status and trends of orders"
         icon={<ShoppingBag size={22} />}
         color="#3b82f6"
         filter={filter}
@@ -105,17 +105,17 @@ const OrderStats: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Stat cards */}
           <div className="stats-grid-container cols-5" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
-            <StatCard title="Tổng đơn" value={data?.summary.total ?? 0} icon={<ShoppingBag size={16} />} color="#3b82f6" />
-            <StatCard title="Chờ xử lý" value={getCount('PENDING')} icon={<Clock size={16} />} color={CHART_COLORS.amber} />
-            <StatCard title="Đang giao" value={getCount('SHIPPED')} icon={<Truck size={16} />} color={CHART_COLORS.purple} />
-            <StatCard title="Đã giao" value={getCount('COMPLETED')} icon={<CheckCircle size={16} />} color={CHART_COLORS.accent} />
-            <StatCard title="Đã hủy" value={getCount('CANCELLED')} icon={<XCircle size={16} />} color={CHART_COLORS.rose} />
+            <StatCard title="Total Orders" value={data?.summary.total ?? 0} icon={<ShoppingBag size={16} />} color="#3b82f6" />
+            <StatCard title="Pending" value={getCount('PENDING')} icon={<Clock size={16} />} color={CHART_COLORS.amber} />
+            <StatCard title="Shipped" value={getCount('SHIPPED')} icon={<Truck size={16} />} color={CHART_COLORS.purple} />
+            <StatCard title="Completed" value={getCount('COMPLETED')} icon={<CheckCircle size={16} />} color={CHART_COLORS.accent} />
+            <StatCard title="Cancelled" value={getCount('CANCELLED')} icon={<XCircle size={16} />} color={CHART_COLORS.rose} />
           </div>
 
           {/* Charts row */}
           <div className="charts-row-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* Pie chart */}
-            <ChartCard title="Phân bổ trạng thái" subtitle="Tỷ lệ đơn hàng theo trạng thái" minHeight={280}>
+            <ChartCard title="Status Distribution" subtitle="Order status proportions" minHeight={280}>
               {pieData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -141,8 +141,8 @@ const OrderStats: React.FC = () => {
                     <Legend
                       formatter={(value) => {
                         const labels: Record<string, string> = {
-                          PENDING: 'Chờ xử lý', COMPLETED: 'Đã giao',
-                          CANCELLED: 'Đã hủy', SHIPPED: 'Đang giao', PROCESSING: 'Đang xử lý',
+                          PENDING: 'Pending', COMPLETED: 'Completed',
+                          CANCELLED: 'Cancelled', SHIPPED: 'Shipped', PROCESSING: 'Processing',
                         };
                         return labels[value] || value;
                       }}
@@ -156,7 +156,7 @@ const OrderStats: React.FC = () => {
             </ChartCard>
 
             {/* Bar chart */}
-            <ChartCard title="Số đơn hàng theo ngày" minHeight={280}>
+            <ChartCard title="Daily Orders" minHeight={280}>
               {chartData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -165,13 +165,13 @@ const OrderStats: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                     <XAxis
                       dataKey="date"
-                      tickFormatter={(d) => new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                      tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}
                       tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
                       axisLine={false} tickLine={false}
                     />
                     <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                     <Tooltip
-                      formatter={(value: unknown) => [String(value), 'Đơn hàng']}
+                      formatter={(value: unknown) => [String(value), 'Orders']}
                       labelFormatter={(label) => fmtDate(label)}
                       contentStyle={tooltipStyle}
                     />
@@ -186,7 +186,7 @@ const OrderStats: React.FC = () => {
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
               <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                Đơn hàng gần đây
+                Recent Orders
               </h3>
             </div>
             {recentOrders.length === 0 ? (
@@ -196,7 +196,7 @@ const OrderStats: React.FC = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'var(--bg-secondary)' }}>
-                      {['Mã đơn', 'Khách hàng', 'Sản phẩm', 'Tổng tiền', 'Trạng thái', 'Ngày đặt'].map((h) => (
+                      {['Order ID', 'Customer', 'Items', 'Total Price', 'Status', 'Date Placed'].map((h) => (
                         <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>
@@ -210,10 +210,10 @@ const OrderStats: React.FC = () => {
                           #{order.id.split('-')[0].toUpperCase()}
                         </td>
                         <td style={{ padding: '11px 16px' }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{order.user?.fullName || 'Khách vãng lai'}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{order.user?.fullName || 'Guest'}</p>
                           <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{order.customerEmail}</p>
                         </td>
-                        <td style={{ padding: '11px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{order.orderItems?.length || 0} sp</td>
+                        <td style={{ padding: '11px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{order.orderItems?.length || 0} items</td>
                         <td style={{ padding: '11px 16px', fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{fmtCurrency(order.totalAmount)}</td>
                         <td style={{ padding: '11px 16px' }}><OrderStatusBadge status={order.status} /></td>
                         <td style={{ padding: '11px 16px', fontSize: 12, color: 'var(--text-muted)' }}>{fmtDate(order.createdAt)}</td>
@@ -223,8 +223,8 @@ const OrderStats: React.FC = () => {
                 </table>
               </div>
             )}
+          </div>
         </div>
-      </div>
       )}
       <style>{`
         @media (max-width: 900px) {

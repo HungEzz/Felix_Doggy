@@ -151,9 +151,10 @@ The frontend follows a **layered component architecture** with unidirectional da
 
 #### Checkout
 - **Guest and authenticated checkout** — autofills name, email, phone, address from user profile when logged in
+- **Multiple payment options** — supports Cash on Delivery (COD) and Online Payment via **PayOS** (QR Code, bank transfer)
 - **Selective checkout** — choose which cart items to include in the order (passed via React Router state)
 - **Form validation** — email regex, Vietnamese phone number pattern (`0|+84` prefix), required fields
-- **Post-checkout** — clears cart, refreshes product stock, syncs profile data, navigates to success page
+- **Post-checkout & Payment Verification** — COD orders navigate immediately to success and clear the cart. PayOS orders redirect to the secure payment page, and verify the payment status securely with the backend upon return before clearing the cart and updating inventory.
 
 #### Authentication & Account
 - **Multi-tab auth** — OTP verification flow (register → verify OTP → auto-login)

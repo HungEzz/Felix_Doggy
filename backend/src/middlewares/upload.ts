@@ -23,7 +23,7 @@ export const upload = multer({
       cb(null, true);
       return;
     }
-    cb(new Error('Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP).'));
+    cb(new Error('Only image files are accepted (JPEG, PNG, GIF, WebP).'));
   },
 });
 

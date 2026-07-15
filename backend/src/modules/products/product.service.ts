@@ -8,21 +8,21 @@ const validateProductInput = (body: any): string | null => {
   const { title, artist, price, imgUrl, category, stock } = body;
 
   if (!title?.trim() || !artist?.trim() || !imgUrl?.trim()) {
-    return 'Tên sản phẩm, nghệ sĩ và hình ảnh không được để trống.';
+    return 'Product title, artist, and image URL are required.';
   }
 
   const parsedPrice = parseFloat(price);
   if (isNaN(parsedPrice) || parsedPrice <= 0) {
-    return 'Giá phải là số dương hợp lệ.';
+    return 'Price must be a valid positive number.';
   }
 
   const parsedStock = parseInt(stock, 10);
   if (isNaN(parsedStock) || parsedStock < 0) {
-    return 'Số lượng tồn kho phải là số nguyên >= 0.';
+    return 'Stock quantity must be an integer >= 0.';
   }
 
   if (!VALID_CATEGORIES.includes(category)) {
-    return `Danh mục không hợp lệ. Chỉ chấp nhận: ${VALID_CATEGORIES.join(', ')}.`;
+    return `Invalid category. Only accepted values are: ${VALID_CATEGORIES.join(', ')}.`;
   }
 
   return null;
@@ -95,7 +95,7 @@ export const productService = {
     const orderItemsCount = await productRepository.countOrderItemsByProduct(id);
     if (orderItemsCount > 0) {
       throw new Error(
-        'Không thể xóa sản phẩm này vì nó đã có trong đơn hàng của khách. Để ẩn sản phẩm, bạn có thể chỉnh số lượng tồn kho về 0.',
+        'Cannot delete this product because it is already in customer orders. To hide the product, you can set its stock to 0.',
       );
     }
 

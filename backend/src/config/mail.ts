@@ -75,21 +75,21 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
         🎵 Classic Records
       </h1>
       <p style="margin:8px 0 0;color:rgba(0,0,0,0.7);font-size:13px;">
-        Xác thực tài khoản
+        Account Verification
       </p>
     </div>
 
     <!-- Body -->
     <div style="padding:32px 28px;">
       <p style="color:#e0e0e0;font-size:14px;line-height:1.6;margin:0 0 20px;">
-        Xin chào! Bạn vừa đăng ký tài khoản tại <strong style="color:#1db954;">Classic Records</strong>.
-        Vui lòng sử dụng mã OTP bên dưới để xác thực email của bạn:
+        Hello! You have just registered an account at <strong style="color:#1db954;">Classic Records</strong>.
+        Please use the OTP code below to verify your email:
       </p>
 
       <!-- OTP Code -->
       <div style="background:#1a1a1a;border:2px dashed #1db954;border-radius:12px;padding:24px;text-align:center;margin:24px 0;">
         <p style="margin:0 0 8px;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700;">
-          Mã xác thực
+          Verification Code
         </p>
         <p style="margin:0;color:#1db954;font-size:36px;font-weight:800;letter-spacing:8px;font-family:'Courier New',monospace;">
           ${otp}
@@ -97,15 +97,15 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
       </div>
 
       <p style="color:#888;font-size:12px;line-height:1.5;margin:20px 0 0;">
-        ⏱ Mã có hiệu lực trong <strong style="color:#e0e0e0;">5 phút</strong>.<br>
-        🔒 Không chia sẻ mã này với bất kỳ ai.
+        ⏱ The code is valid for <strong style="color:#e0e0e0;">5 minutes</strong>.<br>
+        🔒 Do not share this code with anyone.
       </p>
     </div>
 
     <!-- Footer -->
     <div style="padding:20px 28px;border-top:1px solid #222;text-align:center;">
       <p style="margin:0;color:#555;font-size:11px;">
-        Nếu bạn không yêu cầu đăng ký, hãy bỏ qua email này.
+        If you did not request registration, please ignore this email.
       </p>
     </div>
   </div>
@@ -118,17 +118,17 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
     await transporter.sendMail({
       from: `"Classic Records" <${env.SMTP_USER}>`,
       to,
-      subject: `[Classic Records] Mã xác thực OTP: ${otp}`,
+      subject: `[Classic Records] OTP Verification Code: ${otp}`,
       html,
     });
   } catch (error: any) {
     console.error('Failed to send OTP email via SMTP:', error.message || error);
     console.log(`
 ========================================================================
-[MAIL FALLBACK] PHÁT HIỆN LỖI GỬI EMAIL (Có thể do Render chặn cổng SMTP)
-- Email người nhận: ${to}
-- Mã OTP của bạn: ${otp}
-Hãy sử dụng mã OTP này để hoàn tất xác thực trên giao diện web.
+[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED (Possibly due to Render blocking SMTP port)
+- Recipient email: ${to}
+- Your OTP code: ${otp}
+Please use this OTP code to complete the verification on the web UI.
 ========================================================================
     `);
   }
@@ -153,21 +153,21 @@ export async function sendPasswordResetOtpEmail(to: string, otp: string): Promis
         🔑 Classic Records
       </h1>
       <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">
-        Đặt lại mật khẩu
+        Reset Password
       </p>
     </div>
 
     <!-- Body -->
     <div style="padding:32px 28px;">
       <p style="color:#e0e0e0;font-size:14px;line-height:1.6;margin:0 0 20px;">
-        Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản tại <strong style="color:#e74c3c;">Classic Records</strong>.
-        Vui lòng sử dụng mã OTP bên dưới để xác nhận:
+        You have requested to reset your password for your account at <strong style="color:#e74c3c;">Classic Records</strong>.
+        Please use the OTP code below to confirm:
       </p>
 
       <!-- OTP Code -->
       <div style="background:#1a1a1a;border:2px dashed #e74c3c;border-radius:12px;padding:24px;text-align:center;margin:24px 0;">
         <p style="margin:0 0 8px;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700;">
-          Mã xác nhận
+          Confirmation Code
         </p>
         <p style="margin:0;color:#e74c3c;font-size:36px;font-weight:800;letter-spacing:8px;font-family:'Courier New',monospace;">
           ${otp}
@@ -175,15 +175,15 @@ export async function sendPasswordResetOtpEmail(to: string, otp: string): Promis
       </div>
 
       <p style="color:#888;font-size:12px;line-height:1.5;margin:20px 0 0;">
-        ⏱ Mã có hiệu lực trong <strong style="color:#e0e0e0;">5 phút</strong>.<br>
-        🔒 Không chia sẻ mã này với bất kỳ ai.
+        ⏱ The code is valid for <strong style="color:#e0e0e0;">5 minutes</strong>.<br>
+        🔒 Do not share this code with anyone.
       </p>
     </div>
 
     <!-- Footer -->
     <div style="padding:20px 28px;border-top:1px solid #222;text-align:center;">
       <p style="margin:0;color:#555;font-size:11px;">
-        Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.
+        If you did not request a password reset, please ignore this email.
       </p>
     </div>
   </div>
@@ -196,17 +196,17 @@ export async function sendPasswordResetOtpEmail(to: string, otp: string): Promis
     await transporter.sendMail({
       from: `"Classic Records" <${env.SMTP_USER}>`,
       to,
-      subject: `[Classic Records] Mã đặt lại mật khẩu`,
+      subject: `[Classic Records] Password Reset Code`,
       html,
     });
   } catch (error: any) {
     console.error('Failed to send password reset email via SMTP:', error.message || error);
     console.log(`
 ========================================================================
-[MAIL FALLBACK] PHÁT HIỆN LỖI GỬI EMAIL (Có thể do Render chặn cổng SMTP)
-- Email người nhận: ${to}
-- Mã OTP đặt lại mật khẩu: ${otp}
-Hãy sử dụng mã OTP này để hoàn tất đặt lại mật khẩu.
+[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED (Possibly due to Render blocking SMTP port)
+- Recipient email: ${to}
+- Password reset OTP code: ${otp}
+Please use this OTP code to complete your password reset.
 ========================================================================
     `);
   }

@@ -75,30 +75,30 @@ const OrderSuccess: React.FC = () => {
   const statusConfig = {
     loading: {
       icon: <Clock size={64} strokeWidth={1} className="text-muted animate-pulse" />,
-      label: 'Đang xác nhận thanh toán',
-      title: 'Vui lòng chờ...',
-      message: 'Hệ thống đang xác nhận thanh toán của bạn.',
+      label: 'Confirming payment',
+      title: 'Please wait...',
+      message: 'The system is confirming your payment.',
       submessage: '',
     },
     success: {
       icon: <CheckCircle size={64} strokeWidth={1} className="text-accent" />,
-      label: 'Đặt hàng thành công',
-      title: 'Cảm ơn bạn!',
-      message: 'Đơn hàng của bạn đã được tiếp nhận và đang được xử lý.',
-      submessage: 'Chúng tôi sẽ gửi email xác nhận sớm nhất có thể.',
+      label: 'Order placed successfully',
+      title: 'Thank you!',
+      message: 'Your order has been received and is being processed.',
+      submessage: 'We will send a confirmation email as soon as possible.',
     },
     pending: {
       icon: <Clock size={64} strokeWidth={1} className="text-yellow-500" />,
-      label: 'Đang chờ xác nhận thanh toán',
-      title: 'Gần xong rồi!',
-      message: 'Hệ thống đang chờ xác nhận thanh toán từ ngân hàng.',
-      submessage: 'Đơn hàng sẽ được xử lý ngay khi thanh toán được xác nhận. Vui lòng kiểm tra lại sau vài phút.',
+      label: 'Waiting for payment confirmation',
+      title: 'Almost done!',
+      message: 'The system is waiting for payment confirmation from the bank.',
+      submessage: 'Your order will be processed as soon as payment is confirmed. Please check back in a few minutes.',
     },
     error: {
       icon: <AlertCircle size={64} strokeWidth={1} className="text-red-500" />,
-      label: 'Lỗi thanh toán',
-      title: 'Có lỗi xảy ra',
-      message: 'Không thể xác nhận thanh toán. Vui lòng liên hệ hỗ trợ.',
+      label: 'Payment error',
+      title: 'An error occurred',
+      message: 'Cannot confirm payment. Please contact support.',
       submessage: '',
     },
   };
@@ -151,16 +151,16 @@ const OrderSuccess: React.FC = () => {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <p className="text-[10px] uppercase tracking-[0.3em] text-muted mb-2">Mã đơn hàng</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted mb-2">Order ID</p>
           <p className="text-2xl font-bold font-display tracking-widest text-primary">{displayOrderCode}</p>
           {orderData?.paymentMethod === 'payos' && paymentStatus === 'success' && (
             <p className="text-[10px] uppercase tracking-wider text-accent mt-2 font-semibold">
-              ✓ Đã thanh toán online
+              ✓ Online payment completed
             </p>
           )}
           {paymentStatus === 'pending' && (
             <p className="text-[10px] uppercase tracking-wider text-yellow-500 mt-2 font-semibold animate-pulse">
-              ⏳ Đang xác nhận...
+              ⏳ Confirming...
             </p>
           )}
         </div>
@@ -172,13 +172,13 @@ const OrderSuccess: React.FC = () => {
           }`}
         >
           <div className="border border-token bg-card p-5 text-primary">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Giao hàng</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Shipping</p>
             <p className="text-xs font-sans text-secondary leading-relaxed">
-              Dự kiến 3–5 ngày làm việc
+              Estimated 3–5 business days
             </p>
           </div>
           <div className="border border-token bg-card p-5 text-primary">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Hỗ trợ</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Support</p>
             <p className="text-xs font-sans text-secondary leading-relaxed">
               support@recordstore.vn
             </p>
@@ -206,7 +206,7 @@ const OrderSuccess: React.FC = () => {
               e.currentTarget.style.background = 'var(--accent)';
             }}
           >
-            Về trang chủ
+            Back to home
           </Link>
           <Link
             to="/vinyl"
@@ -220,7 +220,7 @@ const OrderSuccess: React.FC = () => {
               e.currentTarget.style.color = 'var(--text-primary)';
             }}
           >
-            Tiếp tục mua sắm
+            Continue shopping
           </Link>
         </div>
       </div>

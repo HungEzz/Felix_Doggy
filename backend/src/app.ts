@@ -73,11 +73,11 @@ app.get('/api/test-ai', async (_req, res) => {
   try {
     results.geminiKeyLength = env.GEMINI_API_KEY ? env.GEMINI_API_KEY.length : 0;
     
-    const systemPrompt = "Bạn là trợ lý AI của cửa hàng Classic Records (bán Vinyl, CD, Merch). Trả lời bằng tiếng Việt, ngắn gọn, thân thiện.";
+    const systemPrompt = "You are the AI assistant of the Classic Records store (selling Vinyl, CD, Merch). Answer in English, short, and friendly.";
     const history = [
-      { role: 'assistant', content: '👋 Xin chào! Tôi là trợ lý ảo của Classic Records.' }
+      { role: 'assistant', content: "👋 Hello! I am the virtual assistant of Classic Records." }
     ];
-    const message = "Có những Merch gì?";
+    const message = "What Merch is available?";
 
     const contents = [];
     for (const h of history) {

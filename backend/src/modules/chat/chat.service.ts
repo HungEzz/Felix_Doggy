@@ -19,36 +19,35 @@ const MAX_TOOL_HOPS = 5;
 const buildSystemPrompt = (ctx: UserContext, cartItems: any[], path: string): string => {
   const roleLabel =
     ctx.role === 'ADMIN'
-      ? 'ADMIN (toàn quyền: xem mọi đơn, sửa/xóa đơn, xem thống kê)'
+      ? 'ADMIN (full access: view all orders, edit/delete orders, view statistics)'
       : ctx.role === 'USER'
-        ? 'KHÁCH ĐÃ ĐĂNG NHẬP (chỉ xem đơn của mình)'
-        : 'KHÁCH (chưa đăng nhập)';
+        ? 'LOGGED IN USER (view own orders only)'
+        : 'GUEST (not logged in)';
 
   const cartSummary =
     Array.isArray(cartItems) && cartItems.length > 0
-      ? `Giỏ hàng hiện tại có ${cartItems.length} sản phẩm: ${cartItems
+      ? `Current cart has ${cartItems.length} items: ${cartItems
         .map((c: any) => `${c.title} x${c.quantity}`)
         .join(', ')}.`
-      : 'Giỏ hàng đang trống.';
+      : 'Cart is empty.';
 
-  return `Bạn là trợ lý AI của cửa hàng Classic Records (bán Vinyl, CD, Merch).
-Trả lời bằng tiếng Việt, ngắn gọn, thân thiện. Có thể dùng HTML cơ bản (<br/>, <strong>, <a>) để format.
+  return `You are the AI assistant of the Classic Records store (selling Vinyl, CD, Merch).
+Answer in English, short, and friendly. Basic HTML formatting (<br/>, <strong>, <a>) can be used.
 
-QUYỀN HẠN HIỆN TẠI CỦA USER: ${roleLabel}.
-Đường dẫn user đang xem: ${path || 'không rõ'}.
+USER'S CURRENT ROLE: ${roleLabel}.
+Current path: ${path || 'unknown'}.
 ${cartSummary}
 
-NGUYÊN TẮC QUAN TRỌNG:
-1. Khi user hỏi về sản phẩm/đơn hàng/thống kê → BẮT BUỘC gọi tool tương ứng để lấy dữ liệu thật, KHÔNG được bịa.
-2. Bạn CÓ KHẢ NĂNG thêm sản phẩm vào giỏ hàng thật của user qua tool 'add_to_cart'. KHÔNG BAO GIỜ bảo user "tự bấm link để thêm" — bạn làm được trực tiếp.
-   - Khi user nói "mua", "thêm vào giỏ", "đặt", "lấy đi"… → tìm sản phẩm bằng search_products, sau đó hỏi xác nhận một câu duy nhất: "Bạn xác nhận thêm <tên> vào giỏ chứ?".
-   - Khi user đáp đồng ý dù bằng bất kỳ cách nào ("ok", "có", "thêm đi", "yes", "đồng ý", "đúng rồi", "thêm vào giỏ giúp tôi", "ok thêm giúp")  → GỌI NGAY add_to_cart với confirmed=true. Không hỏi lại lần 2.
-3. Với hành động ghi/xóa (update_order_status, delete_order):
-   - PHẢI hỏi xác nhận rõ ràng trước.
-   - Chỉ truyền confirmed=true khi user đã đồng ý ("xóa", "đồng ý", "ok xóa", "có", "yes"…).
-   - Nếu user chưa xác nhận, trả lời bằng câu hỏi xác nhận thay vì gọi tool.
-4. Nếu user (không phải admin) đòi thao tác admin → lịch sự từ chối, gợi ý liên hệ admin.
-5. Khi liệt kê sản phẩm/đơn hàng, format gọn: tên, giá, trạng thái. Không cần lặp lại ID dài nếu không cần.`;
+IMPORTANT RULES:
+1. When user asks about products/orders/statistics -> MUST call the corresponding tool to retrieve real data, DO NOT make it up.
+2. You CAN add products to the user's cart via the 'add_to_cart' tool. NEVER tell the user to 'click the link' — you can do it directly.
+   - When the user says 'buy', 'add to cart', 'order', 'take this'... -> search the product using 'search_products', then ask a single confirmation question: 'Would you like me to add <name> to your cart?'.
+   - When the user confirms ('ok', 'yes', 'add it', 'sure', 'please add')... -> IMMEDIATELY call 'add_to_cart' with confirmed=true. Do not ask again.
+3. For write/delete actions (update_order_status, delete_order):
+   - MUST ask for confirmation first.
+   - Pass confirmed=true only if user agreed.
+4. If user (non-admin) tries admin actions -> politely reject and suggest contacting an admin.
+5. Format list items concisely: name, price, status.`;
 };
 
 const callDeepseek = async (
@@ -161,11 +160,11 @@ const callGemini = async (
 const simpleFallback = async (message: string): Promise<string> => {
   const lower = message.toLowerCase();
   let category = '';
-  if (lower.includes('vinyl') || lower.includes('đĩa than') || lower.includes('than')) {
+  if (lower.includes('vinyl') || lower.includes('records') || lower.includes('đĩa than') || lower.includes('than')) {
     category = 'VINYL';
-  } else if (lower.includes('cd') || lower.includes('đĩa cd')) {
+  } else if (lower.includes('cd') || lower.includes('disc') || lower.includes('đĩa cd')) {
     category = 'CD';
-  } else if (lower.includes('merch') || lower.includes('phụ kiện')) {
+  } else if (lower.includes('merch') || lower.includes('accessory') || lower.includes('phụ kiện')) {
     category = 'MERCH';
   }
 
@@ -188,12 +187,12 @@ const simpleFallback = async (message: string): Promise<string> => {
         .slice(0, 5)
         .map((p: any) => `• <strong>${p.title}</strong> — ${p.artist} — $${p.price}`)
         .join('<br/>');
-      return `Hiện tại kết nối AI đang gián đoạn, dưới đây là một số sản phẩm phù hợp tìm thấy trong hệ thống:<br/>${list}`;
+      return `The AI connection is currently offline. Here are some matching products found in the store:<br/>${list}`;
     }
   } catch (err) {
     console.error('Fallback search failed:', err);
   }
-  return 'Xin lỗi bạn, hiện tại hệ thống AI đang bận hoặc chưa được cấu hình khóa API (DEEPSEEK_API_KEY / GEMINI_API_KEY). Bạn vui lòng thử lại sau hoặc liên hệ Hotline 1800-CLASSIC để được hỗ trợ nhanh nhất nhé!';
+  return 'Sorry, the AI chatbot is currently unavailable or API keys are not configured (DEEPSEEK_API_KEY / GEMINI_API_KEY). Please try again later or contact our Hotline 1800-CLASSIC for quick assistance!';
 };
 
 export interface ChatActionPayload {
@@ -282,13 +281,13 @@ export const chatService = {
 
           return {
             response:
-              (aiMessage.content as string) || 'Mình chưa rõ câu hỏi, bạn nói lại giúp nhé.',
+              (aiMessage.content as string) || "I am not sure what you mean, could you please rephrase?",
             actions: collectedActions,
           };
         }
         return {
           response:
-            'Mình cần nhiều bước hơn để xử lý. Bạn có thể tách câu hỏi thành các phần nhỏ giúp mình không?',
+            "I need more steps to process this request. Could you please break your question down into smaller parts?",
           actions: collectedActions,
         };
       } catch (err: any) {

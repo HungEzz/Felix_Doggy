@@ -45,14 +45,14 @@ const ProductStats: React.FC = () => {
     await exportToExcel(
       'export/products',
       {},
-      'san-pham',
+      'products',
       [
         { key: 'id', label: 'ID' },
-        { key: 'title', label: 'Tên sản phẩm' },
-        { key: 'artist', label: 'Nghệ sĩ' },
-        { key: 'category', label: 'Danh mục' },
-        { key: 'price', label: 'Giá ($)', format: (v) => Number(v).toFixed(2) },
-        { key: 'stock', label: 'Tồn kho' },
+        { key: 'title', label: 'Product Name' },
+        { key: 'artist', label: 'Artist' },
+        { key: 'category', label: 'Category' },
+        { key: 'price', label: 'Price ($)', format: (v) => Number(v).toFixed(2) },
+        { key: 'stock', label: 'Stock' },
       ],
       (products: any[]) => products,
     );
@@ -81,8 +81,8 @@ const ProductStats: React.FC = () => {
   return (
     <div>
       <StatsPageHeader
-        title="Thống kê Sản phẩm"
-        subtitle="Hiệu suất bán hàng theo sản phẩm và danh mục"
+        title="Product Statistics"
+        subtitle="Sales performance by product and category"
         icon={<Package size={22} />}
         color="#f59e0b"
         filter={filter}
@@ -98,21 +98,21 @@ const ProductStats: React.FC = () => {
           {/* Stat cards */}
           <div className="stats-grid-container cols-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             <StatCard
-              title="Tổng sản phẩm"
+              title="Total Products"
               value={data?.summary.totalProducts ?? 0}
               icon={<Package size={18} />}
               color={CHART_COLORS.amber}
-              subtitle="Trong kho"
+              subtitle="In stock"
             />
             <StatCard
-              title="Tổng sản phẩm đã bán"
+              title="Total Products Sold"
               value={totalSold}
               icon={<TrendingUp size={18} />}
               color={CHART_COLORS.accent}
-              subtitle="Số lượng bán ra"
+              subtitle="Quantity sold"
             />
             <StatCard
-              title="Doanh thu từ top SP"
+              title="Revenue from Top Products"
               value={fmtCurrency(totalRevenue)}
               icon={<Tag size={18} />}
               color={CHART_COLORS.purple}
@@ -122,7 +122,7 @@ const ProductStats: React.FC = () => {
           {/* Charts row */}
           <div className="stats-charts-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Top products bar */}
-            <ChartCard title="Top sản phẩm bán chạy" subtitle="Số lượng bán theo sản phẩm" minHeight={300}>
+            <ChartCard title="Top Selling Products" subtitle="Quantity sold by product" minHeight={300}>
               {barData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -132,7 +132,7 @@ const ProductStats: React.FC = () => {
                     <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
                     <Tooltip
-                      formatter={(value: unknown) => [String(value), 'Đã bán']}
+                      formatter={(value: unknown) => [String(value), 'Sold']}
                       contentStyle={tooltipStyle}
                     />
                     <Bar dataKey="qty" fill={CHART_COLORS.amber} radius={[0, 4, 4, 0]} />
@@ -142,7 +142,7 @@ const ProductStats: React.FC = () => {
             </ChartCard>
 
             {/* Category pie */}
-            <ChartCard title="Theo danh mục" subtitle="Phân bổ số lượng bán" minHeight={300}>
+            <ChartCard title="By Category" subtitle="Sales quantity distribution" minHeight={300}>
               {pieData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -165,7 +165,7 @@ const ProductStats: React.FC = () => {
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
               <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                Bảng xếp hạng sản phẩm
+                Product Rankings
               </h3>
             </div>
             {topProducts.length === 0 ? (
@@ -175,7 +175,7 @@ const ProductStats: React.FC = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'var(--bg-secondary)' }}>
-                      {['#', 'Sản phẩm', 'Danh mục', 'Giá', 'Đã bán', 'Doanh thu', 'Đơn hàng'].map((h) => (
+                      {['#', 'Product', 'Category', 'Price', 'Sold', 'Revenue', 'Orders'].map((h) => (
                         <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>
@@ -189,7 +189,7 @@ const ProductStats: React.FC = () => {
                           #{i + 1}
                         </td>
                         <td style={{ padding: '11px 14px' }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.product?.title || `SP #${item.productId}`}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.product?.title || `Product #${item.productId}`}</p>
                           <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.product?.artist}</p>
                         </td>
                         <td style={{ padding: '11px 14px' }}>

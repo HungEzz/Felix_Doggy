@@ -40,15 +40,15 @@ const InventoryStats: React.FC = () => {
     await exportToExcel(
       'export/inventory',
       {},
-      'ton-kho',
+      'inventory',
       [
         { key: 'id', label: 'ID' },
-        { key: 'title', label: 'Tên sản phẩm' },
-        { key: 'artist', label: 'Nghệ sĩ' },
-        { key: 'category', label: 'Danh mục' },
-        { key: 'price', label: 'Giá ($)', format: (v: unknown) => Number(v).toFixed(2) },
-        { key: 'stock', label: 'Tồn kho' },
-        { key: 'stockValue', label: 'Giá trị tồn ($)', format: (v: unknown) => Number(v).toFixed(2) },
+        { key: 'title', label: 'Product Name' },
+        { key: 'artist', label: 'Artist' },
+        { key: 'category', label: 'Category' },
+        { key: 'price', label: 'Price ($)', format: (v: unknown) => Number(v).toFixed(2) },
+        { key: 'stock', label: 'Stock' },
+        { key: 'stockValue', label: 'Stock Value ($)', format: (v: unknown) => Number(v).toFixed(2) },
       ],
       (products: any[]) =>
         products.map((p: any) => ({ ...p, stockValue: p.price * p.stock })),
@@ -101,9 +101,9 @@ const InventoryStats: React.FC = () => {
             </div>
             <div>
               <h1 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 800, fontSize: 24, color: 'var(--text-primary)', marginBottom: 2, letterSpacing: '-0.02em' }}>
-                Thống kê Kho hàng
+                Inventory Statistics
               </h1>
-              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Tổng quan tồn kho, cảnh báo hàng sắp hết</p>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Inventory overview and low stock alerts</p>
             </div>
           </div>
           <button
@@ -121,7 +121,7 @@ const InventoryStats: React.FC = () => {
               whiteSpace: 'nowrap',
             }}
           >
-            📥 Xuất Excel
+            📥 Export Excel
           </button>
         </div>
       </div>
@@ -133,37 +133,37 @@ const InventoryStats: React.FC = () => {
           {/* Stat cards */}
           <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
             <StatCard
-              title="Tổng sản phẩm"
+              title="Total Products"
               value={data?.summary.totalProducts ?? 0}
               icon={<Boxes size={18} />}
               color="#14b8a6"
             />
             <StatCard
-              title="Giá trị kho"
+              title="Stock Value"
               value={fmtCurrency(data?.summary.totalStockValue ?? 0)}
               icon={<DollarSign size={18} />}
               color={CHART_COLORS.accent}
             />
             <StatCard
-              title="Sắp hết hàng"
+              title="Low Stock"
               value={data?.summary.lowStockCount ?? 0}
               icon={<AlertTriangle size={18} />}
               color={CHART_COLORS.amber}
-              subtitle="Tồn kho ≤ 5"
+              subtitle="Stock ≤ 5"
             />
             <StatCard
-              title="Hết hàng"
+              title="Out of Stock"
               value={data?.summary.outOfStockCount ?? 0}
               icon={<XCircle size={18} />}
               color={CHART_COLORS.rose}
-              subtitle="Tồn kho = 0"
+              subtitle="Stock = 0"
             />
           </div>
 
           {/* Charts row */}
           <div className="stats-charts-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Low stock bar */}
-            <ChartCard title="Sản phẩm tồn kho thấp nhất" subtitle="Top 10 sản phẩm cần nhập hàng sớm" minHeight={280}>
+            <ChartCard title="Lowest Stock Products" subtitle="Top 10 products requiring early restocking" minHeight={280}>
               {stockBarData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -173,7 +173,7 @@ const InventoryStats: React.FC = () => {
                     <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
                     <Tooltip
-                      formatter={(value: unknown) => [String(value), 'Tồn kho']}
+                      formatter={(value: unknown) => [String(value), 'Stock']}
                       contentStyle={tooltipStyle}
                     />
                     <Bar dataKey="stock" fill={CHART_COLORS.amber} radius={[0, 4, 4, 0]} />
@@ -183,7 +183,7 @@ const InventoryStats: React.FC = () => {
             </ChartCard>
 
             {/* Category pie */}
-            <ChartCard title="Phân bổ danh mục" subtitle="Tổng số lượng theo danh mục" minHeight={280}>
+            <ChartCard title="Category Distribution" subtitle="Total quantity by category" minHeight={280}>
               {pieData.length === 0 ? (
                 <EmptyState />
               ) : (
@@ -195,7 +195,7 @@ const InventoryStats: React.FC = () => {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: unknown) => [String(value), 'Số lượng']}
+                      formatter={(value: unknown) => [String(value), 'Quantity']}
                       contentStyle={tooltipStyle}
                     />
                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }} />
@@ -206,7 +206,7 @@ const InventoryStats: React.FC = () => {
           </div>
 
           {/* Category breakdown bar */}
-          <ChartCard title="Giá trị kho theo danh mục" minHeight={220}>
+          <ChartCard title="Stock Value by Category" minHeight={220}>
             {barData.length === 0 ? <EmptyState /> : (
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={barData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -215,14 +215,14 @@ const InventoryStats: React.FC = () => {
                   <YAxis tickFormatter={(v: number) => `$${v}`} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                   <Tooltip
                     formatter={(value: unknown, name: unknown) => {
-                      if (String(name) === 'value') return [`$${Number(value).toFixed(2)}`, 'Giá trị kho'];
-                      return [String(value), String(name) === 'products' ? 'Số SP' : 'Số lượng'];
+                      if (String(name) === 'value') return [`$${Number(value).toFixed(2)}`, 'Stock Value'];
+                      return [String(value), String(name) === 'products' ? 'Products Count' : 'Quantity'];
                     }}
                     contentStyle={tooltipStyle}
                   />
                   <Legend wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="value" name="Giá trị ($)" fill="#14b8a6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="items" name="Số lượng" fill={CHART_COLORS.blue} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="value" name="Value ($)" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="items" name="Quantity" fill={CHART_COLORS.blue} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -234,14 +234,14 @@ const InventoryStats: React.FC = () => {
               <div style={{ padding: '14px 20px', borderBottom: '1px solid #fde68a', background: 'rgba(245,158,11,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} style={{ color: CHART_COLORS.amber }} />
                 <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 14, color: CHART_COLORS.amber }}>
-                  Cảnh báo: Sắp hết hàng ({lowStock.length} sản phẩm)
+                  Warning: Low Stock ({lowStock.length} products)
                 </h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(245,158,11,0.04)' }}>
-                      {['Sản phẩm', 'Danh mục', 'Giá', 'Tồn kho', 'Giá trị'].map((h) => (
+                      {['Product', 'Category', 'Price', 'Stock', 'Value'].map((h) => (
                         <th key={h} style={{ padding: '9px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: CHART_COLORS.amber, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid #fde68a' }}>
                           {h}
                         </th>
@@ -283,14 +283,14 @@ const InventoryStats: React.FC = () => {
               <div style={{ padding: '14px 20px', borderBottom: '1px solid #fecaca', background: 'rgba(239,68,68,0.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <XCircle size={16} style={{ color: CHART_COLORS.rose }} />
                 <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 14, color: CHART_COLORS.rose }}>
-                  Hết hàng: Cần nhập ngay ({outOfStock.length} sản phẩm)
+                  Out of Stock: Action Required ({outOfStock.length} products)
                 </h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(244,63,94,0.04)' }}>
-                      {['Sản phẩm', 'Nghệ sĩ', 'Danh mục', 'Giá', 'Trạng thái'].map((h) => (
+                      {['Product', 'Artist', 'Category', 'Price', 'Status'].map((h) => (
                         <th key={h} style={{ padding: '9px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: CHART_COLORS.rose, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid #fecaca' }}>
                           {h}
                         </th>
@@ -310,7 +310,7 @@ const InventoryStats: React.FC = () => {
                         <td style={{ padding: '10px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{fmtCurrency(p.price)}</td>
                         <td style={{ padding: '10px 16px' }}>
                           <span style={{ fontSize: 11, fontWeight: 700, color: CHART_COLORS.rose, background: 'rgba(244,63,94,0.1)', padding: '2px 10px', borderRadius: 6 }}>
-                            HẾT HÀNG
+                            OUT OF STOCK
                           </span>
                         </td>
                       </tr>
@@ -325,14 +325,14 @@ const InventoryStats: React.FC = () => {
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
               <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                Toàn bộ sản phẩm ({allProducts.length})
+                All Products ({allProducts.length})
               </h3>
             </div>
             <div style={{ overflowX: 'auto', maxHeight: 400 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr style={{ background: 'var(--bg-secondary)' }}>
-                    {['ID', 'Sản phẩm', 'Danh mục', 'Giá', 'Tồn kho', 'Giá trị', 'Trạng thái'].map((h) => (
+                    {['ID', 'Product', 'Category', 'Price', 'Stock', 'Value', 'Status'].map((h) => (
                       <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>
                         {h}
                       </th>
@@ -362,11 +362,11 @@ const InventoryStats: React.FC = () => {
                         <td style={{ padding: '9px 14px', fontSize: 13, color: 'var(--text-secondary)' }}>{fmtCurrency(p.price * p.stock)}</td>
                         <td style={{ padding: '9px 14px' }}>
                           {isOut ? (
-                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.rose, background: 'rgba(244,63,94,0.1)', padding: '2px 8px', borderRadius: 5 }}>HẾT HÀNG</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.rose, background: 'rgba(244,63,94,0.1)', padding: '2px 8px', borderRadius: 5 }}>OUT OF STOCK</span>
                           ) : isLow ? (
-                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.amber, background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: 5 }}>SẮP HẾT</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.amber, background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: 5 }}>LOW STOCK</span>
                           ) : (
-                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.accent, background: 'rgba(29,185,84,0.1)', padding: '2px 8px', borderRadius: 5 }}>CÒN HÀNG</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: CHART_COLORS.accent, background: 'rgba(29,185,84,0.1)', padding: '2px 8px', borderRadius: 5 }}>IN STOCK</span>
                           )}
                         </td>
                       </tr>

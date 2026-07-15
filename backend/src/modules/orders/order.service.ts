@@ -66,7 +66,7 @@ export const orderService = {
       const amountInVnd = order.totalAmount * EXCHANGE_RATE;
 
       if (amountInVnd < 2000) {
-        throw new Error('Số tiền thanh toán tối thiểu qua PayOS là 2,000 VND (khoảng $0.08). Vui lòng thêm sản phẩm hoặc tăng số lượng.');
+        throw new Error('Minimum payment amount via PayOS is 2,000 VND (approx $0.08). Please add more items or increase quantity.');
       }
 
       const paymentItems = order.orderItems.map((oi: any) => ({

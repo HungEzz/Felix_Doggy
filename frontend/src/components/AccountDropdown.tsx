@@ -36,7 +36,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     dispatch(logout());
-    toast.success('Đã đăng xuất');
+    toast.success('Logged out');
     setShowLogoutModal(false);
     setOpen(false);
     navigate('/');
@@ -107,7 +107,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>
-            {profile?.fullName?.split(' ')[0] || 'Tài khoản'}
+            {profile?.fullName?.split(' ')[0] || 'Account'}
           </span>
           {pendingOrders > 0 && (
             <span style={{
@@ -169,7 +169,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
               </div>
               <div style={{ minWidth: 0 }}>
                 <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {profile?.fullName || 'Tài khoản'}
+                  {profile?.fullName || 'Account'}
                 </p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {profile?.email}
@@ -185,16 +185,16 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
                   <div style={{ height: 1, background: 'var(--border)', margin: '6px 0' }} />
                 </>
               )}
-              <DropdownItem icon={<User size={15} />} label="Thông tin cá nhân" onClick={() => go('/account?tab=profile')} />
+              <DropdownItem icon={<User size={15} />} label="Profile Info" onClick={() => go('/account?tab=profile')} />
               <DropdownItem
                 icon={<Package size={15} />}
-                label="Đơn hàng của tôi"
+                label="My Orders"
                 onClick={() => go('/account?tab=orders')}
                 badge={pendingOrders > 0 ? pendingOrders.toString() : undefined}
               />
-              <DropdownItem icon={<MapPin size={15} />} label="Địa chỉ đã lưu" onClick={() => go('/account?tab=addresses')} />
-              <DropdownItem icon={<Lock size={15} />} label="Bảo mật" onClick={() => go('/account?tab=security')} />
-              <DropdownItem icon={<Settings size={15} />} label="Cài đặt tài khoản" onClick={() => go('/account?tab=settings')} />
+              <DropdownItem icon={<MapPin size={15} />} label="Saved Addresses" onClick={() => go('/account?tab=addresses')} />
+              <DropdownItem icon={<Lock size={15} />} label="Security" onClick={() => go('/account?tab=security')} />
+              <DropdownItem icon={<Settings size={15} />} label="Account Settings" onClick={() => go('/account?tab=settings')} />
             </div>
 
             {/* Logout */}
@@ -221,7 +221,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
                 onMouseLeave={e => (e.currentTarget.style.background = 'none')}
               >
                 <LogOut size={15} />
-                Đăng xuất
+                Log Out
               </button>
             </div>
           </div>
@@ -259,10 +259,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
               <LogOut size={24} style={{ color: 'var(--warm-rose)' }} />
             </div>
             <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 8 }}>
-              Đăng xuất?
+              Log Out?
             </h3>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.6 }}>
-              Bạn có chắc muốn đăng xuất khỏi tài khoản này?
+              Are you sure you want to log out of this account?
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button
@@ -274,7 +274,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
                   cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 onClick={handleLogout}
@@ -285,7 +285,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = () => {
                   cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >
-                Đăng xuất
+                Log Out
               </button>
             </div>
           </div>

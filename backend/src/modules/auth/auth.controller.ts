@@ -11,7 +11,7 @@ export const authController = {
       if (
         error.message === 'Email and password are required' ||
         error.message === 'Email already exists' ||
-        error.message.includes('ký tự')
+        error.message.includes('characters')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -33,7 +33,7 @@ export const authController = {
       if (error.message === 'ACCOUNT_NOT_VERIFIED') {
         // Return a special response so frontend knows to show OTP screen
         res.status(403).json({
-          message: 'Tài khoản chưa được xác thực. Vui lòng nhập mã OTP.',
+          message: 'Account not verified. Please enter the OTP code.',
           requireOtp: true,
           email: req.body.email,
         });
@@ -62,10 +62,10 @@ export const authController = {
       });
     } catch (error: any) {
       if (
-        error.message.includes('bắt buộc') ||
-        error.message.includes('không hợp lệ') ||
-        error.message.includes('Không thể lấy thông tin') ||
-        error.message.includes('chưa được cấu hình')
+        error.message.includes('required') ||
+        error.message.includes('invalid') || error.message.includes('Invalid') ||
+        error.message.includes('Unable to retrieve') ||
+        error.message.includes('not configured')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -82,10 +82,10 @@ export const authController = {
     } catch (error: any) {
       if (
         error.message.includes('OTP') ||
-        error.message.includes('bắt buộc') ||
-        error.message.includes('hết hạn') ||
-        error.message.includes('không tồn tại') ||
-        error.message.includes('xác thực')
+        error.message.includes('required') ||
+        error.message.includes('expired') ||
+        error.message.includes('exist') ||
+        error.message.includes('verified')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -101,11 +101,11 @@ export const authController = {
       res.json(result);
     } catch (error: any) {
       if (
-        error.message.includes('bắt buộc') ||
-        error.message.includes('không tồn tại') ||
-        error.message.includes('đã được xác thực') ||
-        error.message.includes('đợi') ||
-        error.message.includes('quá nhiều')
+        error.message.includes('required') ||
+        error.message.includes('exist') ||
+        error.message.includes('already verified') ||
+        error.message.includes('wait') ||
+        error.message.includes('Too many')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -123,11 +123,12 @@ export const authController = {
       }
 
       const user = await authService.updateProfile(req.user.id, req.body);
-      res.json({ message: 'Cập nhật thông tin thành công', user });
+      res.json({ message: 'Profile updated successfully', user });
     } catch (error: any) {
       if (
-        error.message.includes('không được') ||
-        error.message.includes('không hợp lệ')
+        error.message.includes('required') ||
+        error.message.includes('must not') ||
+        error.message.includes('invalid') || error.message.includes('Invalid')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -148,10 +149,10 @@ export const authController = {
       res.json(result);
     } catch (error: any) {
       if (
-        error.message.includes('Vui lòng') ||
-        error.message.includes('không chính xác') ||
-        error.message.includes('ký tự') ||
-        error.message.includes('không tồn tại')
+        error.message.includes('Please') ||
+        error.message.includes('incorrect') ||
+        error.message.includes('characters') ||
+        error.message.includes('exist')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -167,9 +168,9 @@ export const authController = {
       res.json(result);
     } catch (error: any) {
       if (
-        error.message.includes('bắt buộc') ||
-        error.message.includes('đợi') ||
-        error.message.includes('quá nhiều')
+        error.message.includes('required') ||
+        error.message.includes('wait') ||
+        error.message.includes('Too many')
       ) {
         res.status(400).json({ message: error.message });
         return;
@@ -185,12 +186,12 @@ export const authController = {
       res.json(result);
     } catch (error: any) {
       if (
-        error.message.includes('bắt buộc') ||
+        error.message.includes('required') ||
         error.message.includes('OTP') ||
-        error.message.includes('hết hạn') ||
-        error.message.includes('không tồn tại') ||
-        error.message.includes('ký tự') ||
-        error.message.includes('không chính xác')
+        error.message.includes('expired') ||
+        error.message.includes('exist') ||
+        error.message.includes('characters') ||
+        error.message.includes('incorrect')
       ) {
         res.status(400).json({ message: error.message });
         return;

@@ -39,13 +39,13 @@ const UserStats: React.FC = () => {
     await exportToExcel(
       'export/users',
       {},
-      'khach-hang',
+      'customers',
       [
         { key: 'id', label: 'ID' },
-        { key: 'fullName', label: 'Họ tên' },
+        { key: 'fullName', label: 'Name' },
         { key: 'email', label: 'Email' },
-        { key: 'role', label: 'Vai trò' },
-        { key: 'createdAt', label: 'Ngày đăng ký', format: (v) => fmtDate(v) },
+        { key: 'role', label: 'Role' },
+        { key: 'createdAt', label: 'Joined Date', format: (v) => fmtDate(v) },
       ],
       (users: any[]) => users,
     );
@@ -56,7 +56,7 @@ const UserStats: React.FC = () => {
   const topCustomers = data?.topCustomers || [];
 
   const topBarData = topCustomers.slice(0, 8).map((c) => ({
-    name: c.user?.fullName ? (c.user.fullName.length > 16 ? c.user.fullName.slice(0, 16) + '…' : c.user.fullName) : 'Ẩn danh',
+    name: c.user?.fullName ? (c.user.fullName.length > 16 ? c.user.fullName.slice(0, 16) + '…' : c.user.fullName) : 'Anonymous',
     spent: c.totalSpent,
   }));
 
@@ -65,8 +65,8 @@ const UserStats: React.FC = () => {
   return (
     <div>
       <StatsPageHeader
-        title="Thống kê Khách hàng"
-        subtitle="Phân tích tăng trưởng và hành vi khách hàng"
+        title="Customer Statistics"
+        subtitle="Analyze growth and user behavior"
         icon={<Users size={22} />}
         color="#8b5cf6"
         filter={filter}
@@ -82,29 +82,29 @@ const UserStats: React.FC = () => {
           {/* Stat cards */}
           <div className="stats-grid-container cols-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             <StatCard
-              title="Tổng khách hàng"
+              title="Total Customers"
               value={data?.summary.totalUsers ?? 0}
               icon={<Users size={18} />}
               color={CHART_COLORS.purple}
-              subtitle="Tài khoản đã đăng ký"
+              subtitle="Registered Accounts"
             />
             <StatCard
-              title="Khách mới kỳ này"
+              title="New Customers This Period"
               value={data?.summary.newUsersInPeriod ?? 0}
               icon={<UserPlus size={18} />}
               color={CHART_COLORS.accent}
             />
             <StatCard
-              title="Khách mua nhiều nhất"
+              title="Top Spender"
               value={topCustomers[0] ? fmtCurrency(topCustomers[0].totalSpent) : '$0'}
               icon={<Crown size={18} />}
               color={CHART_COLORS.amber}
-              subtitle={topCustomers[0]?.user?.fullName || 'Chưa có dữ liệu'}
+              subtitle={topCustomers[0]?.user?.fullName || 'No data'}
             />
           </div>
 
           {/* Line chart — User growth */}
-          <ChartCard title="Tăng trưởng khách hàng" subtitle="Số khách đăng ký mới theo ngày" minHeight={280}>
+          <ChartCard title="Customer Growth" subtitle="New customer registrations by day" minHeight={280}>
             {chartData.length === 0 ? (
               <EmptyState />
             ) : (
@@ -113,12 +113,12 @@ const UserStats: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(d) => new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false}
                   />
                   <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    formatter={(value: unknown) => [String(value), 'Khách mới']}
+                    formatter={(value: unknown) => [String(value), 'New Customers']}
                     labelFormatter={(label) => fmtDate(label)}
                     contentStyle={tooltipStyle}
                   />
@@ -129,7 +129,7 @@ const UserStats: React.FC = () => {
           </ChartCard>
 
           {/* Top customers bar */}
-          <ChartCard title="Top khách hàng chi tiêu cao nhất" subtitle="Tổng giá trị mua hàng (đơn COMPLETED)" minHeight={260}>
+          <ChartCard title="Top Spenders" subtitle="Total order value (Completed orders)" minHeight={260}>
             {topBarData.length === 0 ? (
               <EmptyState />
             ) : (
@@ -139,7 +139,7 @@ const UserStats: React.FC = () => {
                   <XAxis type="number" tickFormatter={(v) => `$${v}`} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                   <YAxis type="category" dataKey="name" width={130} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(value: unknown) => [fmtCurrency(Number(value)), 'Chi tiêu']}
+                    formatter={(value: unknown) => [fmtCurrency(Number(value)), 'Spent']}
                     contentStyle={tooltipStyle}
                   />
                   <Bar dataKey="spent" fill={CHART_COLORS.purple} radius={[0, 4, 4, 0]} />
@@ -152,7 +152,7 @@ const UserStats: React.FC = () => {
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
               <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                Bảng xếp hạng khách hàng
+                Customer Rankings
               </h3>
             </div>
             {topCustomers.length === 0 ? (
@@ -162,7 +162,7 @@ const UserStats: React.FC = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'var(--bg-secondary)' }}>
-                      {['#', 'Khách hàng', 'Email', 'Số đơn', 'Tổng chi tiêu'].map((h) => (
+                      {['#', 'Customer', 'Email', 'Orders', 'Total Spent'].map((h) => (
                         <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>
@@ -176,10 +176,10 @@ const UserStats: React.FC = () => {
                           {i === 0 ? '👑' : `#${i + 1}`}
                         </td>
                         <td style={{ padding: '11px 16px', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
-                          {c.user?.fullName || 'Ẩn danh'}
+                          {c.user?.fullName || 'Anonymous'}
                         </td>
                         <td style={{ padding: '11px 16px', fontSize: 12, color: 'var(--text-muted)' }}>{c.user?.email || '-'}</td>
-                        <td style={{ padding: '11px 16px', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{c.orderCount} đơn</td>
+                        <td style={{ padding: '11px 16px', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{c.orderCount} orders</td>
                         <td style={{ padding: '11px 16px', fontSize: 14, fontWeight: 800, color: CHART_COLORS.purple }}>{fmtCurrency(c.totalSpent)}</td>
                       </tr>
                     ))}

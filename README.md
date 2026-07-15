@@ -21,6 +21,7 @@
   <img src="https://img.shields.io/badge/Redux_Toolkit-9.x-764ABC?style=flat-square&logo=redux&logoColor=white" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-4.x-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
   <img src="https://img.shields.io/badge/Jest-30-C21325?style=flat-square&logo=jest&logoColor=white" />
+  <img src="https://img.shields.io/badge/PayOS-Payment-006AF0?style=flat-square" />
 </p>
 
 <p align="center">
@@ -116,7 +117,7 @@ Independent record stores and music retailers lack affordable, purpose-built e-c
 | **Product Catalog** | Browse by category (Vinyl, CD, Merchandise) with filtering and search |
 | **Product Detail** | Rich product pages with image gallery, stock availability, and quantity selection |
 | **Shopping Cart** | Persistent cart with select-all, per-item selection, and quantity management |
-| **Checkout** | Form-validated checkout with shipping details, stock verification at transaction time |
+| **Checkout** | Form-validated checkout supporting COD and online payment via **PayOS** (QR Code / bank transfer) with secure webhook signature verification and amount validation |
 | **Order History** | View past orders with status tracking (Pending → Completed → Shipped) |
 | **AI Chatbot** | Integrated conversational assistant powered by LLM APIs |
 | **Dark/Light Theme** | System-wide theme toggle with persistent user preference |
@@ -554,7 +555,7 @@ Both pipelines include retry strategies to handle transient CI infrastructure fa
 
 | Phase | Feature | Status |
 |-------|---------|--------|
-| **v1.1** | Payment gateway integration (Stripe/VNPay) | 🔲 Planned |
+| **v1.1** | Payment gateway integration (PayOS) | ✅ Completed |
 | **v1.1** | Full-text search with Elasticsearch | 🔲 Planned |
 | **v1.2** | WebSocket real-time order status updates | 🔲 Planned |
 | **v1.2** | Product reviews and ratings system | 🔲 Planned |

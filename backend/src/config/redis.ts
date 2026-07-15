@@ -6,7 +6,7 @@ export const redis = new Redis(env.REDIS_URL, {
   tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
   retryStrategy: (times) => {
     const delay = Math.min(500 * Math.pow(2, times - 1), 10000);
-    console.warn(`⚠️ [Redis Retry] Lần ${times} — thử kết nối lại sau ${delay}ms`);
+    console.warn(`⚠️ [Redis Retry] Attempt ${times} — retrying connection in ${delay}ms`);
     return delay;
   },
   reconnectOnError: (err) => {
@@ -24,16 +24,16 @@ redis.on('connect', () => {
 
 redis.on('ready', () => {
   connected = true;
-  console.log('✅ Redis ready — cache layer hoạt động');
+  console.log('✅ Redis ready — cache layer is active');
 });
 
 redis.on('error', (err) => {
   connected = false;
-  console.warn('⚠️ Redis connection error (app sẽ fallback về PostgreSQL):', err.message);
+  console.warn('⚠️ Redis connection error (app will fallback to PostgreSQL):', err.message);
 });
 
 redis.on('reconnecting', () => {
-  console.warn('🔄 [Redis Retry] Đang thử kết nối lại Redis...');
+  console.warn('🔄 [Redis Retry] Reconnecting to Redis...');
 });
 
 export const isRedisConnected = () => connected;

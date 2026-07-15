@@ -15,19 +15,19 @@ const AdminUsers: React.FC = () => {
       const data: any = await api.get('/admin/users');
       setUsers(data);
     } catch (error) {
-      toast.error('Lỗi khi tải danh sách khách hàng');
+      toast.error('Error loading customer list');
     }
   };
 
   const handleRoleChange = async (id: string, currentRole: string) => {
     const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
-    if (window.confirm(`Bạn có chắc muốn cấp quyền ${newRole} cho người này?`)) {
+    if (window.confirm(`Are you sure you want to grant ${newRole} role to this user?`)) {
       try {
         await api.put(`/admin/users/${id}/role`, { role: newRole });
-        toast.success('Cập nhật quyền thành công');
+        toast.success('Role updated successfully');
         fetchUsers();
       } catch (error) {
-        toast.error('Lỗi khi cập nhật quyền');
+        toast.error('Error updating role');
       }
     }
   };
@@ -35,26 +35,26 @@ const AdminUsers: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-        <h1 className="text-3xl font-display font-bold uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Quản lý Khách hàng</h1>
-        <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Danh sách tài khoản đã đăng ký</p>
+        <h1 className="text-3xl font-display font-bold uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Customer Management</h1>
+        <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Registered customer accounts list</p>
       </div>
 
       <div className="overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <table className="w-full text-left">
           <thead>
             <tr className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              <th className="p-5 font-bold">ID / Tên</th>
+              <th className="p-5 font-bold">ID / Name</th>
               <th className="p-5 font-bold">Email</th>
-              <th className="p-5 font-bold">Ngày tham gia</th>
-              <th className="p-5 font-bold">Vai trò</th>
-              <th className="p-5 font-bold text-right">Hành động</th>
+              <th className="p-5 font-bold">Joined Date</th>
+              <th className="p-5 font-bold">Role</th>
+              <th className="p-5 font-bold text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="text-sm" style={{ color: 'var(--text-primary)' }}>
             {users.map((item) => (
               <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                 <td className="p-5">
-                  <p className="font-bold mb-1">{item.fullName || 'Chưa cập nhật'}</p>
+                  <p className="font-bold mb-1">{item.fullName || 'Not updated'}</p>
                   <p className="text-[10px] tracking-widest" style={{ color: 'var(--text-secondary)' }}>ID: {item.id.substring(0, 8)}...</p>
                 </td>
                 <td className="p-5">{item.email}</td>
@@ -75,14 +75,14 @@ const AdminUsers: React.FC = () => {
                     onClick={() => handleRoleChange(item.id, item.role)}
                     className="text-[10px] uppercase tracking-widest font-bold text-blue-500 hover:text-blue-700 transition-colors inline-flex items-center gap-1 mr-4"
                   >
-                    <CheckCircle size={12} /> {item.role === 'ADMIN' ? 'Hạ xuống User' : 'Lên Admin'}
+                    <CheckCircle size={12} /> {item.role === 'ADMIN' ? 'Demote to User' : 'Promote to Admin'}
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {users.length === 0 && <p className="text-sm p-5 text-center" style={{ color: 'var(--text-secondary)' }}>Không có người dùng nào.</p>}
+        {users.length === 0 && <p className="text-sm p-5 text-center" style={{ color: 'var(--text-secondary)' }}>No users found.</p>}
       </div>
     </div>
   );

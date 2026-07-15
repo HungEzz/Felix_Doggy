@@ -4,32 +4,32 @@ const ShippingReturns: React.FC = () => {
   return (
     <div className="flex-grow text-primary bg-primary">
       <section className="pt-20 pb-16 px-6 text-center border-b border-token">
-        <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-muted mb-4 block">Chính sách cửa hàng</span>
-        <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-[0.1em] font-display text-primary">Vận chuyển & Đổi trả</h1>
+        <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-muted mb-4 block">Store Policies</span>
+        <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-[0.1em] font-display text-primary">Shipping & Returns</h1>
       </section>
 
       <div className="max-w-[900px] mx-auto py-16 px-6 space-y-12">
         <div className="bg-card border border-token rounded-3xl p-10 shadow-sm text-primary">
-          <h2 className="text-2xl font-bold uppercase tracking-[0.2em] mb-6 text-primary">Vận chuyển</h2>
+          <h2 className="text-2xl font-bold uppercase tracking-[0.2em] mb-6 text-primary">Shipping</h2>
           <p className="text-sm text-secondary leading-relaxed mb-4">
-            Chúng tôi giao hàng toàn quốc bằng đối tác vận chuyển uy tín. Thời gian giao hàng thông thường từ 2 - 5 ngày làm việc tùy khu vực.
+            We ship nationwide using reliable shipping partners. Delivery time is typically 2 - 5 business days depending on the area.
           </p>
           <ul className="list-disc pl-5 space-y-3 text-sm text-secondary">
-            <li>Miễn phí giao hàng cho đơn hàng từ 1.000.000đ.</li>
-            <li>Phí vận chuyển cho đơn hàng dưới 1.000.000đ được tính tự động khi thanh toán.</li>
-            <li>Theo dõi đơn hàng sẽ được gửi qua email hoặc SMS.</li>
+            <li>Free shipping for orders from 1,000,000 VND.</li>
+            <li>Shipping fee for orders under 1,000,000 VND is automatically calculated at checkout.</li>
+            <li>Order tracking details will be sent via email or SMS.</li>
           </ul>
         </div>
 
         <div className="bg-card border border-token rounded-3xl p-10 shadow-sm text-primary">
-          <h2 className="text-2xl font-bold uppercase tracking-[0.2em] mb-6 text-primary">Đổi trả</h2>
+          <h2 className="text-2xl font-bold uppercase tracking-[0.2em] mb-6 text-primary">Returns</h2>
           <p className="text-sm text-secondary leading-relaxed mb-4">
-            Nếu sản phẩm bị lỗi hoặc không đúng mô tả, bạn có thể yêu cầu đổi trả trong vòng 7 ngày kể từ ngày nhận hàng.
+            If the product is defective or not as described, you can request a return or exchange within 7 days of receiving the item.
           </p>
           <ul className="list-disc pl-5 space-y-3 text-sm text-secondary">
-            <li>Giữ nguyên tình trạng sản phẩm và bao bì gốc.</li>
-            <li>Liên hệ với bộ phận chăm sóc khách hàng trước khi gửi trả.</li>
-            <li>Chi phí đổi trả do cửa hàng chịu nếu lỗi do nhà sản xuất.</li>
+            <li>Keep the product in its original condition and packaging.</li>
+            <li>Contact customer support before returning the item.</li>
+            <li>Return shipping costs are covered by the store if the return is due to a manufacturer defect.</li>
           </ul>
         </div>
       </div>

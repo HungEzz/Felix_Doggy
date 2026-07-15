@@ -6,13 +6,13 @@ interface CartState {
   items: CartItem[];
 }
 
-// Đọc giỏ hàng từ localStorage khi khởi động — persist qua reload
+// Read cart from localStorage on startup — persist across reload
 const loadCartFromStorage = (): CartState => {
   try {
     const raw = localStorage.getItem('cart');
     if (!raw) return { items: [] };
     const parsed = JSON.parse(raw);
-    // Validate shape: phải có items là array để tránh crash nếu dữ liệu bị corrupt
+    // Validate shape: must have items as an array to prevent crash if data is corrupted
     if (!parsed || !Array.isArray(parsed.items)) return { items: [] };
     return parsed as CartState;
   } catch {
@@ -20,12 +20,12 @@ const loadCartFromStorage = (): CartState => {
   }
 };
 
-// Hàm này được gọi từ main.tsx qua store.subscribe() để tự động lưu mỗi khi cart thay đổi
+// This function is called from main.tsx via store.subscribe() to auto-save whenever cart changes
 export const saveCartToStorage = (state: CartState) => {
   try {
     localStorage.setItem('cart', JSON.stringify(state));
   } catch {
-    // Bỏ qua lỗi quota exceeded
+    // Ignore quota exceeded errors
   }
 };
 
@@ -35,7 +35,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // quantity: số lượng muốn thêm vào (mặc định 1). Stock check thực hiện tại component.
+    // quantity: number of items to add (default 1). Stock check is done at component level.
     addToCart: (state, action: PayloadAction<{ product: Product; quantity?: number }>) => {
       const { product, quantity = 1 } = action.payload;
       const existingItem = state.items.find(item => item.id === product.id);

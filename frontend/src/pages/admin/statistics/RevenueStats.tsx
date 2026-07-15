@@ -39,20 +39,20 @@ const RevenueStats: React.FC = () => {
     await exportToExcel(
       'export/revenue',
       { period: filter.period, ...(filter.period === 'custom' ? { startDate: filter.startDate, endDate: filter.endDate } : {}) },
-      'doanh-thu',
+      'revenue',
       [
-        { key: 'orderId', label: 'Mã đơn hàng' },
-        { key: 'customerEmail', label: 'Email khách hàng' },
-        { key: 'customerName', label: 'Tên khách hàng' },
-        { key: 'totalAmount', label: 'Giá trị ($)', format: (v) => Number(v).toFixed(2) },
-        { key: 'itemCount', label: 'Số sản phẩm' },
-        { key: 'createdAt', label: 'Ngày đặt', format: (v) => fmtDate(v) },
+        { key: 'orderId', label: 'Order ID' },
+        { key: 'customerEmail', label: 'Customer Email' },
+        { key: 'customerName', label: 'Customer Name' },
+        { key: 'totalAmount', label: 'Value ($)', format: (v) => Number(v).toFixed(2) },
+        { key: 'itemCount', label: 'Items Count' },
+        { key: 'createdAt', label: 'Date Placed', format: (v) => fmtDate(v) },
       ],
       (orders: any[]) =>
         orders.map((o: any) => ({
           orderId: o.id,
           customerEmail: o.customerEmail || o.user?.email || '',
-          customerName: o.user?.fullName || 'Khách vãng lai',
+          customerName: o.user?.fullName || 'Guest',
           totalAmount: o.totalAmount,
           itemCount: o.orderItems?.length || 0,
           createdAt: o.createdAt,
@@ -68,8 +68,8 @@ const RevenueStats: React.FC = () => {
   return (
     <div>
       <StatsPageHeader
-        title="Thống kê Doanh thu"
-        subtitle="Phân tích doanh thu theo thời gian"
+        title="Revenue Statistics"
+        subtitle="Analyze revenue over time"
         icon={<DollarSign size={22} />}
         color="#1db954"
         filter={filter}
@@ -85,36 +85,36 @@ const RevenueStats: React.FC = () => {
           {/* Stat cards */}
           <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
             <StatCard
-              title="Tổng doanh thu"
+              title="Total Revenue"
               value={fmtCurrency(data?.summary.totalRevenue ?? 0)}
               icon={<DollarSign size={18} />}
               color="#1db954"
-              subtitle="Đơn COMPLETED"
+              subtitle="Completed Orders"
             />
             <StatCard
-              title="Đơn hàng hoàn thành"
+              title="Completed Orders"
               value={data?.summary.completedOrders ?? 0}
               icon={<ShoppingBag size={18} />}
               color="#3b82f6"
-              subtitle={`/ ${data?.summary.totalOrders ?? 0} tổng đơn`}
+              subtitle={`/ ${data?.summary.totalOrders ?? 0} total orders`}
             />
             <StatCard
-              title="Giá trị TB / Đơn"
+              title="Average Order Value"
               value={fmtCurrency(data?.summary.avgOrderValue ?? 0)}
               icon={<TrendingUp size={18} />}
               color="#8b5cf6"
             />
             <StatCard
-              title="Tổng đơn hàng"
+              title="Total Orders"
               value={data?.summary.totalOrders ?? 0}
               icon={<BarChart2 size={18} />}
               color="#f59e0b"
-              subtitle="Mọi trạng thái"
+              subtitle="All statuses"
             />
           </div>
 
           {/* Line chart — Revenue trend */}
-          <ChartCard title="Xu hướng Doanh thu" subtitle="Doanh thu theo ngày" minHeight={300}>
+          <ChartCard title="Revenue Trend" subtitle="Daily Revenue" minHeight={300}>
             {chartData.length === 0 ? (
               <EmptyState />
             ) : (
@@ -123,7 +123,7 @@ const RevenueStats: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(d) => new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                     axisLine={false}
                     tickLine={false}
@@ -135,7 +135,7 @@ const RevenueStats: React.FC = () => {
                     tickLine={false}
                   />
                   <Tooltip
-                    formatter={(v: unknown) => [fmtCurrency(Number(v)), 'Doanh thu']}
+                    formatter={(v: unknown) => [fmtCurrency(Number(v)), 'Revenue']}
                     labelFormatter={(label) => fmtDate(label)}
                     contentStyle={tooltipStyle}
                   />
@@ -153,7 +153,7 @@ const RevenueStats: React.FC = () => {
           </ChartCard>
 
           {/* Bar chart — Orders per day */}
-          <ChartCard title="Số đơn hàng theo ngày" subtitle="Số lượng đơn hàng trong khoảng thời gian" minHeight={260}>
+          <ChartCard title="Daily Orders" subtitle="Number of orders over the selected period" minHeight={260}>
             {chartData.length === 0 ? (
               <EmptyState />
             ) : (
@@ -162,14 +162,14 @@ const RevenueStats: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(d) => new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: unknown) => [Number(v), 'Đơn hàng']}
+                    formatter={(v: unknown) => [Number(v), 'Orders']}
                     labelFormatter={(label) => fmtDate(label)}
                     contentStyle={tooltipStyle}
                   />
@@ -184,14 +184,14 @@ const RevenueStats: React.FC = () => {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
                 <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                  Chi tiết theo ngày
+                  Daily Details
                 </h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'var(--bg-secondary)' }}>
-                      {['Ngày', 'Số đơn', 'Doanh thu'].map((h) => (
+                      {['Date', 'Orders', 'Revenue'].map((h) => (
                         <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>
                           {h}
                         </th>

@@ -23,21 +23,21 @@ const PUBLIC_TOOLS: ToolDef[] = [
     function: {
       name: 'add_to_cart',
       description:
-        'BẠN CÓ KHẢ NĂNG thực sự thêm sản phẩm vào giỏ hàng của user — không phải chỉ gửi link. Dùng tool này MỖI KHI user muốn mua / thêm vào giỏ / "thêm giúp tôi" / "đặt giùm" / xác nhận mua. Quy trình: lần đầu user hỏi mua → tìm sản phẩm bằng search_products, hỏi xác nhận "Bạn xác nhận thêm X vào giỏ chứ?". Khi user đáp "ok/đồng ý/thêm đi/yes/đúng/được/thêm vào giỏ giúp tôi" → GỌI tool này với confirmed=true. TUYỆT ĐỐI KHÔNG bảo user "tự nhấn link" — bạn làm được trực tiếp.',
+        'YOU HAVE THE ABILITY to actually add products to the user\'s shopping cart — not just send links. Use this tool EVERY TIME the user wants to buy / add to cart / "add for me" / "order for me" / confirms purchase. Flow: first user asks to buy -> find product using search_products, ask confirmation "Would you like me to add X to your cart?". When user answers "ok/yes/sure/go ahead"... -> CALL this tool with confirmed=true. NEVER tell user to "click the link" — you do it directly.',
       parameters: {
         type: 'object',
         properties: {
           productId: {
             type: 'number',
-            description: 'ID của sản phẩm cần thêm.',
+            description: 'The ID of the product to add.',
           },
           quantity: {
             type: 'number',
-            description: 'Số lượng muốn thêm. Mặc định 1.',
+            description: 'The quantity to add. Defaults to 1.',
           },
           confirmed: {
             type: 'boolean',
-            description: 'Phải bằng true. Chưa xác nhận thì KHÔNG gọi tool, hãy hỏi user trước.',
+            description: 'Must be true. If not confirmed yet, DO NOT call the tool, ask the user first.',
           },
         },
         required: ['productId', 'confirmed'],
@@ -49,26 +49,26 @@ const PUBLIC_TOOLS: ToolDef[] = [
     function: {
       name: 'search_products',
       description:
-        'Tìm kiếm sản phẩm trong cửa hàng Classic Records theo từ khóa, danh mục hoặc khoảng giá. Dùng khi khách hỏi về sản phẩm, đĩa nhạc, nghệ sĩ, vinyl, cd, merch, hoặc muốn tìm theo giá.',
+        'Search products in the Classic Records store by keyword, category, or price range. Use when customer asks about products, albums, artists, vinyl, cd, merch, or wants to find by price.',
       parameters: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
-            description: 'Từ khóa tìm kiếm (tên sản phẩm, nghệ sĩ, mô tả). Để trống nếu không có.',
+            description: 'Search keyword (product name, artist, description). Leave blank if none.',
           },
           category: {
             type: 'string',
             enum: ['vinyl', 'cd', 'merch'],
-            description: 'Lọc theo danh mục sản phẩm.',
+            description: 'Filter by product category.',
           },
           max_price: {
             type: 'number',
-            description: 'Giá tối đa (USD).',
+            description: 'Maximum price (USD).',
           },
           limit: {
             type: 'number',
-            description: 'Số lượng kết quả tối đa, mặc định 5.',
+            description: 'Maximum number of results to return, defaults to 5.',
           },
         },
       },
@@ -78,11 +78,11 @@ const PUBLIC_TOOLS: ToolDef[] = [
     type: 'function',
     function: {
       name: 'get_product_details',
-      description: 'Lấy thông tin chi tiết của một sản phẩm theo ID.',
+      description: 'Retrieve detailed information of a product by ID.',
       parameters: {
         type: 'object',
         properties: {
-          productId: { type: 'number', description: 'ID của sản phẩm.' },
+          productId: { type: 'number', description: 'ID of the product.' },
         },
         required: ['productId'],
       },
@@ -96,7 +96,7 @@ const USER_TOOLS: ToolDef[] = [
     function: {
       name: 'get_my_orders',
       description:
-        'Lấy danh sách đơn hàng của chính user đang đăng nhập. Cần đăng nhập. Trả về id, trạng thái, tổng tiền, sản phẩm.',
+        'Retrieve the order history of the currently logged-in user. Requires authentication. Returns id, status, total amount, and items.',
       parameters: { type: 'object', properties: {} },
     },
   },
@@ -108,16 +108,16 @@ const ADMIN_TOOLS: ToolDef[] = [
     function: {
       name: 'list_all_orders',
       description:
-        'CHỈ ADMIN: Liệt kê tất cả đơn hàng trong hệ thống, có thể lọc theo trạng thái.',
+        'ADMIN ONLY: List all orders in the system, optionally filtered by status.',
       parameters: {
         type: 'object',
         properties: {
           status: {
             type: 'string',
             enum: ['PENDING', 'COMPLETED', 'CANCELLED'],
-            description: 'Lọc theo trạng thái đơn hàng.',
+            description: 'Filter by order status.',
           },
-          limit: { type: 'number', description: 'Số lượng tối đa, mặc định 10.' },
+          limit: { type: 'number', description: 'Maximum number of results, defaults to 10.' },
         },
       },
     },
@@ -126,11 +126,11 @@ const ADMIN_TOOLS: ToolDef[] = [
     type: 'function',
     function: {
       name: 'get_order_details',
-      description: 'CHỈ ADMIN: Lấy thông tin chi tiết một đơn hàng theo ID.',
+      description: 'ADMIN ONLY: Get detailed information of an order by ID.',
       parameters: {
         type: 'object',
         properties: {
-          orderId: { type: 'string', description: 'ID đơn hàng (UUID).' },
+          orderId: { type: 'string', description: 'Order ID (UUID).' },
         },
         required: ['orderId'],
       },
@@ -141,20 +141,20 @@ const ADMIN_TOOLS: ToolDef[] = [
     function: {
       name: 'update_order_status',
       description:
-        'CHỈ ADMIN: Cập nhật trạng thái đơn hàng. LUÔN xác nhận với user trước khi gọi tool này.',
+        'ADMIN ONLY: Update an order\'s status. ALWAYS confirm with the user before calling this tool.',
       parameters: {
         type: 'object',
         properties: {
-          orderId: { type: 'string', description: 'ID đơn hàng.' },
+          orderId: { type: 'string', description: 'Order ID.' },
           status: {
             type: 'string',
             enum: ['PENDING', 'COMPLETED', 'CANCELLED'],
-            description: 'Trạng thái mới.',
+            description: 'The new status.',
           },
           confirmed: {
             type: 'boolean',
             description:
-              'Phải bằng true để xác nhận. Nếu user chưa xác nhận rõ ràng, hãy hỏi lại thay vì gọi tool.',
+              'Must be true to confirm. If the user has not explicitly confirmed yet, ask again instead of calling the tool.',
           },
         },
         required: ['orderId', 'status', 'confirmed'],
@@ -166,15 +166,15 @@ const ADMIN_TOOLS: ToolDef[] = [
     function: {
       name: 'delete_order',
       description:
-        'CHỈ ADMIN: XÓA VĨNH VIỄN đơn hàng khỏi hệ thống. Hành động này KHÔNG THỂ HOÀN TÁC. BẮT BUỘC phải hỏi xác nhận rõ ràng từ user và chỉ gọi khi user đã đồng ý.',
+        'ADMIN ONLY: PERMANENTLY delete an order from the system. This action CANNOT BE UNDONE. MUST ask for explicit confirmation from the user and only call when they agree.',
       parameters: {
         type: 'object',
         properties: {
-          orderId: { type: 'string', description: 'ID đơn hàng cần xóa.' },
+          orderId: { type: 'string', description: 'ID of the order to delete.' },
           confirmed: {
             type: 'boolean',
             description:
-              'Phải bằng true. Nếu user chưa nói "đồng ý/xác nhận/xóa đi" thì KHÔNG được gọi tool, hãy hỏi lại.',
+              'Must be true. If the user has not explicitly said "agree/confirm/delete it" yet, DO NOT call the tool, ask again.',
           },
         },
         required: ['orderId', 'confirmed'],
@@ -186,7 +186,7 @@ const ADMIN_TOOLS: ToolDef[] = [
     function: {
       name: 'get_statistics',
       description:
-        'CHỈ ADMIN: Lấy thống kê tổng quan (số user, số sản phẩm, số đơn, doanh thu).',
+        'ADMIN ONLY: Get general overview statistics (number of users, products, orders, total revenue).',
       parameters: { type: 'object', properties: {} },
     },
   },
@@ -244,26 +244,26 @@ export async function executeTool(
         return {
           result: {
             error:
-              'Chưa xác nhận. Tuyệt đối KHÔNG thêm vào giỏ khi user chưa đồng ý rõ ràng. Hãy hỏi lại.',
+              'Unconfirmed. Strictly DO NOT add to cart before user explicitly agrees. Ask first.',
           },
         };
       }
       const product = await productRepository.findById(Number(args.productId));
       if (!product) {
-        return { result: { error: 'Không tìm thấy sản phẩm với ID đó.' } };
+        return { result: { error: 'Product not found with the given ID.' } };
       }
       const quantity = Math.max(1, Math.floor(Number(args.quantity) || 1));
       if (product.stock < quantity) {
         return {
           result: {
-            error: `Sản phẩm "${product.title}" chỉ còn ${product.stock} trong kho, không đủ ${quantity}.`,
+            error: `Product "${product.title}" only has ${product.stock} left in stock, cannot satisfy requested quantity of ${quantity}.`,
           },
         };
       }
       return {
         result: {
           success: true,
-          message: `Đã thêm ${quantity} x "${product.title}" vào giỏ.`,
+          message: `Added ${quantity} x "${product.title}" to cart successfully.`,
           product: trimProduct(product),
           quantity,
         },
@@ -300,13 +300,13 @@ export async function executeTool(
 
     case 'get_product_details': {
       const product = await productRepository.findById(Number(args.productId));
-      if (!product) return { result: { error: 'Không tìm thấy sản phẩm.' } };
+      if (!product) return { result: { error: 'Product not found.' } };
       return { result: trimProduct(product) };
     }
 
     case 'get_my_orders': {
       if (!ctx.userId) {
-        return { result: { error: 'Bạn cần đăng nhập để xem đơn hàng của mình.' } };
+        return { result: { error: 'You need to be logged in to view your orders.' } };
       }
       const orders = await orderRepository.findMyOrders(ctx.userId);
       return {
@@ -318,7 +318,7 @@ export async function executeTool(
     }
 
     case 'list_all_orders': {
-      if (ctx.role !== 'ADMIN') return { result: { error: 'Chỉ admin được dùng chức năng này.' } };
+      if (ctx.role !== 'ADMIN') return { result: { error: 'Only admins can use this function.' } };
       const result: any = await adminService.getOrders();
       const all: any[] = Array.isArray(result) ? result : result.data || [];
       const filtered = args.status ? all.filter((o) => o.status === args.status) : all;
@@ -332,17 +332,17 @@ export async function executeTool(
     }
 
     case 'get_order_details': {
-      if (ctx.role !== 'ADMIN') return { result: { error: 'Chỉ admin được dùng chức năng này.' } };
+      if (ctx.role !== 'ADMIN') return { result: { error: 'Only admins can use this function.' } };
       const order = await adminRepository.findOrderById(String(args.orderId));
-      if (!order) return { result: { error: 'Không tìm thấy đơn hàng.' } };
+      if (!order) return { result: { error: 'Order not found.' } };
       return { result: trimOrder(order) };
     }
 
     case 'update_order_status': {
-      if (ctx.role !== 'ADMIN') return { result: { error: 'Chỉ admin được dùng chức năng này.' } };
+      if (ctx.role !== 'ADMIN') return { result: { error: 'Only admins can use this function.' } };
       if (!args.confirmed) {
         return {
-          result: { error: 'Chưa xác nhận. Hãy hỏi user xác nhận trước khi cập nhật trạng thái.' },
+          result: { error: 'Unconfirmed. Please ask user to confirm before updating status.' },
         };
       }
       try {
@@ -354,32 +354,32 @@ export async function executeTool(
           result: { success: true, order: { id: updated.id, status: updated.status } },
         };
       } catch (e: any) {
-        return { result: { error: e?.message || 'Lỗi khi cập nhật đơn hàng.' } };
+        return { result: { error: e?.message || 'Error updating order.' } };
       }
     }
 
     case 'delete_order': {
-      if (ctx.role !== 'ADMIN') return { result: { error: 'Chỉ admin được phép xóa đơn hàng.' } };
+      if (ctx.role !== 'ADMIN') return { result: { error: 'Only admins are allowed to delete orders.' } };
       if (!args.confirmed) {
         return {
-          result: { error: 'Chưa xác nhận. Tuyệt đối KHÔNG xóa khi user chưa đồng ý rõ ràng.' },
+          result: { error: 'Unconfirmed. Strictly DO NOT delete unless user has explicitly agreed.' },
         };
       }
       try {
         const deleted = await adminService.deleteOrder(String(args.orderId));
         return { result: { success: true, deletedOrderId: deleted.id } };
       } catch (e: any) {
-        if (e?.code === 'P2025') return { result: { error: 'Đơn hàng không tồn tại.' } };
-        return { result: { error: e?.message || 'Lỗi khi xóa đơn hàng.' } };
+        if (e?.code === 'P2025') return { result: { error: 'Order does not exist.' } };
+        return { result: { error: e?.message || 'Error deleting order.' } };
       }
     }
 
     case 'get_statistics': {
-      if (ctx.role !== 'ADMIN') return { result: { error: 'Chỉ admin được dùng chức năng này.' } };
+      if (ctx.role !== 'ADMIN') return { result: { error: 'Only admins can use this function.' } };
       return { result: await adminService.getStats() };
     }
 
     default:
-      return { result: { error: `Tool không tồn tại: ${name}` } };
+      return { result: { error: `Tool does not exist: ${name}` } };
   }
 }

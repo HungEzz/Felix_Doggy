@@ -5,7 +5,7 @@ export const generalLimiter = rateLimit({
   max: 100,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { message: 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 10 giây.' },
+  message: { message: 'Too many requests. Please try again after 10 seconds.' },
 });
 
 export const strictLimiter = rateLimit({
@@ -13,7 +13,7 @@ export const strictLimiter = rateLimit({
   max: 10,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { message: 'Phát hiện hoạt động bất thường. Vui lòng thử lại sau 10 giây.' },
+  message: { message: 'Unusual activity detected. Please try again after 10 seconds.' },
 });
 
 /** Separate limiter for OTP verify/resend — more generous than login. */
@@ -22,7 +22,7 @@ export const otpLimiter = rateLimit({
   max: 15,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { message: 'Bạn đã thử quá nhiều lần. Vui lòng đợi 10 giây.' },
+  message: { message: 'Too many attempts. Please wait 10 seconds.' },
 });
 
 /** Light rate limit for public webhook endpoints (e.g. PayOS).

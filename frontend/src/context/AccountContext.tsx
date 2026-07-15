@@ -152,7 +152,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
     updated.push(newAddr);
     setAddresses(updated);
     saveAddresses(updated);
-    toast.success('Địa chỉ đã được lưu');
+    toast.success('Address saved successfully');
   };
 
   const updateAddress = (id: string, data: Partial<SavedAddress>) => {
@@ -162,21 +162,21 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     setAddresses(updated);
     saveAddresses(updated);
-    toast.success('Địa chỉ đã được cập nhật');
+    toast.success('Address updated successfully');
   };
 
   const deleteAddress = (id: string) => {
     const updated = addresses.filter(a => a.id !== id);
     setAddresses(updated);
     saveAddresses(updated);
-    toast.success('Đã xóa địa chỉ');
+    toast.success('Address deleted successfully');
   };
 
   const setDefaultAddress = (id: string) => {
     const updated = addresses.map(a => ({ ...a, isDefault: a.id === id }));
     setAddresses(updated);
     saveAddresses(updated);
-    toast.success('Đã đặt làm địa chỉ mặc định');
+    toast.success('Set as default address successfully');
   };
 
   const updateProfile = (data: Partial<AccountProfile>) => {

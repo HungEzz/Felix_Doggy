@@ -167,18 +167,23 @@ An optional **Cache layer** sits alongside the service for read-heavy paths (pro
 
 ### Orders (`/api/orders`)
 
-**Purpose:** Checkout and order history for customers.
+**Purpose:** Checkout, payment integration, and order history for customers.
 
 **Key functionality:**
 - Checkout endpoint supports both guest and authenticated users
+- Dual checkout options: Cash on Delivery (COD) and Online Payment via **PayOS** (QR Code, bank transfer)
 - Transactional stock validation and decrement — if any item is out of stock, the entire order rolls back
 - Captures price-at-time to preserve historical pricing
 - Authenticated users can view their own order history with product details
 - Auto-fills user profile (name, phone, address) from checkout data if empty
+- Secure Webhook endpoint (`POST /webhook/payos`) to receive payment confirmation from PayOS
+- Post-redirect server-side payment verification (`GET /verify-payment/:orderCode`) to double-check order status directly from database/PayOS API without trusting client-side query parameters
 
 **Notable details:**
 - The checkout operation is wrapped in `withRetry()` (3 attempts, exponential backoff) to handle transient DB failures
 - Redis cache for ordered products is invalidated post-checkout to reflect updated stock
+- Conversions between USD store prices and VND (25,000 VND/USD) for PayOS transactions
+- Safeguards for PayOS minimum transaction limit (2,000 VND)
 
 ---
 
@@ -383,6 +388,10 @@ Each module follows a consistent file convention:
 | `GEMINI_API_KEY`   | Google Gemini API key (reserved for future use)     | No |
 | `HF_API_TOKEN`     | Hugging Face API token (reserved for future use)    | No |
 | `HF_MODEL`         | Hugging Face model name (reserved for future use)   | No (default: `google/flan-t5-base`) |
+| `PAYOS_CLIENT_ID`  | Client ID of the PayOS payment channel               | ✅ Yes (if PayOS enabled) |
+| `PAYOS_API_KEY`     | API Key of the PayOS payment channel                 | ✅ Yes (if PayOS enabled) |
+| `PAYOS_CHECKSUM_KEY` | Checksum Key of the PayOS payment channel          | ✅ Yes (if PayOS enabled) |
+| `FRONTEND_URL`     | Frontend URL for redirection post-payment (e.g. `http://localhost:5173`) | No (default: `http://localhost:5173`) |
 
 **Example `.env` file:**
 
@@ -398,6 +407,12 @@ CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 SMTP_USER="your-email@gmail.com"
 SMTP_PASS="your-app-password"
 DEEPSEEK_API_KEY="your-deepseek-key"
+
+# PayOS Configuration
+PAYOS_CLIENT_ID="your-payos-client-id"
+PAYOS_API_KEY="your-payos-api-key"
+PAYOS_CHECKSUM_KEY="your-payos-checksum-key"
+FRONTEND_URL="http://localhost:5173"
 ```
 
 > **Note:** `DATABASE_URL` and `JWT_SECRET` will cause a fatal startup error if not defined. All other variables have fallback defaults.
@@ -621,6 +636,7 @@ sequenceDiagram
     "customerPhone": "0901234567",
     "customerName": "Normal User",
     "shippingAddr": "789 Hai Ba Trung, Q3, TP.HCM",
+    "paymentMethod": "payos", // "cod" or "payos"
     "items": [
       {
         "id": 1,
@@ -629,7 +645,7 @@ sequenceDiagram
     ]
   }
   ```
-- **Response:** `HTTP 201 Created`
+- **Response (COD):** `HTTP 201 Created`
   ```json
   {
     "message": "Order created successfully",
@@ -641,21 +657,61 @@ sequenceDiagram
       "shippingAddr": "789 Hai Ba Trung, Q3, TP.HCM",
       "totalAmount": 29.99,
       "status": "PENDING",
-      "createdAt": "2026-06-18T15:05:00.000Z",
-      "orderItems": [
-        {
-          "id": 482,
-          "orderId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-          "productId": 1,
-          "quantity": 1,
-          "priceAtTime": 29.99
-        }
-      ]
+      "paymentMethod": "cod",
+      "createdAt": "2026-06-18T15:05:00.000Z"
+    }
+  }
+  ```
+- **Response (PayOS):** `HTTP 201 Created`
+  ```json
+  {
+    "message": "Order created successfully",
+    "order": {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "orderCode": 10482,
+      "userId": "3d91a551-e3ef-4281-903e-e3aa442ba4d0",
+      "customerEmail": "user@gmail.com",
+      "customerPhone": "0901234567",
+      "shippingAddr": "789 Hai Ba Trung, Q3, TP.HCM",
+      "totalAmount": 29.99,
+      "status": "PENDING_PAYMENT",
+      "paymentMethod": "payos",
+      "createdAt": "2026-06-18T15:05:00.000Z"
+    },
+    "checkoutUrl": "https://pay.payos.vn/web/f47ac10b58cc4372a5670e02b2c3d479"
+  }
+  ```
+
+#### 6. PayOS Webhook Callback
+- **Request:** `POST /api/orders/webhook/payos` (No authentication required, checksum verification signature-based)
+  - Payload: PayOS webhook structure containing encrypted/signed transaction details.
+- **Response:** `HTTP 200 OK`
+  ```json
+  {
+    "success": true,
+    "data": {
+      "orderCode": 10482,
+      "status": "PENDING"
     }
   }
   ```
 
-#### 6. Admin Image Upload
+#### 7. Verify Payment Status
+- **Request:** `GET /api/orders/verify-payment/:orderCode` (Frontend post-redirect double-check)
+- **Response:** `HTTP 200 OK`
+  ```json
+  {
+    "order": {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "orderCode": 10482,
+      "status": "PENDING",
+      "paymentMethod": "payos",
+      "paymentId": "PayOSLinkId123"
+    }
+  }
+  ```
+
+#### 8. Admin Image Upload
 - **Request:** `POST /api/admin/upload` (Form-data)
   - Key: `image`, Value: `album_cover.png` (binary file)
 - **Response:** `HTTP 200 OK`
@@ -773,7 +829,7 @@ docker-compose down
 
 | Area                  | Limitation                                                                        |
 | --------------------- | --------------------------------------------------------------------------------- |
-| **Payment**           | No payment gateway integration — orders are created directly without payment processing. |
+| **Payment**           | Integrates PayOS for VND online payments (VND/USD conversion at 25,000 rate). COD remains supported. |
 | **Session Invalidation** | Password change and password reset do not invalidate existing JWT tokens. A compromised token remains valid until natural expiry (7 days). |
 | **File Storage**      | Product images are stored on local disk (`uploads/`). Not suitable for horizontal scaling or CDN-backed delivery. |
 | **Image URLs**        | Upload endpoint generates `http://localhost:PORT/uploads/...` URLs, which won't work in production without URL rewriting. |
@@ -791,7 +847,7 @@ docker-compose down
 
 | Priority | Improvement                                                                                       |
 | -------- | ------------------------------------------------------------------------------------------------- |
-| 🔴 High  | **Payment integration** — Integrate Stripe or VNPay for real payment processing.                 |
+| 🔴 High  | **Multi-currency payment** — Support Stripe/PayPal for international credit card payments in USD directly. |
 | 🔴 High  | **Token revocation** — Implement a token blacklist (Redis-backed) to invalidate sessions on password change/reset. |
 | 🔴 High  | **CORS hardening** — Restrict allowed origins to the actual frontend domain.                     |
 | 🟡 Med   | **Cloud file storage** — Migrate uploads to S3/GCS with signed URLs for CDN delivery.            |

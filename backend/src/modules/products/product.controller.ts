@@ -63,7 +63,7 @@ export const productController = {
       await productService.deleteProduct(id);
       res.json({ message: 'Product deleted' });
     } catch (error: any) {
-      if (error.message?.includes('Không thể xóa')) {
+      if (error.message?.includes('Cannot delete')) {
         res.status(400).json({ message: error.message });
         return;
       }

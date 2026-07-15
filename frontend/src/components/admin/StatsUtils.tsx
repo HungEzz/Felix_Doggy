@@ -31,11 +31,11 @@ interface TimeFilterProps {
 }
 
 const PERIODS: { label: string; value: Period }[] = [
-  { label: 'Hôm nay', value: 'today' },
-  { label: 'Tuần này', value: 'week' },
-  { label: 'Tháng này', value: 'month' },
-  { label: 'Năm này', value: 'year' },
-  { label: 'Tùy chỉnh', value: 'custom' },
+  { label: 'Today', value: 'today' },
+  { label: 'This Week', value: 'week' },
+  { label: 'This Month', value: 'month' },
+  { label: 'This Year', value: 'year' },
+  { label: 'Custom', value: 'custom' },
 ];
 
 export const TimeFilter: React.FC<TimeFilterProps> = ({ value, onChange }) => {
@@ -74,7 +74,7 @@ export const TimeFilter: React.FC<TimeFilterProps> = ({ value, onChange }) => {
             onChange={(e) => onChange({ ...value, startDate: e.target.value })}
             style={{ padding: '5px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
           />
-          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>đến</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>to</span>
           <input
             type="date"
             max={today}
@@ -205,7 +205,7 @@ export const StatsPageHeader: React.FC<StatsPageHeaderProps> = ({
         }}
       >
         {exporting ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={14} />}
-        Xuất Excel
+        Export Excel
       </button>
     </div>
 
@@ -238,14 +238,14 @@ export const StatsSkeleton: React.FC = () => (
 );
 
 // ─── Empty State ───────────────────────────────────────────────────────────────
-export const EmptyState: React.FC<{ message?: string }> = ({ message = 'Không có dữ liệu cho khoảng thời gian này.' }) => (
+export const EmptyState: React.FC<{ message?: string }> = ({ message = 'No data available for this time period.' }) => (
   <div style={{
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     padding: '60px 24px', color: 'var(--text-muted)', textAlign: 'center',
     background: 'var(--bg-card)', borderRadius: 14, border: '1px solid var(--border)',
   }}>
     <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Chưa có dữ liệu</p>
+    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>No data yet</p>
     <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{message}</p>
   </div>
 );
@@ -268,8 +268,8 @@ export const useStatsData = <T,>(endpoint: string, filter: DateFilter) => {
       const result = await api.get(`/admin/statistics/${endpoint}?${params}`);
       setData(result as T);
     } catch (e: any) {
-      setError(e.response?.data?.message || 'Lỗi tải dữ liệu');
-      toast.error('Không thể tải dữ liệu thống kê');
+      setError(e.response?.data?.message || 'Failed to load data');
+      toast.error('Unable to load statistics data');
     } finally {
       setLoading(false);
     }
@@ -295,7 +295,7 @@ export const exportToExcel = async (
     const rows = transformRows(data);
 
     if (!rows.length) {
-      toast.error('Không có dữ liệu để xuất');
+      toast.error('No data to export');
       return;
     }
 
@@ -320,9 +320,9 @@ export const exportToExcel = async (
     a.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Đã xuất file thành công!');
+    toast.success('File exported successfully!');
   } catch {
-    toast.error('Lỗi khi xuất file');
+    toast.error('Error exporting file');
   }
 };
 
@@ -347,11 +347,11 @@ export const ChartCard: React.FC<{ title: string; subtitle?: string; children: R
 
 // ─── Status Badge ───────────────────────────────────────────────────────────────
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  PENDING:    { label: 'Chờ xử lý', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-  PROCESSING: { label: 'Đang xử lý', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-  SHIPPED:    { label: 'Đang giao', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-  COMPLETED:  { label: 'Đã giao', color: '#1db954', bg: 'rgba(29,185,84,0.1)' },
-  CANCELLED:  { label: 'Đã hủy', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  PENDING:    { label: 'Pending', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  PROCESSING: { label: 'Processing', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+  SHIPPED:    { label: 'Shipped', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+  COMPLETED:  { label: 'Completed', color: '#1db954', bg: 'rgba(29,185,84,0.1)' },
+  CANCELLED:  { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
 };
 
 export const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -369,7 +369,7 @@ export const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 export const fmtCurrency = (v: number) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-export const fmtDate = (d: string) => new Date(d).toLocaleDateString('vi-VN');
+export const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-US');
 
 // Add shimmer keyframe and responsive media query styles via style tag (called once)
 if (typeof document !== 'undefined') {
@@ -434,3 +434,4 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(style);
   }
 }
+export default TimeFilter;

@@ -4,7 +4,7 @@ import { store } from '../store';
 import { logout, adminLogout } from '../store/userSlice';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // Hỗ trợ Docker API Gateway hoặc Local
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // Supports Docker API Gateway or Local
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -12,7 +12,7 @@ const api = axios.create({
 });
 
 // --- RETRY CONFIG ---
-// Các HTTP status code được coi là lỗi tạm thời — có thể retry an toàn
+// HTTP status codes considered temporary errors — safe to retry
 const RETRYABLE_STATUS_CODES = [500, 502, 503, 504];
 const MAX_RETRY_ATTEMPTS = 3;
 const BASE_RETRY_DELAY_MS = 500;
@@ -26,7 +26,7 @@ function getActiveToken(): string | null {
   return localStorage.getItem(isAdminPage ? 'admin_token' : 'token');
 }
 
-// Đính kèm token vào header
+// Attach token to headers
 api.interceptors.request.use(
   (config) => {
     const token = getActiveToken();
@@ -38,13 +38,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Xử lý response: retry tự động + hiển thị lỗi thân thiện
+// Response handling: auto-retry + user-friendly error toast display
 api.interceptors.response.use(
   (response) => response.data,
   async (error) => {
     const config = error.config as AxiosRequestConfig & { _retryCount?: number };
 
-    // Token hết hạn hoặc không hợp lệ (HTTP 401) — tự động đăng xuất session tương ứng
+    // Expired or invalid token (HTTP 401) — automatically log out corresponding session
     if (error.response?.status === 401) {
       const isAdminPage = window.location.pathname.startsWith('/admin');
 
@@ -54,7 +54,7 @@ api.interceptors.response.use(
           localStorage.removeItem('admin_token');
           localStorage.removeItem('admin_user');
           store.dispatch(adminLogout());
-          toast.error('Phiên admin đã hết hạn. Vui lòng đăng nhập lại.', {
+          toast.error('Admin session expired. Please log in again.', {
             id: 'admin-session-expired-toast',
             duration: 4000,
           });
@@ -65,7 +65,7 @@ api.interceptors.response.use(
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           store.dispatch(logout());
-          toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', {
+          toast.error('Session expired. Please log in again.', {
             id: 'session-expired-toast',
             duration: 4000,
           });
@@ -74,16 +74,16 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Xử lý Rate Limiting từ Server (HTTP 429) — không retry, chỉ báo người dùng chờ
+    // Rate Limiting handling from Server (HTTP 429) — do not retry, just prompt user to wait
     if (error.response?.status === 429) {
-      toast.error(error.response.data.message || 'Bạn đang thao tác quá nhanh. Vui lòng đợi một lát!', {
+      toast.error(error.response.data.message || 'You are acting too fast. Please wait a moment!', {
         id: 'rate-limit-toast',
         duration: 4000,
       });
       return Promise.reject(error);
     }
 
-    // Retry khi gặp lỗi server tạm thời (5xx) hoặc mạng bị ngắt (network error)
+    // Retry on temporary server errors (5xx) or network errors
     const isNetworkError = !error.response && error.code !== 'ECONNABORTED';
     const isRetryableStatus = error.response && RETRYABLE_STATUS_CODES.includes(error.response.status);
 
@@ -95,16 +95,16 @@ api.interceptors.response.use(
         const delayMs = Math.min(BASE_RETRY_DELAY_MS * Math.pow(2, config._retryCount - 1), 8000);
 
         console.warn(
-          `🔄 [Retry] Request thất bại (${error.response?.status ?? 'network error'}). ` +
-          `Lần ${config._retryCount}/${MAX_RETRY_ATTEMPTS} — thử lại sau ${delayMs}ms...`
+          `🔄 [Retry] Request failed (${error.response?.status ?? 'network error'}). ` +
+          `Attempt ${config._retryCount}/${MAX_RETRY_ATTEMPTS} — retrying in ${delayMs}ms...`
         );
 
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         return api(config);
       }
 
-      // Hết số lần retry → hiển thị thông báo lỗi
-      toast.error('Kết nối tới server thất bại. Vui lòng kiểm tra mạng và thử lại.', {
+      // Retry attempts exhausted → display connection failure message
+      toast.error('Failed to connect to server. Please check your network and try again.', {
         id: 'server-error-toast',
         duration: 5000,
       });

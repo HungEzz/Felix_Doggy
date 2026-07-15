@@ -18,11 +18,11 @@ export const withRetry = async <T>(
 
       const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 8000);
       console.warn(
-        `⚠️ [Retry] ${label} thất bại lần ${attempt}/${maxAttempts}. Thử lại sau ${delayMs}ms... Lỗi: ${err.message}`,
+        `⚠️ [Retry] ${label} failed attempt ${attempt}/${maxAttempts}. Retrying in ${delayMs}ms... Error: ${err.message}`,
       );
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 
-  throw new Error(`[Retry] ${label} thất bại sau ${maxAttempts} lần thử.`);
+  throw new Error(`[Retry] ${label} failed after ${maxAttempts} attempts.`);
 };

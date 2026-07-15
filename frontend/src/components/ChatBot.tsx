@@ -60,7 +60,7 @@ async function getChatResponse(
     if (!response.ok) throw new Error('API error');
     const data: ChatApiResponse = await response.json();
     return {
-      response: data.response || 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Vui lòng thử lại.',
+      response: data.response || 'Sorry, I did not understand your question. Please try again.',
       actions: Array.isArray(data.actions) ? data.actions : [],
       role: data.role,
     };
@@ -68,7 +68,7 @@ async function getChatResponse(
     console.error('Chat Error:', error);
     return {
       response:
-        'Xin lỗi, tôi gặp trục trặc khi kết nối với máy chủ. Vui lòng thử lại sau hoặc liên hệ hotline 1800-CLASSIC.',
+        'Sorry, I am having trouble connecting to the server. Please try again later or contact our hotline 1800-CLASSIC.',
       actions: [],
     };
   }
@@ -78,19 +78,19 @@ async function getChatResponse(
 // QUICK REPLY SUGGESTIONS
 // ============================================================
 const QUICK_REPLIES = [
-  { label: '🎵 Xem Vinyl', text: 'Tôi muốn xem sản phẩm Vinyl' },
-  { label: '💿 Xem CD', text: 'Cho tôi xem các đĩa CD dưới 30$' },
-  { label: '👕 Xem Merch', text: 'Có những Merch gì?' },
-  { label: '📦 Đơn của tôi', text: 'Cho tôi xem các đơn hàng của tôi' },
-  { label: '📊 Thống kê (admin)', text: 'Cho tôi xem thống kê doanh thu' },
-  { label: '🚚 Giao hàng', text: 'Chính sách giao hàng như thế nào?' },
+  { label: '🎵 Browse Vinyl', text: 'Show me Vinyl products' },
+  { label: '💿 Browse CDs', text: 'Show me CDs under $30' },
+  { label: '👕 Browse Merch', text: 'What merch do you have?' },
+  { label: '📦 My Orders', text: 'Show me my orders' },
+  { label: '📊 Stats (admin)', text: 'Show me sales statistics' },
+  { label: '🚚 Shipping Info', text: 'What is the shipping policy?' },
 ];
 
 // ============================================================
 // CHATBOT COMPONENT
 // ============================================================
 const MAX_HISTORY_ITEMS = 12;
-const IDLE_CLEAR_MS = 30 * 60 * 1000; // 30 phút
+const IDLE_CLEAR_MS = 30 * 60 * 1000; // 30 minutes
 const MESSAGES_STORAGE_KEY = 'classic_records_chat_messages';
 const LAST_ACTIVITY_KEY = 'classic_records_chat_last_activity';
 
@@ -98,7 +98,7 @@ const INITIAL_GREETING: Message = {
   id: '0',
   role: 'assistant',
   content:
-    '👋 Xin chào! Tôi là trợ lý ảo của **Classic Records**, chạy bằng DeepSeek V3.2.\n\nTôi có thể giúp bạn:\n• Tìm sản phẩm (Vinyl/CD/Merch, theo nghệ sĩ, giá…)\n• Thêm sản phẩm vào giỏ hàng (sẽ hỏi xác nhận trước)\n• Xem đơn hàng của bạn (cần đăng nhập)\n• Quản lý đơn (sửa trạng thái, xóa) — admin\n\nBạn cần gì?',
+    '👋 Hello! I am the AI assistant of **Classic Records**, powered by DeepSeek.\n\nI can help you:\n• Find products (Vinyl/CD/Merch, by artist, price, etc.)\n• Add products to your cart directly\n• View your orders (requires login)\n• Manage orders (update status, delete) — admin\n\nWhat can I do for you today?',
   timestamp: new Date(),
 };
 
@@ -131,7 +131,7 @@ const ChatBot: React.FC = () => {
     idleTimerRef.current = window.setTimeout(resetHistory, IDLE_CLEAR_MS);
   }, [resetHistory]);
 
-  // Khôi phục history từ localStorage; nếu quá 30p không hoạt động thì reset
+  // Restore history from localStorage; reset if inactive for >30 mins
   useEffect(() => {
     try {
       const lastTs = Number(localStorage.getItem(LAST_ACTIVITY_KEY) || 0);
@@ -152,7 +152,7 @@ const ChatBot: React.FC = () => {
         }
       }
     } catch (error) {
-      console.warn('Không thể load lịch sử chat:', error);
+      console.warn('Failed to load chat history:', error);
     }
     armIdleTimer();
     return () => {
@@ -160,13 +160,13 @@ const ChatBot: React.FC = () => {
     };
   }, [armIdleTimer, resetHistory]);
 
-  // Persist messages + cập nhật timestamp hoạt động cuối + rearm idle timer
+  // Persist messages + update last activity timestamp + rearm idle timer
   useEffect(() => {
     try {
       localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
       localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
     } catch (error) {
-      console.warn('Không thể lưu lịch sử chat:', error);
+      console.warn('Failed to save chat history:', error);
     }
     armIdleTimer();
   }, [messages, armIdleTimer]);
@@ -181,8 +181,7 @@ const ChatBot: React.FC = () => {
     }
   }, [isOpen]);
 
-  // Auto-scroll: chỉ cuộn trong khung chat, không kéo cả trang web.
-  // 2 lần RAF + listener cho ảnh load xong (vì ảnh sản phẩm làm scrollHeight tăng sau).
+  // Auto-scroll: scroll inside the chat window, not the whole page.
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -265,7 +264,7 @@ const ChatBot: React.FC = () => {
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ hotline 1800-CLASSIC.',
+          content: 'Sorry, an error occurred. Please try again or contact our hotline 1800-CLASSIC.',
           timestamp: new Date(),
         },
       ]);
@@ -348,7 +347,7 @@ const ChatBot: React.FC = () => {
               </div>
               <div style={{ fontSize: '11px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-                Trực tuyến · Phản hồi ngay
+                Online · Responds instantly
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -367,7 +366,7 @@ const ChatBot: React.FC = () => {
                   justifyContent: 'center',
                   fontSize: '14px',
                 }}
-                title={isMinimized ? 'Mở rộng' : 'Thu nhỏ'}
+                title={isMinimized ? 'Expand' : 'Minimize'}
               >
                 {isMinimized ? '▲' : '▼'}
               </button>
@@ -386,7 +385,7 @@ const ChatBot: React.FC = () => {
                   justifyContent: 'center',
                   fontSize: '16px',
                 }}
-                title="Đóng"
+                title="Close"
               >
                 ×
               </button>
@@ -513,7 +512,7 @@ const ChatBot: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Nhập tin nhắn..."
+                  placeholder="Type a message..."
                   disabled={isLoading}
                   style={{
                     flex: 1,
@@ -547,7 +546,7 @@ const ChatBot: React.FC = () => {
                     flexShrink: 0,
                     transition: 'background 0.2s',
                   }}
-                  title="Gửi"
+                  title="Send"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={input.trim() && !isLoading ? '#fff' : '#999'}>
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -589,8 +588,8 @@ const ChatBot: React.FC = () => {
           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)';
         }}
-        title="Trò chuyện với Classic Records"
-        aria-label="Mở chat hỗ trợ"
+        title="Chat with Classic Records"
+        aria-label="Open support chat"
       >
         {isOpen ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
