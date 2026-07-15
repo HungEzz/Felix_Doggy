@@ -7,6 +7,10 @@ export const authRepository = {
     prisma.user.create({
       data: { email, password: hashedPassword, fullName },
     }),
+  createOAuthUser: (email: string, hashedPassword: string, fullName?: string) =>
+    prisma.user.create({
+      data: { email, password: hashedPassword, fullName, isVerified: true },
+    }),
   updateUser: (id: string, data: { fullName?: string; phone?: string; address?: string }) =>
     prisma.user.update({
       where: { id },

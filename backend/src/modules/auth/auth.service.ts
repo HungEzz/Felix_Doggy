@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { authRepository } from './auth.repository';
 import { otpRepository } from './otp.repository';
 import { env } from '../../config/env';
@@ -417,5 +418,62 @@ export const authService = {
     // after a password reset to prevent compromised sessions from remaining active.
 
     return { message: 'Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập.' };
+  },
+
+  async loginWithGoogle(googleToken: string) {
+    if (!googleToken) {
+      throw new Error('Google token là bắt buộc');
+    }
+
+    if (!env.GOOGLE_CLIENT_ID) {
+      throw new Error('Đăng nhập bằng Google chưa được cấu hình trên server');
+    }
+
+    const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+    let payload;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (err: any) {
+      console.error('Google token verification failed:', err);
+      throw new Error('Xác thực tài khoản Google không hợp lệ');
+    }
+
+    if (!payload || !payload.email) {
+      throw new Error('Không thể lấy thông tin email từ tài khoản Google');
+    }
+
+    const email = payload.email.toLowerCase();
+    const fullName = payload.name || 'Khách hàng';
+
+    let user = await authRepository.findUserByEmail(email);
+
+    if (!user) {
+      // Create a new user with verified status and a secure random password
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      user = await authRepository.createOAuthUser(email, hashedPassword, fullName);
+    } else if (!user.isVerified) {
+      // If user exists but is not verified, verify them since Google already verified their email
+      await authRepository.verifyUser(email);
+      user.isVerified = true;
+    }
+
+    const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, { expiresIn: '7d' });
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+      },
+    };
   },
 };

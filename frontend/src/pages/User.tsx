@@ -1237,6 +1237,75 @@ const AuthPage: React.FC = () => {
   // Forgot password step
   const [forgotStep, setForgotStep] = useState(false);
 
+  const handleGoogleLogin = async (googleResponse: any) => {
+    setSubmitting(true);
+    try {
+      const res: any = await api.post('/auth/google', { token: googleResponse.credential });
+      const u = res.user;
+      const profileData = {
+        id: u.id,
+        name: u.fullName || 'Khách hàng',
+        email: u.email,
+        phone: u.phone || '',
+        address: u.address || '',
+        role: u.role,
+      };
+
+      if (u.role?.toUpperCase() === 'ADMIN') {
+        localStorage.setItem('admin_token', res.token);
+        localStorage.setItem('admin_user', JSON.stringify(profileData));
+        dispatch(adminLogin(profileData));
+        toast.success('Đăng nhập admin thành công');
+        navigate('/admin');
+      } else {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(profileData));
+        dispatch(login(profileData));
+        toast.success('Đăng nhập thành công');
+      }
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      toast.error(error.response?.data?.message || 'Đăng nhập Google thất bại');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (otpStep || forgotStep) return;
+
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      console.warn('VITE_GOOGLE_CLIENT_ID is not configured.');
+      return;
+    }
+
+    const initGoogleGsi = () => {
+      const g = (window as any).google;
+      if (g && g.accounts && g.accounts.id) {
+        g.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleLogin,
+        });
+
+        const btnContainer = document.getElementById('google-signin-button');
+        if (btnContainer) {
+          g.accounts.id.renderButton(btnContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: 372,
+            shape: 'circle',
+          });
+        }
+        g.accounts.id.prompt(); // One Tap
+      } else {
+        setTimeout(initGoogleGsi, 200);
+      }
+    };
+
+    initGoogleGsi();
+  }, [isLogin, otpStep, forgotStep]);
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!isLogin && !name.trim()) e.name = 'Nhập họ tên';
@@ -1398,7 +1467,17 @@ const AuthPage: React.FC = () => {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: 28, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 10 }}>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>Hoặc</span>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+          <div id="google-signin-button" style={{ width: '100%', maxWidth: 372 }}></div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10 }}>
             {isLogin ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
           </p>

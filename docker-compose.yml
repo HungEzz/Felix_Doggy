@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # 1. API Gateway (Nginx)
@@ -18,7 +18,7 @@ services:
 
   # 2. Frontend
   frontend:
-    build: 
+    build:
       context: ./frontend
     container_name: record_store_frontend
     environment:
@@ -44,6 +44,7 @@ services:
       - JWT_SECRET=supersecretkey_for_record_store_2026
       - REDIS_URL=redis://redis:6379
       - PORT=3000
+      - GOOGLE_CLIENT_ID=957845460758-nkum4phpedgrt7mpi1a4o07m2o4ocjhs.apps.googleusercontent.com
     depends_on:
       postgres:
         condition: service_healthy

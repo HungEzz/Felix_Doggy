@@ -51,6 +51,30 @@ export const authController = {
     }
   },
 
+  async loginWithGoogle(req: Request, res: Response) {
+    try {
+      const { token } = req.body;
+      const result = await authService.loginWithGoogle(token);
+      res.json({
+        message: 'Login successful',
+        token: result.token,
+        user: result.user,
+      });
+    } catch (error: any) {
+      if (
+        error.message.includes('bắt buộc') ||
+        error.message.includes('không hợp lệ') ||
+        error.message.includes('Không thể lấy thông tin') ||
+        error.message.includes('chưa được cấu hình')
+      ) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
+      console.error('Google login error:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  },
+
   async verifyOtp(req: Request, res: Response) {
     try {
       const result = await authService.verifyOtp(req.body);

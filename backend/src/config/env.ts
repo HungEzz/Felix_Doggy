@@ -27,4 +27,5 @@ export const env = {
   CLOUDINARY_API_KEY: getRequiredEnv('CLOUDINARY_API_KEY'),
   CLOUDINARY_API_SECRET: getRequiredEnv('CLOUDINARY_API_SECRET'),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
 };

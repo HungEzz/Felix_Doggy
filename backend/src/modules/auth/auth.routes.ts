@@ -7,6 +7,7 @@ export const authRoutes = Router();
 
 authRoutes.post('/register', authController.register);
 authRoutes.post('/login', strictLimiter, authController.login);
+authRoutes.post('/google', strictLimiter, authController.loginWithGoogle);
 
 // OTP verification routes — separate rate limiter to avoid conflicts with login
 authRoutes.post('/verify-otp', otpLimiter, authController.verifyOtp);

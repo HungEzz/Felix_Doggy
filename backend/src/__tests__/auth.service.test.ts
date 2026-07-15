@@ -5,11 +5,19 @@
 
 // ── Mock modules BEFORE importing the service ────────────────────────────────
 
+const mockVerifyIdToken = jest.fn();
+jest.mock('google-auth-library', () => ({
+  OAuth2Client: jest.fn().mockImplementation(() => ({
+    verifyIdToken: mockVerifyIdToken,
+  })),
+}));
+
 jest.mock('../modules/auth/auth.repository', () => ({
   authRepository: {
     findUserByEmail: jest.fn(),
     findUserById: jest.fn(),
     createUser: jest.fn(),
+    createOAuthUser: jest.fn(),
     updateUser: jest.fn(),
     updateUnverifiedUser: jest.fn(),
     updatePassword: jest.fn(),
@@ -45,7 +53,7 @@ jest.mock('../config/mail', () => ({
 }));
 
 jest.mock('../config/env', () => ({
-  env: { JWT_SECRET: 'test-secret' },
+  env: { JWT_SECRET: 'test-secret', GOOGLE_CLIENT_ID: 'google-client-id' },
 }));
 
 // ── Import after mocks ────────────────────────────────────────────────────────
@@ -273,5 +281,73 @@ describe('authService.changePassword', () => {
         newPassword: 'short',
       }),
     ).rejects.toThrow(/ít nhất 8 ký tự/);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// authService.loginWithGoogle
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('authService.loginWithGoogle', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('✅ [HP-Google-1] signs in existing verified user', async () => {
+    mockVerifyIdToken.mockResolvedValueOnce({
+      getPayload: () => ({ email: 'existing@example.com', name: 'Existing User' }),
+    });
+    const mockUser = { ...verifiedUser, email: 'existing@example.com', fullName: 'Existing User' };
+    mockAuthRepo.findUserByEmail.mockResolvedValueOnce(mockUser);
+
+    const result = await authService.loginWithGoogle('valid-token');
+
+    expect(result.token).toBe('mock.jwt.token');
+    expect(result.user.email).toBe('existing@example.com');
+    expect(mockAuthRepo.createOAuthUser).not.toHaveBeenCalled();
+    expect(mockAuthRepo.verifyUser).not.toHaveBeenCalled();
+  });
+
+  it('✅ [HP-Google-2] creates and signs in new user if email does not exist', async () => {
+    mockVerifyIdToken.mockResolvedValueOnce({
+      getPayload: () => ({ email: 'new@example.com', name: 'New User' }),
+    });
+    mockAuthRepo.findUserByEmail.mockResolvedValueOnce(null);
+    bcryptMock.hash.mockResolvedValueOnce('$2b$hashedRandomPassword' as never);
+    
+    const mockCreatedUser = { ...verifiedUser, email: 'new@example.com', fullName: 'New User' };
+    mockAuthRepo.createOAuthUser.mockResolvedValueOnce(mockCreatedUser);
+
+    const result = await authService.loginWithGoogle('valid-token');
+
+    expect(result.token).toBe('mock.jwt.token');
+    expect(result.user.email).toBe('new@example.com');
+    expect(mockAuthRepo.createOAuthUser).toHaveBeenCalledWith(
+      'new@example.com',
+      '$2b$hashedRandomPassword',
+      'New User'
+    );
+  });
+
+  it('✅ [HP-Google-3] verifies and signs in user if account exists but is unverified', async () => {
+    mockVerifyIdToken.mockResolvedValueOnce({
+      getPayload: () => ({ email: 'unverified@example.com', name: 'Unverified User' }),
+    });
+    const mockUser = { ...unverifiedUser, email: 'unverified@example.com', fullName: 'Unverified User' };
+    mockAuthRepo.findUserByEmail.mockResolvedValueOnce(mockUser);
+    mockAuthRepo.verifyUser.mockResolvedValueOnce({ ...mockUser, isVerified: true });
+
+    const result = await authService.loginWithGoogle('valid-token');
+
+    expect(result.token).toBe('mock.jwt.token');
+    expect(mockAuthRepo.verifyUser).toHaveBeenCalledWith('unverified@example.com');
+  });
+
+  it('🔴 [EC-Google-1] throws error when token verification fails', async () => {
+    mockVerifyIdToken.mockRejectedValueOnce(new Error('Invalid signature'));
+
+    await expect(authService.loginWithGoogle('invalid-token')).rejects.toThrow(
+      'Xác thực tài khoản Google không hợp lệ'
+    );
   });
 });
