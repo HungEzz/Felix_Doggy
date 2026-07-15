@@ -62,15 +62,22 @@ export const orderService = {
 
     // If PayOS payment, create payment link and return checkoutUrl for redirect
     if (paymentMethod === 'payos') {
+      const EXCHANGE_RATE = 25000; // Convert USD database prices to VND
+      const amountInVnd = order.totalAmount * EXCHANGE_RATE;
+
+      if (amountInVnd < 2000) {
+        throw new Error('Số tiền thanh toán tối thiểu qua PayOS là 2,000 VND (khoảng $0.08). Vui lòng thêm sản phẩm hoặc tăng số lượng.');
+      }
+
       const paymentItems = order.orderItems.map((oi: any) => ({
         name: oi.product?.title || `Product #${oi.productId}`,
         quantity: oi.quantity,
-        price: Math.round(oi.priceAtTime),
+        price: Math.round(oi.priceAtTime * EXCHANGE_RATE),
       }));
 
       const paymentLink = await payosService.createPaymentLink({
         orderCode: order.orderCode,
-        amount: Math.round(order.totalAmount),
+        amount: Math.round(amountInVnd),
         description: `DH ${order.orderCode}`,
         items: paymentItems,
       });
@@ -111,9 +118,11 @@ export const orderService = {
     }
 
     // Step 3: Verify amount matches — anti-tampering check
-    if (amount !== Math.round(order.totalAmount)) {
+    const EXCHANGE_RATE = 25000;
+    const expectedAmountInVnd = Math.round(order.totalAmount * EXCHANGE_RATE);
+    if (amount !== expectedAmountInVnd) {
       console.error(
-        `⚠️ AMOUNT MISMATCH: order ${order.orderCode} expected ${order.totalAmount}, got ${amount}`,
+        `⚠️ AMOUNT MISMATCH: order ${order.orderCode} expected ${expectedAmountInVnd} VND, got ${amount} VND`,
       );
       throw new Error('Payment amount mismatch');
     }
