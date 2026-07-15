@@ -1244,7 +1244,7 @@ const AuthPage: React.FC = () => {
       const u = res.user;
       const profileData = {
         id: u.id,
-        name: u.fullName || 'Khách hàng',
+        name: u.fullName || 'Customer',
         email: u.email,
         phone: u.phone || '',
         address: u.address || '',
@@ -1255,17 +1255,17 @@ const AuthPage: React.FC = () => {
         localStorage.setItem('admin_token', res.token);
         localStorage.setItem('admin_user', JSON.stringify(profileData));
         dispatch(adminLogin(profileData));
-        toast.success('Đăng nhập admin thành công');
+        toast.success('Admin login successful');
         navigate('/admin');
       } else {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(profileData));
         dispatch(login(profileData));
-        toast.success('Đăng nhập thành công');
+        toast.success('Login successful');
       }
     } catch (error: any) {
       console.error('Google login error:', error);
-      toast.error(error.response?.data?.message || 'Đăng nhập Google thất bại');
+      toast.error(error.response?.data?.message || 'Google login failed');
     } finally {
       setSubmitting(false);
     }
@@ -1469,7 +1469,7 @@ const AuthPage: React.FC = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 10 }}>
           <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>Hoặc</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>Or</span>
           <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }}></div>
         </div>
 

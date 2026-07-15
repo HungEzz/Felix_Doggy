@@ -422,11 +422,11 @@ export const authService = {
 
   async loginWithGoogle(googleToken: string) {
     if (!googleToken) {
-      throw new Error('Google token là bắt buộc');
+      throw new Error('Google token is required');
     }
 
     if (!env.GOOGLE_CLIENT_ID) {
-      throw new Error('Đăng nhập bằng Google chưa được cấu hình trên server');
+      throw new Error('Google sign-in is not configured on the server');
     }
 
     const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
@@ -439,15 +439,15 @@ export const authService = {
       payload = ticket.getPayload();
     } catch (err: any) {
       console.error('Google token verification failed:', err);
-      throw new Error('Xác thực tài khoản Google không hợp lệ');
+      throw new Error('Invalid Google token verification');
     }
 
     if (!payload || !payload.email) {
-      throw new Error('Không thể lấy thông tin email từ tài khoản Google');
+      throw new Error('Unable to retrieve email from Google token');
     }
 
     const email = payload.email.toLowerCase();
-    const fullName = payload.name || 'Khách hàng';
+    const fullName = payload.name || 'Customer';
 
     let user = await authRepository.findUserByEmail(email);
 

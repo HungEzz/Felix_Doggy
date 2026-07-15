@@ -347,7 +347,7 @@ describe('authService.loginWithGoogle', () => {
     mockVerifyIdToken.mockRejectedValueOnce(new Error('Invalid signature'));
 
     await expect(authService.loginWithGoogle('invalid-token')).rejects.toThrow(
-      'Xác thực tài khoản Google không hợp lệ'
+      'Invalid Google token verification'
     );
   });
 });
