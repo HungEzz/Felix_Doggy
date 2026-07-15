@@ -279,9 +279,9 @@ This prevents the admin session from being overwritten when an admin also browse
 
 ### Backend API Documentation
 For detailed specification of all backend endpoints, payload examples, and interactive testing:
-* **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (or [http://localhost:8080/api-docs](http://localhost:8080/api-docs) via Gateway)
-* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json)
-* **Full Spec Guide:** [Backend README API Documentation](file:///home/hungez/Documents/record-store-ecommerce/backend/README.md#10-api-documentation)
+* **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
+* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
+* **Full Spec Guide:** [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/record-store-ecommerce/backend/README.md#10-api-documentation)
 
 ### Axios Configuration (`services/api.ts`)
 

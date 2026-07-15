@@ -371,6 +371,16 @@ JWT_SECRET="your-secret-key"
 REDIS_URL="redis://localhost:6379"
 PORT=3000
 GOOGLE_CLIENT_ID="your-google-client-id-here"
+CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+CLOUDINARY_API_KEY="your-cloudinary-api-key"
+CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
+CORS_ORIGIN="http://localhost:5173"
+
+# PayOS Configuration
+PAYOS_CLIENT_ID="your-payos-client-id"
+PAYOS_API_KEY="your-payos-api-key"
+PAYOS_CHECKSUM_KEY="your-payos-checksum-key"
+FRONTEND_URL="http://localhost:5173"
 ```
 
 ```bash
@@ -413,11 +423,11 @@ npm run test:coverage   # Run with coverage report
 
 An interactive Swagger UI is built into the backend to allow quick discovery and testing of all API endpoints.
 
-* **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend) or [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway)
-* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json)
+* **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
+* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
 
 > [!NOTE]
-> For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///home/hungez/Documents/record-store-ecommerce/backend/README.md#api-documentation).
+> For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/record-store-ecommerce/backend/README.md#10-api-documentation).
 
 ---
 

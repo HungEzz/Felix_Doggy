@@ -392,6 +392,7 @@ Each module follows a consistent file convention:
 | `PAYOS_API_KEY`     | API Key of the PayOS payment channel                 | ✅ Yes (if PayOS enabled) |
 | `PAYOS_CHECKSUM_KEY` | Checksum Key of the PayOS payment channel          | ✅ Yes (if PayOS enabled) |
 | `FRONTEND_URL`     | Frontend URL for redirection post-payment (e.g. `http://localhost:5173`) | No (default: `http://localhost:5173`) |
+| `CORS_ORIGIN`      | Allowed origin for CORS (e.g. `http://localhost:5173`) | No (default: `http://localhost:5173`) |
 
 **Example `.env` file:**
 
@@ -407,6 +408,7 @@ CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 SMTP_USER="your-email@gmail.com"
 SMTP_PASS="your-app-password"
 DEEPSEEK_API_KEY="your-deepseek-key"
+CORS_ORIGIN="http://localhost:5173"
 
 # PayOS Configuration
 PAYOS_CLIENT_ID="your-payos-client-id"
@@ -422,10 +424,11 @@ FRONTEND_URL="http://localhost:5173"
 ## 10. API Documentation
 
 ### Swagger UI URLs
-An interactive Swagger UI is served in non-production environments to allow quick API discovery and testing:
+An interactive Swagger UI is served publicly to allow quick API discovery and testing:
 - **Direct Backend URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 - **Nginx API Gateway URL:** [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
-- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json)
+- **Production Backend URL:** [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs)
+- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
 
 ---
 

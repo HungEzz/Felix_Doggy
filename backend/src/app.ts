@@ -24,9 +24,10 @@ app.use(cors({
 app.use(express.json());
 app.use(generalLimiter);
 
+setupSwagger(app);
+
 if (process.env.NODE_ENV !== 'production') {
   app.use('/uploads', express.static('uploads'));
-  setupSwagger(app);
 }
 
 // Health check endpoint for monitoring & keeping backend awake (Render free tier & Supabase)
