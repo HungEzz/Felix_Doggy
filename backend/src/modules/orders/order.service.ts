@@ -4,6 +4,7 @@ import { withRetry } from '../../utils/retry';
 import { orderRepository } from './order.repository';
 import { authRepository } from '../auth/auth.repository';
 import { productCache } from '../products/product.cache';
+import { payosService } from './payos.service';
 
 export const orderService = {
   getUserIdFromAuthHeader(authHeader?: string) {
@@ -20,7 +21,7 @@ export const orderService = {
   },
 
   async checkout(body: any, authHeader?: string) {
-    const { customerEmail, customerPhone, customerName, shippingAddr, items } = body;
+    const { customerEmail, customerPhone, customerName, shippingAddr, items, paymentMethod = 'cod' } = body;
     if (!items || !items.length) {
       throw new Error('Cart is empty');
     }
@@ -28,7 +29,7 @@ export const orderService = {
     const userId = this.getUserIdFromAuthHeader(authHeader);
 
     const order = await withRetry(
-      () => orderRepository.createCheckoutOrder(userId, customerEmail, customerPhone, shippingAddr, items),
+      () => orderRepository.createCheckoutOrder(userId, customerEmail, customerPhone, shippingAddr, items, paymentMethod),
       { maxAttempts: 3, baseDelayMs: 500, label: 'checkout transaction' },
     );
 
@@ -56,6 +57,93 @@ export const orderService = {
         }
       } catch {
         // Non-critical — don't fail the order if profile update fails
+      }
+    }
+
+    // If PayOS payment, create payment link and return checkoutUrl for redirect
+    if (paymentMethod === 'payos') {
+      const paymentItems = order.orderItems.map((oi: any) => ({
+        name: oi.product?.title || `Product #${oi.productId}`,
+        quantity: oi.quantity,
+        price: Math.round(oi.priceAtTime),
+      }));
+
+      const paymentLink = await payosService.createPaymentLink({
+        orderCode: order.orderCode,
+        amount: Math.round(order.totalAmount),
+        description: `DH ${order.orderCode}`,
+        items: paymentItems,
+      });
+
+      return { order, checkoutUrl: paymentLink.checkoutUrl };
+    }
+
+    // COD — return order directly
+    return { order };
+  },
+
+  /**
+   * Handle PayOS webhook callback.
+   * Performs 3 security checks: signature verification, idempotency, and amount matching.
+   */
+  async handlePayosWebhook(body: any) {
+    // Check top-level success code from webhook body before verifying
+    if (body.code !== '00') {
+      console.warn(`PayOS webhook non-success code: ${body.code} — ${body.desc}`);
+      return null;
+    }
+
+    // Step 1: Verify checksum signature — throws if invalid
+    // verifyPaymentWebhookData returns the `data` object directly (not the full body)
+    const webhookData = payosService.verifyWebhookData(body);
+
+    const { orderCode, amount, paymentLinkId } = webhookData;
+
+    // Step 2: Find order and check idempotency
+    const order = await orderRepository.findOrderByCode(orderCode);
+    if (!order) {
+      throw new Error(`Order not found for orderCode: ${orderCode}`);
+    }
+    if (order.status !== 'PENDING_PAYMENT') {
+      // Already processed — skip duplicate webhook (PayOS may retry)
+      console.log(`PayOS webhook: order ${orderCode} already processed (status: ${order.status}), skipping.`);
+      return order;
+    }
+
+    // Step 3: Verify amount matches — anti-tampering check
+    if (amount !== Math.round(order.totalAmount)) {
+      console.error(
+        `⚠️ AMOUNT MISMATCH: order ${order.orderCode} expected ${order.totalAmount}, got ${amount}`,
+      );
+      throw new Error('Payment amount mismatch');
+    }
+
+    // All checks passed — update order status
+    return orderRepository.updateOrderPayment(order.orderCode, paymentLinkId);
+  },
+
+  /**
+   * Verify payment status after PayOS redirects user back.
+   * Does NOT trust query params — verifies from DB + PayOS API.
+   */
+  async verifyPayment(orderCode: number) {
+    const order = await orderRepository.findOrderByCode(orderCode);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // If webhook hasn't arrived yet, proactively check with PayOS API
+    if (order.status === 'PENDING_PAYMENT') {
+      try {
+        const paymentInfo = await payosService.getPaymentInfo(orderCode);
+        if (paymentInfo.status === 'PAID') {
+          // Webhook was delayed — manually update
+          const updated = await orderRepository.updateOrderPayment(orderCode, paymentInfo.id);
+          return updated;
+        }
+      } catch (err) {
+        console.warn(`PayOS getPaymentInfo failed for orderCode ${orderCode}:`, err);
+        // Fall through — return current order state
       }
     }
 

@@ -5,8 +5,8 @@ import { AuthenticatedRequest } from '../../types/auth';
 export const orderController = {
   async checkout(req: Request, res: Response) {
     try {
-      const order = await orderService.checkout(req.body, req.headers.authorization);
-      res.status(201).json({ message: 'Order created successfully', order });
+      const result = await orderService.checkout(req.body, req.headers.authorization);
+      res.status(201).json({ message: 'Order created successfully', ...result });
     } catch (error: any) {
       console.error('Checkout error:', error);
       res.status(400).json({ message: error.message || 'Checkout failed' });
@@ -26,6 +26,43 @@ export const orderController = {
     } catch (error) {
       console.error('My orders error:', error);
       res.status(500).json({ message: 'Error fetching orders' });
+    }
+  },
+
+  /**
+   * PayOS webhook handler.
+   * Authentication is done via checksum signature verification, not JWT.
+   * Always returns 200 to acknowledge receipt — PayOS retries on non-2xx.
+   */
+  async payosWebhook(req: Request, res: Response) {
+    try {
+      const result = await orderService.handlePayosWebhook(req.body);
+      res.status(200).json({ success: true, data: result });
+    } catch (error: any) {
+      console.error('PayOS webhook error:', error);
+      // Still return 200 to prevent PayOS from retrying failed-validation webhooks
+      // (e.g., invalid signature, amount mismatch). Logging captures the issue.
+      res.status(200).json({ success: false, message: error.message });
+    }
+  },
+
+  /**
+   * Verify payment status after PayOS redirects user back to frontend.
+   * Frontend calls this to get the real order status from server (not trusting URL params).
+   */
+  async verifyPayment(req: Request, res: Response) {
+    try {
+      const orderCode = parseInt(req.params.orderCode, 10);
+      if (isNaN(orderCode)) {
+        res.status(400).json({ message: 'Invalid orderCode' });
+        return;
+      }
+
+      const order = await orderService.verifyPayment(orderCode);
+      res.json({ order });
+    } catch (error: any) {
+      console.error('Verify payment error:', error);
+      res.status(400).json({ message: error.message || 'Payment verification failed' });
     }
   },
 };

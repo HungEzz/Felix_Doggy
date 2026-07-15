@@ -1,7 +1,14 @@
 import { prisma } from '../../config/prisma';
 
 export const orderRepository = {
-  createCheckoutOrder: (userId: string | null, customerEmail: string, customerPhone: string, shippingAddr: string, items: any[]) =>
+  createCheckoutOrder: (
+    userId: string | null,
+    customerEmail: string,
+    customerPhone: string,
+    shippingAddr: string,
+    items: any[],
+    paymentMethod: string = 'cod',
+  ) =>
     prisma.$transaction(async (tx) => {
       let totalAmount = 0;
       const orderItemsData = [];
@@ -24,6 +31,11 @@ export const orderRepository = {
         });
       }
 
+      // Set initial status based on payment method:
+      // - COD: order is immediately PENDING (confirmed)
+      // - PayOS: order is PENDING_PAYMENT until webhook confirms payment
+      const status = paymentMethod === 'payos' ? 'PENDING_PAYMENT' : 'PENDING';
+
       return tx.order.create({
         data: {
           userId,
@@ -31,12 +43,38 @@ export const orderRepository = {
           customerPhone,
           shippingAddr,
           totalAmount,
-          status: 'PENDING',
+          status,
+          paymentMethod,
           orderItems: { create: orderItemsData },
         },
-        include: { orderItems: true },
+        include: { orderItems: { include: { product: true } } },
       });
     }),
+
+  /**
+   * Update order after successful PayOS payment.
+   * Sets status to PENDING (payment confirmed), stores paymentId and paidAt timestamp.
+   */
+  updateOrderPayment: (orderCode: number, paymentId: string) =>
+    prisma.order.update({
+      where: { orderCode },
+      data: {
+        status: 'PENDING',
+        paymentId,
+        paidAt: new Date(),
+      },
+      include: { orderItems: { include: { product: true } } },
+    }),
+
+  /**
+   * Find order by PayOS orderCode (Int).
+   */
+  findOrderByCode: (orderCode: number) =>
+    prisma.order.findUnique({
+      where: { orderCode },
+      include: { orderItems: { include: { product: true } } },
+    }),
+
   findMyOrders: (userId: string) =>
     prisma.order.findMany({
       where: { userId },

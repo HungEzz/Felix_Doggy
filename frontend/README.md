@@ -425,15 +425,23 @@ frontend/
 | Variable         | Description                                         | Required | Default                         |
 | ---------------- | --------------------------------------------------- | -------- | ------------------------------- |
 | `VITE_API_URL`   | Backend API base URL (must include `/api` prefix)   | No       | `http://localhost:3000/api`     |
+| `VITE_GOOGLE_CLIENT_ID` | OAuth2 Client ID from Google Cloud Console (for Google login display) | ✅ Yes (if Google login enabled) | `""` |
 
-**Docker Compose:** Sets `VITE_API_URL=/api` at build time, so all API calls go through the Nginx gateway on the same origin — no CORS needed.
+> [!IMPORTANT]
+> **Vite embeds environment variables at build-time.** 
+> * **Docker Compose:** The `VITE_GOOGLE_CLIENT_ID` must be passed as a build argument (`args: - VITE_GOOGLE_CLIENT_ID=...`) under the `frontend` service in `docker-compose.yml` to be injected into the static build.
+> * **Vercel Deployment:** The variable must be added on the Vercel dashboard as `VITE_GOOGLE_CLIENT_ID` (make sure it has the `VITE_` prefix). If you add/change this variable on Vercel, you **must trigger a redeploy/rebuild** of the project for it to take effect.
+> * **Google Cloud Console:** You must also add your deployment domain (e.g. `https://your-app.vercel.app`) to the **Authorized JavaScript origins** list in the Google Cloud Console for the button to load correctly.
 
-**Local development:** If the backend runs on `localhost:3000`, the default works out of the box. No `.env` file is required.
+**Docker Compose:** Sets `VITE_API_URL=/api` and passes `VITE_GOOGLE_CLIENT_ID` at build time.
+
+**Local development:** Reads from `frontend/.env`.
 
 **Example `.env` file:**
 
 ```env
 VITE_API_URL=http://localhost:3000/api
+VITE_GOOGLE_CLIENT_ID=your-google-client-id-here.apps.googleusercontent.com
 ```
 
 > **Note:** Vite injects environment variables at build time. Changes to `VITE_API_URL` require a rebuild to take effect.

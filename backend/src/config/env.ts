@@ -28,4 +28,8 @@ export const env = {
   CLOUDINARY_API_SECRET: getRequiredEnv('CLOUDINARY_API_SECRET'),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+  PAYOS_CLIENT_ID: process.env.PAYOS_CLIENT_ID || '',
+  PAYOS_API_KEY: process.env.PAYOS_API_KEY || '',
+  PAYOS_CHECKSUM_KEY: process.env.PAYOS_CHECKSUM_KEY || '',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
 };

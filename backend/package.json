@@ -33,7 +33,8 @@
     "pg": "^8.20.0",
     "swagger-ui-express": "^5.0.1",
     "tsx": "^4.21.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "@payos/node": "^1.0.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

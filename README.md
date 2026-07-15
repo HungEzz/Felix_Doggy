@@ -362,13 +362,14 @@ npm install
 cp .env.example .env   # Then edit with your DB credentials
 ```
 
-Required `.env` variables:
+Required `.env` variables for Backend:
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/record_store?schema=public"
 JWT_SECRET="your-secret-key"
 REDIS_URL="redis://localhost:6379"
 PORT=3000
+GOOGLE_CLIENT_ID="your-google-client-id-here"
 ```
 
 ```bash
@@ -385,6 +386,15 @@ npm run dev    # → http://localhost:3000
 ```bash
 cd frontend
 npm install
+```
+
+Configure `frontend/.env`:
+```env
+VITE_API_URL="http://localhost:3000/api"
+VITE_GOOGLE_CLIENT_ID="your-google-client-id-here"
+```
+
+```bash
 npm run dev    # → http://localhost:5173
 ```
 

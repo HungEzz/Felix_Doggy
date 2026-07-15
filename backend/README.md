@@ -369,6 +369,10 @@ Each module follows a consistent file convention:
 | ------------------ | --------------------------------------------------- | -------- |
 | `DATABASE_URL`     | PostgreSQL connection string                        | ✅ Yes    |
 | `JWT_SECRET`       | Secret key for signing JWT tokens                   | ✅ Yes    |
+| `GOOGLE_CLIENT_ID` | OAuth2 Client ID from Google Cloud Console (for Google login verification) | ✅ Yes (if Google login enabled) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary Cloud Name (for product image uploads) | ✅ Yes    |
+| `CLOUDINARY_API_KEY` | Cloudinary API Key (for product image uploads)     | ✅ Yes    |
+| `CLOUDINARY_API_SECRET` | Cloudinary API Secret (for product image uploads) | ✅ Yes    |
 | `PORT`             | HTTP server port                                    | No (default: `3000`) |
 | `REDIS_URL`        | Redis connection URL                                | No (default: `redis://localhost:6379`) |
 | `SMTP_USER`        | Gmail address for sending OTP emails                | No (emails will fail silently) |
@@ -387,6 +391,10 @@ DATABASE_URL="postgresql://postgres:root@localhost:5432/record_store?schema=publ
 PORT=3000
 JWT_SECRET="your-secret-key-here"
 REDIS_URL="redis://localhost:6379"
+GOOGLE_CLIENT_ID="your-google-client-id-here"
+CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+CLOUDINARY_API_KEY="your-cloudinary-api-key"
+CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 SMTP_USER="your-email@gmail.com"
 SMTP_PASS="your-app-password"
 DEEPSEEK_API_KEY="your-deepseek-key"

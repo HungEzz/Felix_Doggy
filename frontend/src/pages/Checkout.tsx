@@ -174,10 +174,6 @@ const Checkout: React.FC = () => {
 
       const result: any = await api.post('/orders/checkout', payload);
 
-      // Clear cart and refresh product stock from DB
-      dispatch(clearCart());
-      dispatch(fetchProducts());
-
       // Sync shipping info back to user profile (Redux + localStorage)
       if (userProfile) {
         const profileUpdates: Record<string, string> = {};
@@ -190,6 +186,16 @@ const Checkout: React.FC = () => {
           dispatch(updateProfile(profileUpdates));
         }
       }
+
+      // PayOS: redirect to PayOS checkout page (cart cleared on OrderSuccess after verification)
+      if (result?.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+        return;
+      }
+
+      // COD: clear cart immediately and navigate to success
+      dispatch(clearCart());
+      dispatch(fetchProducts());
 
       toast.success('Đặt hàng thành công!', {
         className: 'toast-custom',
@@ -319,13 +325,14 @@ const Checkout: React.FC = () => {
               </h2>
               <div className="space-y-3">
                 {[
-                  { value: 'card', label: 'Thẻ tín dụng / Ghi nợ' },
-                  { value: 'bank', label: 'Chuyển khoản ngân hàng' },
-                  { value: 'cod', label: 'Thanh toán khi nhận hàng (COD)' },
-                ].map(({ value, label }) => (
+                  { value: 'cod', label: 'Thanh toán khi nhận hàng (COD)', desc: 'Thanh toán bằng tiền mặt khi nhận hàng' },
+                  { value: 'payos', label: 'Thanh toán online (PayOS)', desc: 'QR Code / Chuyển khoản ngân hàng / Ví điện tử' },
+                ].map(({ value, label, desc }) => (
                   <label
                     key={value}
-                    className="flex items-center gap-3 border border-token p-4 cursor-pointer hover:bg-secondary bg-card text-primary transition-colors"
+                    className={`flex items-center gap-3 border p-4 cursor-pointer hover:bg-secondary bg-card text-primary transition-colors ${
+                      formData.payment === value ? 'border-accent' : 'border-token'
+                    }`}
                   >
                     <input
                       type="radio"
@@ -335,7 +342,10 @@ const Checkout: React.FC = () => {
                       onChange={handleChange}
                       style={{ accentColor: 'var(--accent)' }}
                     />
-                    <span className="text-sm font-sans">{label}</span>
+                    <div>
+                      <span className="text-sm font-sans font-semibold">{label}</span>
+                      <p className="text-[10px] text-muted mt-0.5 uppercase tracking-wider">{desc}</p>
+                    </div>
                   </label>
                 ))}
               </div>

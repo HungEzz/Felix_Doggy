@@ -25,3 +25,13 @@ export const otpLimiter = rateLimit({
   message: { message: 'Bạn đã thử quá nhiều lần. Vui lòng đợi 10 giây.' },
 });
 
+/** Light rate limit for public webhook endpoints (e.g. PayOS).
+ *  Main security is checksum verification — this prevents brute-force spam. */
+export const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Too many requests.' },
+});
+
