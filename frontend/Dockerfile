@@ -10,6 +10,8 @@ RUN npm install
 COPY . .
 # Set the API URL to be used during build (can be overridden, but here we'll use relative path via API Gateway)
 ENV VITE_API_URL=/api
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 RUN npm run build
 
 # Serve with Nginx

@@ -20,6 +20,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - VITE_GOOGLE_CLIENT_ID=957845460758-nkum4phpedgrt7mpi1a4o07m2o4ocjhs.apps.googleusercontent.com
     container_name: record_store_frontend
     environment:
       - VITE_API_URL=/api
@@ -27,7 +29,7 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -45,6 +47,9 @@ services:
       - REDIS_URL=redis://redis:6379
       - PORT=3000
       - GOOGLE_CLIENT_ID=957845460758-nkum4phpedgrt7mpi1a4o07m2o4ocjhs.apps.googleusercontent.com
+      - CLOUDINARY_CLOUD_NAME=dgtsbqngb
+      - CLOUDINARY_API_KEY=636365537737886
+      - CLOUDINARY_API_SECRET=Fik1duLzb-J9HZ_eZJiLEZdlJgc
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,7 +58,7 @@ services:
     volumes:
       - backend_uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/products"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 15s
       timeout: 5s
       retries: 5
