@@ -24,7 +24,10 @@ interface InventoryData {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  vinyl: 'Vinyl', cd: 'CD', merch: 'Merch',
+  dogs: 'Adopt a Dog',
+  food: 'Dog Food',
+  toys: 'Dog Toys',
+  clothes: 'Dog Clothes',
 };
 
 // Fixed placeholder filter (inventory has no date range)

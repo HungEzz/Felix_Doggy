@@ -192,12 +192,12 @@ describe('orderService.checkout', () => {
   it('🔴 [EC-3] propagates "Not enough stock" error from repository', async () => {
     // Make the underlying createCheckoutOrder throw
     mockOrderRepo.createCheckoutOrder.mockRejectedValue(
-      new Error('Not enough stock for Vinyl Record A'),
+      new Error('Not enough stock for Husky Pup'),
     );
 
     await expect(
       orderService.checkout(checkoutBody, undefined),
-    ).rejects.toThrow('Not enough stock for Vinyl Record A');
+    ).rejects.toThrow('Not enough stock for Husky Pup');
   });
 
   it('🔴 [EC-4] still succeeds even if cache invalidation throws (non-critical)', async () => {

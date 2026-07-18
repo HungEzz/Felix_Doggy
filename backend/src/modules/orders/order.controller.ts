@@ -65,4 +65,42 @@ export const orderController = {
       res.status(400).json({ message: error.message || 'Payment verification failed' });
     }
   },
+
+  async trackOrder(req: Request, res: Response) {
+    try {
+      const { idOrCode } = req.params;
+      const { contact } = req.query;
+
+      if (!idOrCode) {
+        res.status(400).json({ message: 'Order ID is required' });
+        return;
+      }
+      if (!contact || typeof contact !== 'string') {
+        res.status(400).json({ message: 'Contact info (email or phone) is required' });
+        return;
+      }
+
+      const order = await orderService.trackOrder(idOrCode, contact);
+      res.json(order);
+    } catch (error: any) {
+      console.error('Track order error:', error);
+      res.status(400).json({ message: error.message || 'Failed to track order' });
+    }
+  },
+
+  async cancelOrder(req: Request, res: Response) {
+    try {
+      const { idOrCode } = req.params;
+      const { contact, cancelReason } = req.body;
+      const authHeader = req.headers.authorization;
+
+      const userId = orderService.getUserIdFromAuthHeader(authHeader);
+
+      const order = await orderService.cancelOrder(idOrCode, contact, cancelReason, userId || undefined);
+      res.json({ message: 'Order cancelled successfully', order });
+    } catch (error: any) {
+      console.error('Cancel order error:', error);
+      res.status(400).json({ message: error.message || 'Failed to cancel order' });
+    }
+  },
 };

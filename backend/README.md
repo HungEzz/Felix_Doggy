@@ -1,6 +1,6 @@
-# Classic Records — Backend
+# Felix Doggy — Backend
 
-RESTful API backend for **Classic Records**, an e-commerce platform specializing in vinyl records, CDs, and music merchandise.
+RESTful API backend for **Felix Doggy**, an e-commerce platform specializing in dogs, dog food, toys, and clothes.
 
 ---
 
@@ -26,7 +26,7 @@ RESTful API backend for **Classic Records**, an e-commerce platform specializing
 
 ## 1. Project Overview
 
-Classic Records is an online record store selling vinyl, CDs, and music merchandise. The backend serves as the central API layer providing:
+Felix Doggy is an online store selling dogs, dog food, toys, and clothes. The backend serves as the central API layer providing:
 
 - **User authentication** with email-based OTP verification and password reset flows
 - **Product catalog management** with category filtering and Redis-backed caching
@@ -150,7 +150,7 @@ An optional **Cache layer** sits alongside the service for read-heavy paths (pro
 
 ### Products (`/api/products`)
 
-**Purpose:** Product catalog management (vinyl records, CDs, merchandise).
+**Purpose:** Product catalog management (dogs, dog food, dog toys, dog clothes).
 
 **Key functionality:**
 - Public endpoints: list all products (optionally filter by category), get product by ID
@@ -161,7 +161,7 @@ An optional **Cache layer** sits alongside the service for read-heavy paths (pro
 **Notable details:**
 - Deletion is blocked if the product has existing order items — admin is advised to set stock to 0 instead
 - Cache invalidation is triggered on every write operation (create, update, delete)
-- Three valid categories: `vinyl`, `cd`, `merch`
+- Four valid categories: `dogs`, `food`, `toys`, `clothes`
 
 ---
 
@@ -300,7 +300,7 @@ An optional **Cache layer** sits alongside the service for read-heavy paths (pro
 | ------------ | ------------------------------------------ | ------------------------------------------------ |
 | **User**     | Customer and admin accounts                | UUID PK, unique email, bcrypt password, role (USER/ADMIN), isVerified flag |
 | **Otp**      | Temporary verification codes               | Auto-increment PK, indexed by email, bcrypt-hashed code, 5-min expiry |
-| **Product**  | Catalog items (vinyl, CD, merch)           | Auto-increment PK, title, artist, price, category, stock count |
+| **Product**  | Catalog items (dogs, food, toys, clothes)  | Auto-increment PK, title, artist, price, category, stock count |
 | **Order**    | Purchase records                           | UUID PK, optional userId (supports guest checkout), status (PENDING/COMPLETED/CANCELLED), totalAmount |
 | **OrderItem**| Line items within an order                 | Links Order ↔ Product, stores quantity and `priceAtTime` for historical pricing |
 
@@ -614,19 +614,19 @@ sequenceDiagram
   ```
 
 #### 4. Browse Products
-- **Request:** `GET /api/products?category=vinyl`
+- **Request:** `GET /api/products?category=dogs`
 - **Response:** `HTTP 200 OK`
   ```json
   [
     {
-      "id": 1,
-      "title": "Abbey Road",
-      "artist": "The Beatles",
-      "price": 29.99,
-      "imgUrl": "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=600&h=600&fit=crop",
-      "category": "vinyl",
+      "id": 10001,
+      "title": "Derpy Husky Pup (Drama Queen)",
+      "artist": "Adopt-a-Pup",
+      "price": 0.08,
+      "imgUrl": "https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop",
+      "category": "dogs",
       "stock": 5,
-      "description": "Remastered 180g vinyl pressing."
+      "description": "Extremely talkative, does dramatic howling concerts at 3 AM."
     }
   ]
   ```
@@ -732,13 +732,16 @@ sequenceDiagram
 
 - Node.js ≥ 20
 - PostgreSQL 15+
-- Redis
+- Redis (you can start Redis using `docker compose up -d redis`)
 
-### Installation
+### Installation & Dependencies
 
 ```bash
 cd backend
 npm install
+
+# Start Redis container in the background
+docker compose up -d redis
 ```
 
 ### Database Setup

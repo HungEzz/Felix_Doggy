@@ -13,35 +13,673 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 const ALL_PRODUCTS = [
-  { id: 1, title: 'Abbey Road', artist: 'The Beatles', price: 29.99, imgUrl: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=600&h=600&fit=crop', category: 'vinyl', stock: 5 },
-  { id: 2, title: 'Dark Side of the Moon', artist: 'Pink Floyd', price: 34.99, imgUrl: 'https://images.unsplash.com/photo-1542208998-f6dbbb27a72f?w=600&h=600&fit=crop', category: 'vinyl', stock: 10 },
-  { id: 3, title: 'Midnights', artist: 'Taylor Swift', price: 38.50, imgUrl: 'https://images.unsplash.com/photo-1519638399535-1b036603ac77?w=600&h=600&fit=crop', category: 'vinyl', stock: 3 },
-  { id: 4, title: 'Swimming', artist: 'Mac Miller', price: 35.00, imgUrl: 'https://images.unsplash.com/photo-1538370621607-4919ce7889b3?w=600&h=600&fit=crop', category: 'vinyl', stock: 8 },
-  { id: 5, title: 'Blue Train', artist: 'John Coltrane', price: 28.00, imgUrl: 'https://images.unsplash.com/photo-1538370621607-4919ce7889b3?w=600&h=600&fit=crop', category: 'vinyl', stock: 0 },
-  { id: 6, title: 'Kind of Blue', artist: 'Miles Davis', price: 31.00, imgUrl: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=600&h=600&fit=crop', category: 'vinyl', stock: 12 },
-  { id: 201, title: 'After Hours', artist: 'The Weeknd', price: 15.99, imgUrl: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=600&h=600&fit=crop', category: 'cd', stock: 7 },
-  { id: 202, title: 'Future Nostalgia', artist: 'Dua Lipa', price: 14.50, imgUrl: 'https://images.unsplash.com/photo-1525362081669-2b476bb628c3?w=600&h=600&fit=crop', category: 'cd', stock: 4 },
-  { id: 203, title: 'Sour', artist: 'Olivia Rodrigo', price: 13.99, imgUrl: 'https://images.unsplash.com/photo-1604085572504-a392ddf0d86a?w=600&h=600&fit=crop', category: 'cd', stock: 0 },
-  { id: 204, title: 'Random Access Memories', artist: 'Daft Punk', price: 16.00, imgUrl: 'https://images.unsplash.com/photo-1496284045406-d3e0b918d7ba?w=600&h=600&fit=crop', category: 'cd', stock: 9 },
-  { id: 101, title: 'Classic Logo T-Shirt', artist: 'Record Store Exclusive', price: 25.00, imgUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop', category: 'merch', stock: 15 },
-  { id: 102, title: 'Cotton Tote Bag', artist: 'Eco-friendly', price: 15.00, imgUrl: 'https://images.unsplash.com/photo-1525362081669-2b476bb628c3?w=600&h=600&fit=crop', category: 'merch', stock: 20 },
-  { id: 103, title: 'Vinyl Cleaning Kit', artist: 'Premium Care', price: 20.00, imgUrl: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=600&h=600&fit=crop', category: 'merch', stock: 0 },
-  { id: 104, title: 'Slipmat Set', artist: 'Turntable Essentials', price: 18.00, imgUrl: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=600&h=600&fit=crop', category: 'merch', stock: 10 },
-  { id: 105, title: 'Logo Enamel Pin', artist: 'Accessories', price: 8.00, imgUrl: 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=600&h=600&fit=crop', category: 'merch', stock: 25 },
-  { id: 106, title: 'Record Display Frame', artist: 'Home Decor', price: 45.00, imgUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop', category: 'merch', stock: 3 },
-  // Adding more products to reach 30 products
-  { id: 7, title: 'Rumours', artist: 'Fleetwood Mac', price: 27.50, imgUrl: 'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=600&fit=crop', category: 'vinyl', stock: 15 },
-  { id: 8, title: 'Thriller', artist: 'Michael Jackson', price: 32.00, imgUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&h=600&fit=crop', category: 'vinyl', stock: 20 },
-  { id: 9, title: 'Back to Black', artist: 'Amy Winehouse', price: 26.99, imgUrl: 'https://images.unsplash.com/photo-1519638399535-1b036603ac77?w=600&h=600&fit=crop', category: 'vinyl', stock: 8 },
-  { id: 10, title: 'Nevermind', artist: 'Nirvana', price: 30.00, imgUrl: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=600&h=600&fit=crop', category: 'vinyl', stock: 11 },
-  { id: 205, title: '1989', artist: 'Taylor Swift', price: 15.00, imgUrl: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600&h=600&fit=crop', category: 'cd', stock: 25 },
-  { id: 206, title: 'To Pimp a Butterfly', artist: 'Kendrick Lamar', price: 16.50, imgUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=600&fit=crop', category: 'cd', stock: 14 },
-  { id: 207, title: 'Lemonade', artist: 'Beyoncé', price: 17.00, imgUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?w=600&h=600&fit=crop', category: 'cd', stock: 18 },
-  { id: 208, title: 'Born to Die', artist: 'Lana Del Rey', price: 14.99, imgUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop', category: 'cd', stock: 22 },
-  { id: 107, title: 'Record Store Mug', artist: 'Merch', price: 12.00, imgUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=600&fit=crop', category: 'merch', stock: 30 },
-  { id: 108, title: 'Turntable Mat', artist: 'Merch', price: 15.00, imgUrl: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=600&h=600&fit=crop', category: 'merch', stock: 40 },
-  { id: 109, title: 'Vintage Poster', artist: 'Decor', price: 10.00, imgUrl: 'https://images.unsplash.com/photo-1604085572504-a392ddf0d86a?w=600&h=600&fit=crop', category: 'merch', stock: 50 },
-  { id: 110, title: 'Sticker Pack', artist: 'Accessories', price: 5.00, imgUrl: 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=600&h=600&fit=crop', category: 'merch', stock: 100 },
+  // ─── CATEGORY: DOGS (11 Items) ────────────────────────────────────────────────
+  {
+    id: 10001,
+    title: 'Derpy Husky Pup (Drama Queen)',
+    artist: 'Adopt-a-Pup',
+    price: 0.08,
+    imgUrl: 'https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 5,
+    description: 'Extremely talkative, does dramatic howling concerts at 3 AM, and refuses to admit he is a good boy.'
+  },
+  {
+    id: 10002,
+    title: 'Stubborn English Bulldog Loaf',
+    artist: 'Paws Rescue',
+    price: 25,
+    imgUrl: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 3,
+    description: '90% stubbornness, 10% gas, 100% love. Will sit down in the middle of a walk and refuse to budge.'
+  },
+  {
+    id: 10003,
+    title: 'Golden Retriever (Professional Smiler)',
+    artist: 'Happy Tails',
+    price: 15,
+    imgUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1598133185503-2b7e12918a67?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 4,
+    description: 'Optimistic to a fault. Will happily fetch a stick, a leaf, or a random stranger\'s shoe. Professional tail-wagger.'
+  },
+  {
+    id: 10004,
+    title: 'Fluffy Corgi Loaf (Stumpy Edition)',
+    artist: 'Shelter Friends',
+    price: 15,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 6,
+    description: 'Short legs, huge ears, and a round fluffy butt. Perfect bread loaf configuration. Highly aerodynamic.'
+  },
+  {
+    id: 10005,
+    title: 'Smiling Shiba Inu (Meme King)',
+    artist: 'Adopt-a-Pup',
+    price: 20,
+    imgUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1534361960057-19889db9621e?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 5,
+    description: 'The dog of crypto fame. Very clean, slightly judging you, and capable of generating endless memes.'
+  },
+  {
+    id: 10006,
+    title: 'Polite Pug (Always Concerned)',
+    artist: 'Paws Rescue',
+    price: 15,
+    imgUrl: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1523626797181-8c5ae80d40c2?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517423568366-8b83523034fd?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 4,
+    description: 'Has a permanently worried expression. Snorts like a small steam engine. Extremely sweet cuddler.'
+  },
+  {
+    id: 10007,
+    title: 'Fancy Toy Poodle (Curly Cloud)',
+    artist: 'Happy Tails',
+    price: 25,
+    imgUrl: 'https://images.unsplash.com/photo-1598134493179-51332e56807f?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1598134493179-51332e56807f?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1534361960057-19889db9621e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1514984879728-be0aff75a6e8?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 5,
+    description: 'A cloud of curly hair. Very active, highly intelligent, and will steal your socks with zero remorse.'
+  },
+  {
+    id: 10008,
+    title: 'Sleepy Dachshund Sausage',
+    artist: 'Shelter Friends',
+    price: 20,
+    imgUrl: 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 7,
+    description: 'Long body, short legs, giant personality. Expert at burrowing under blankets to stay cozy.'
+  },
+  {
+    id: 10009,
+    title: 'Energetic Jack Russell Terrier',
+    artist: 'Adopt-a-Pup',
+    price: 20,
+    imgUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1598133185503-2b7e12918a67?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 8,
+    description: 'A tiny ball of pure, unfiltered energy. Enjoys jumping high and chasing tennis balls forever.'
+  },
+  {
+    id: 10010,
+    title: 'Gentle Giant Samoyed (Cloud Dog)',
+    artist: 'Paws Rescue',
+    price: 15,
+    imgUrl: 'https://images.unsplash.com/photo-1529429617124-95b109e86bb8?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1529429617124-95b109e86bb8?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 2,
+    description: 'Looks like a smiling giant cloud. Very friendly, sheds fluff like snowflakes, and loves winter.'
+  },
+  {
+    id: 10011,
+    title: 'Majestic Border Collie (Einstein Dog)',
+    artist: 'Happy Tails',
+    price: 25,
+    imgUrl: 'https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1534361960057-19889db9621e?w=600&h=600&fit=crop'
+    ],
+    category: 'dogs',
+    stock: 4,
+    description: 'Probably smarter than most humans. Enjoys organizing toys and herding family members in the living room.'
+  },
+
+  // ─── CATEGORY: FOOD (11 Items) ────────────────────────────────────────────────
+  {
+    id: 10012,
+    title: 'Monster Feast Dry Kibble',
+    artist: 'BarkBites',
+    price: 24.99,
+    imgUrl: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1608454527339-62ebe45cd23d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 15,
+    description: 'Rich in proteins and nutrients, designed to give your dog maximum zoomies energy.'
+  },
+  {
+    id: 10013,
+    title: 'Smelly Beef Liver Chunk Treats',
+    artist: 'Kibble Kraft',
+    price: 18.5,
+    imgUrl: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 20,
+    description: 'Smells terrible to humans, but dogs will literally perform complex calculus equations just for one bite.'
+  },
+  {
+    id: 10014,
+    title: 'Gourmet Wet Meat Gravy Cup',
+    artist: 'RawFeast',
+    price: 14.99,
+    imgUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1607990283143-e81e7a2c93ab?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 25,
+    description: 'Super juicy chunks of meat drenched in rich savory gravy. Instant tail-wagging guaranteed.'
+  },
+  {
+    id: 10015,
+    title: 'Wobbly Rib Joint Chew Bone',
+    artist: 'NutriPaw',
+    price: 29.99,
+    imgUrl: 'https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 12,
+    description: 'Premium calcium chew bone infused with delicious beef marrow flavor. Keeps jaws busy for hours.'
+  },
+  {
+    id: 10016,
+    title: 'Organic Sweet Potato Dog Chews',
+    artist: 'BarkBites',
+    price: 12,
+    imgUrl: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 18,
+    description: 'Chewy, natural sweet potato slices dehydrated to perfection. Vegan-friendly and full of vitamins.'
+  },
+  {
+    id: 10017,
+    title: 'Salmon Oil Skin & Coat Booster',
+    artist: 'Kibble Kraft',
+    price: 22.5,
+    imgUrl: 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 14,
+    description: 'Pure wild salmon oil pumps to add to their meals. Solves itchy skin and creates a shiny coat.'
+  },
+  {
+    id: 10018,
+    title: 'Peanut Butter Coated Dental Sticks',
+    artist: 'RawFeast',
+    price: 9.99,
+    imgUrl: 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 32,
+    description: 'Cleans teeth, fights plaque, and freshens breath with real yummy peanut butter flavor.'
+  },
+  {
+    id: 10019,
+    title: 'Grain-Free Puppy Starter Kibble',
+    artist: 'NutriPaw',
+    price: 27,
+    imgUrl: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1608454527339-62ebe45cd23d?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 15,
+    description: 'Easy-to-digest kibble customized for tiny growing tummies and healthy brain development.'
+  },
+  {
+    id: 10020,
+    title: 'Rich Bone Marrow Broth Soup',
+    artist: 'BarkBites',
+    price: 8.5,
+    imgUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 40,
+    description: 'Perfect meal topper. Hydrates dry food and adds a massive burst of beef marrow flavor.'
+  },
+  {
+    id: 10021,
+    title: 'Smoked Venison Jerky Strips',
+    artist: 'Kibble Kraft',
+    price: 19.99,
+    imgUrl: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 22,
+    description: 'Slow-smoked premium venison jerky. Highly chewy and packed with real rich game meat taste.'
+  },
+  {
+    id: 10022,
+    title: 'Superfood Green-Lipped Mussel Dust',
+    artist: 'RawFeast',
+    price: 29.99,
+    imgUrl: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=600&h=600&fit=crop'
+    ],
+    category: 'food',
+    stock: 12,
+    description: 'Premium joint supplement powder made from New Zealand mussels. Rebuilds cartilage and reduces pain.'
+  },
+
+  // ─── CATEGORY: TOYS (11 Items) ────────────────────────────────────────────────
+  {
+    id: 10101,
+    title: 'Squeaky Yellow Ball Toy',
+    artist: 'ChewMaster',
+    price: 9.99,
+    imgUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 30,
+    description: 'Bounces weirdly, squeaks loudly, and fits perfectly in a happy dog\'s mouth.'
+  },
+  {
+    id: 10102,
+    title: 'Heavy Duty Knotted Rope Tugger',
+    artist: 'SqueakSquad',
+    price: 15.99,
+    imgUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583336663277-620db1996580?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1581888227599-779811939961?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 18,
+    description: 'Double knotted cotton rope toy. Perfect for epic tug-of-war battles between you and your fuzzy beast.'
+  },
+  {
+    id: 10103,
+    title: 'Plush Squeaker Stuffed Chicken',
+    artist: 'FetchFun',
+    price: 12.5,
+    imgUrl: 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 22,
+    description: 'Soft, cuddly, yet features a high-pitched squeaker inside. The ultimate soft toy obsession.'
+  },
+  {
+    id: 10104,
+    title: 'Interactive Treat Dispenser Ball',
+    artist: 'ToughTug',
+    price: 19.99,
+    imgUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 14,
+    description: 'Rolls around and drops treats randomly. Keeps high-intelligence pups mentally stimulated and busy.'
+  },
+  {
+    id: 10105,
+    title: 'Indestructible Rubber Tire Chew',
+    artist: 'ChewMaster',
+    price: 14,
+    imgUrl: 'https://images.unsplash.com/photo-1581888227599-779811939961?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1581888227599-779811939961?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583336663277-620db1996580?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 18,
+    description: 'Made of ultra-durable carbon-infused rubber. Specially designed for extreme power-chewing dogs.'
+  },
+  {
+    id: 10106,
+    title: 'Glow-in-the-Dark Flying Disc',
+    artist: 'SqueakSquad',
+    price: 11.5,
+    imgUrl: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 25,
+    description: 'Fluorescent frisbee that glows bright in the dark. Perfect for late night fetch sessions at the park.'
+  },
+  {
+    id: 10107,
+    title: 'Squeaky Lobster Chew Toy',
+    artist: 'FetchFun',
+    price: 13.99,
+    imgUrl: 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 20,
+    description: 'A cute lobster-shaped squeaker made of textured corduroy fabric. Cleans teeth while being chewed.'
+  },
+  {
+    id: 10108,
+    title: 'Crinkle Sound Plush Hedgehog',
+    artist: 'ToughTug',
+    price: 8.99,
+    imgUrl: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 35,
+    description: 'Makes satisfying paper-crinkling sounds when squeezed. Perfect size for small and medium dogs.'
+  },
+  {
+    id: 10109,
+    title: 'Dog Puzzle Game Slide Board',
+    artist: 'ChewMaster',
+    price: 25,
+    imgUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 10,
+    description: 'Level 2 intelligence toy. Dogs must slide blocks using nose or paws to discover hidden kibbles.'
+  },
+  {
+    id: 10110,
+    title: 'Bouncy Star-shaped Teething Ball',
+    artist: 'SqueakSquad',
+    price: 10.5,
+    imgUrl: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 24,
+    description: 'Star grooves massage gums and clean teeth. You can insert small kibbles inside the grooves for added fun.'
+  },
+  {
+    id: 10111,
+    title: 'Tug-of-war Bungee Rope',
+    artist: 'FetchFun',
+    price: 21,
+    imgUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583336663277-620db1996580?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1581888227599-779811939961?w=600&h=600&fit=crop'
+    ],
+    category: 'toys',
+    stock: 12,
+    description: 'Shock-absorbing bungee rope. Reduces tension on your arms and dog\'s neck during high-power tugging.'
+  },
+
+  // ─── CATEGORY: CLOTHES (11 Items) ──────────────────────────────────────────────
+  {
+    id: 10201,
+    title: 'Fluffy Dino Fleece Hoodie',
+    artist: 'PawsWear',
+    price: 29.99,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 10,
+    description: 'Super warm fleece hoodie with dinosaur spikes on the back. Instant coolness upgrade.'
+  },
+  {
+    id: 10202,
+    title: 'CEO Formal Business Suit',
+    artist: 'PupFashion',
+    price: 29.99,
+    imgUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 8,
+    description: 'Includes a white shirt collar, a black suit vest, and a red bow tie. Ready to negotiate for more treats.'
+  },
+  {
+    id: 10203,
+    title: 'Yellow Waterproof Raincoat',
+    artist: 'DoggyCouture',
+    price: 24.5,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 12,
+    description: 'Bright yellow raincoat with a protective hood. Keeps your pup dry and highly visible on wet walks.'
+  },
+  {
+    id: 10204,
+    title: 'Stay Strange Mascot Bandana',
+    artist: 'CozyCanine',
+    price: 8.99,
+    imgUrl: 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 50,
+    description: '100% organic cotton bandana with hand-drawn mascot patterns. Style points +1000.'
+  },
+  {
+    id: 10205,
+    title: 'Warm Winter Knit Dog Sweater',
+    artist: 'PawsWear',
+    price: 22,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 14,
+    description: 'Classic cable knit pattern in deep navy blue. Stretchy and cozy for chilly autumn outings.'
+  },
+  {
+    id: 10206,
+    title: 'Cozy PJ Cotton Dog Jumpsuit',
+    artist: 'PupFashion',
+    price: 18.99,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 16,
+    description: 'Soft cotton pyjama jumpsuit with funny puppy paw prints. Keeps shedding under control at night.'
+  },
+  {
+    id: 10207,
+    title: 'Funny Aloha Hawaiian Shirt',
+    artist: 'DoggyCouture',
+    price: 16.5,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 20,
+    description: 'Tropical floral print shirt with snaps. Your dog is ready to sip mocktails on a beach vacation.'
+  },
+  {
+    id: 10208,
+    title: 'Sherpa Fur-lined Winter Coat',
+    artist: 'CozyCanine',
+    price: 29.99,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 6,
+    description: 'Heavy padded winter parka with thick Sherpa fleece lining. Protects from freezing snow climates.'
+  },
+  {
+    id: 10209,
+    title: 'Chic Plaid Puppy Bowtie Collar',
+    artist: 'PawsWear',
+    price: 7.99,
+    imgUrl: 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 45,
+    description: 'Adjustable collar with a detachable bowtie. Turns any regular walk into a red-carpet fashion show.'
+  },
+  {
+    id: 10210,
+    title: 'Sporty Windbreaker Active Vest',
+    artist: 'PupFashion',
+    price: 26,
+    imgUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 12,
+    description: 'Reflective, lightweight wind vest with harness hole. Designed for running and athletic dogs.'
+  },
+  {
+    id: 10211,
+    title: 'Super Hero Cape Costume',
+    artist: 'DoggyCouture',
+    price: 15,
+    imgUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&h=600&fit=crop'
+    ],
+    category: 'clothes',
+    stock: 18,
+    description: 'Let your dog unleash their inner hero. Red satin cape with secure velcro neck attachments.'
+  }
 ];
 
 async function main() {

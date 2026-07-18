@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
 import { clearCart } from '../store/cartSlice';
 import { fetchProducts } from '../store/productSlice';
 import { updateProfile } from '../store/userSlice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+
 
 interface FormData {
   fullName: string;
@@ -32,13 +33,10 @@ const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ── Determine which items are being checked out ──────────────────────────
-  // Cart page passes selectedIds via navigate state. If missing, default to all.
   const passedSelectedIds: number[] | undefined = (location.state as any)?.selectedIds;
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(() => {
     if (passedSelectedIds && passedSelectedIds.length > 0) {
-      // Only include IDs that are actually in the cart
       const cartIdSet = new Set(cartItems.map((i) => i.id));
       const valid = passedSelectedIds.filter((id) => cartIdSet.has(id));
       return new Set(valid.length > 0 ? valid : cartItems.map((i) => i.id));
@@ -46,7 +44,6 @@ const Checkout: React.FC = () => {
     return new Set(cartItems.map((i) => i.id));
   });
 
-  // If cart changes while on this page, remove stale IDs
   useEffect(() => {
     const cartIdSet = new Set(cartItems.map((i) => i.id));
     setSelectedIds((prev) => {
@@ -63,6 +60,8 @@ const Checkout: React.FC = () => {
     (total, item) => total + item.price * item.quantity,
     0,
   );
+  const shippingFee = totalPrice > 0 && totalPrice < 100 ? 2.0 : 0.0;
+  const finalTotal = totalPrice + shippingFee;
 
   const isAllSelected =
     cartItems.length > 0 && selectedIds.size === cartItems.length;
@@ -81,9 +80,7 @@ const Checkout: React.FC = () => {
     });
   };
 
-  // ── Autofill form from saved user profile ────────────────────────────────
   const [formData, setFormData] = useState<FormData>(() => {
-    // Try to parse city out of stored address: "Street, City"
     let street = '';
     let city = '';
     if (userProfile?.address) {
@@ -102,7 +99,6 @@ const Checkout: React.FC = () => {
     };
   });
 
-  // Re-autofill whenever profile loads (e.g. after async auth restore)
   useEffect(() => {
     if (!userProfile) return;
     let street = '';
@@ -168,13 +164,11 @@ const Checkout: React.FC = () => {
         customerPhone: formData.phone,
         shippingAddr: `${formData.address}, ${formData.city}`,
         paymentMethod: formData.payment,
-        // Send ONLY the selected items — deduplication handled server-side too.
         items: selectedItems.map((item) => ({ id: item.id, quantity: item.quantity })),
       };
 
       const result: any = await api.post('/orders/checkout', payload);
 
-      // Sync shipping info back to user profile (Redux + localStorage)
       if (userProfile) {
         const profileUpdates: Record<string, string> = {};
         if (!userProfile.name && formData.fullName.trim()) profileUpdates.name = formData.fullName.trim();
@@ -187,13 +181,11 @@ const Checkout: React.FC = () => {
         }
       }
 
-      // PayOS: redirect to PayOS checkout page (cart cleared on OrderSuccess after verification)
       if (result?.checkoutUrl) {
         window.location.href = result.checkoutUrl;
         return;
       }
 
-      // COD: clear cart immediately and navigate to success
       dispatch(clearCart());
       dispatch(fetchProducts());
 
@@ -201,7 +193,7 @@ const Checkout: React.FC = () => {
         className: 'toast-custom',
       });
 
-      navigate('/order-success', { state: { orderId: result?.order?.id } });
+      navigate('/order-success', { state: { orderId: result?.order?.id, order: result?.order } });
     } catch (error: any) {
       const msg =
         error.response?.data?.message ||
@@ -214,254 +206,300 @@ const Checkout: React.FC = () => {
   };
 
   const inputClass = (field: keyof FormErrors) =>
-    `border p-3 w-full font-sans text-sm text-primary focus:outline-none transition-colors ${
+    `w-full p-3 bg-white drawn-input font-mono text-xs text-text-primary ${
       errors[field]
-        ? 'border-red-500 bg-red-500/10'
-        : 'border-token bg-card focus:border-token-strong'
+        ? 'border-red-500 bg-red-50'
+        : 'focus:border-accent'
     }`;
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 py-12 md:py-20 w-full text-primary">
-      <h1 className="text-3xl font-display uppercase font-bold text-primary mb-10 tracking-widest">
-        Checkout
-      </h1>
+    <div className="max-w-[1200px] mx-auto px-6 py-12 md:py-20 w-full text-text-primary">
+      
+      {/* Progress Tracker */}
+      <div className="flex justify-center items-center flex-col gap-4 mb-12">
+        <div className="flex items-center gap-4 mt-6">
+          <div className="flex flex-col items-center gap-2">
+            <span className="material-symbols-outlined text-accent text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>pets</span>
+            <span className="font-mono text-xs font-black text-text-primary">Shipping</span>
+          </div>
+          <div className="w-16 h-1 border-t-2 border-dashed border-text-primary mt-[-24px]"></div>
+          <div className="flex flex-col items-center gap-2 opacity-50">
+            <span className="material-symbols-outlined text-text-primary text-3xl">pets</span>
+            <span className="font-mono text-xs font-black text-text-primary">Payment</span>
+          </div>
+          <div className="w-16 h-1 border-t-2 border-dashed border-text-primary mt-[-24px]"></div>
+          <div className="flex flex-col items-center gap-2 opacity-50">
+            <span className="material-symbols-outlined text-text-primary text-3xl">pets</span>
+            <span className="font-mono text-xs font-black text-text-primary">Review</span>
+          </div>
+        </div>
+      </div>
 
-      <div className="flex flex-col lg:flex-row gap-16">
-        {/* ── Form ────────────────────────────────────────────────────────── */}
-        <div className="w-full lg:w-2/3">
-          <form onSubmit={handleSubmit} noValidate className="space-y-8">
-            {/* Shipping info */}
-            <section>
-              <h2 className="text-lg font-bold uppercase font-display mb-6 pb-2 border-b border-token tracking-wider">
-                Shipping Details
-              </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        {/* Left Column: Checkout Forms */}
+        <main className="lg:col-span-7 flex flex-col gap-8">
+          <section className="bg-secondary border-4 border-text-primary p-8 brutalist-shadow rounded-[20px_40px_10px_30px] relative overflow-hidden">
+            
+            {/* Secure badge */}
+            <div className="absolute -top-4 -right-4 bg-accent text-text-primary px-4 py-2 font-mono text-xs font-black rotate-12 border-2 border-text-primary shadow">
+              <span className="material-symbols-outlined align-middle mr-1" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+              SECURE!
+            </div>
+
+            <h2 className="font-display text-2xl font-black mb-8 flex items-center gap-2 uppercase">
+              <span className="material-symbols-outlined text-accent">contact_mail</span>
+              Who's Getting This Weird Stuff?
+            </h2>
+
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+              
+              {/* Email Address */}
+              <div>
+                <label className="block font-mono text-xs font-black mb-2 text-text-primary">EMAIL (FOR STRANGE RECEIPTS)</label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="weirdo@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={inputClass('email')}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-[10px] mt-1 uppercase font-mono font-black">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Full Name & Phone Number */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
+                <div>
+                  <label className="block font-mono text-xs font-black mb-2 text-text-primary">FULL NAME</label>
                   <input
-                    type="text"
                     name="fullName"
-                    placeholder="Full Name *"
+                    type="text"
+                    placeholder="Wobbly Weirdo"
                     value={formData.fullName}
                     onChange={handleChange}
                     className={inputClass('fullName')}
                   />
                   {errors.fullName && (
-                    <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">
-                      {errors.fullName}
-                    </p>
+                    <p className="text-red-500 text-[10px] mt-1 uppercase font-mono font-black">{errors.fullName}</p>
                   )}
                 </div>
-
                 <div>
+                  <label className="block font-mono text-xs font-black mb-2 text-text-primary">PHONE NUMBER</label>
                   <input
-                    type="email"
-                    name="email"
-                    placeholder="Email *"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={inputClass('email')}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <input
-                    type="tel"
                     name="phone"
-                    placeholder="Phone Number * (e.g. 0901234567)"
+                    type="tel"
+                    placeholder="0901234567"
                     value={formData.phone}
                     onChange={handleChange}
                     className={inputClass('phone')}
                   />
                   {errors.phone && (
-                    <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">
-                      {errors.phone}
-                    </p>
-                  )}
-                </div>
-
-                <div className="md:col-span-2">
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Address *"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className={inputClass('address')}
-                  />
-                  {errors.address && (
-                    <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">
-                      {errors.address}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <input
-                    type="text"
-                    name="city"
-                    placeholder="City *"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className={inputClass('city')}
-                  />
-                  {errors.city && (
-                    <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">
-                      {errors.city}
-                    </p>
+                    <p className="text-red-500 text-[10px] mt-1 uppercase font-mono font-black">{errors.phone}</p>
                   )}
                 </div>
               </div>
-            </section>
 
-            {/* Payment method */}
-            <section>
-              <h2 className="text-lg font-bold uppercase font-display mb-6 pb-2 border-b border-token tracking-wider">
-                Payment Method
-              </h2>
-              <div className="space-y-3">
-                {[
-                  { value: 'cod', label: 'Cash on Delivery (COD)', desc: 'Pay in cash upon delivery' },
-                  { value: 'payos', label: 'Online Payment (PayOS)', desc: 'QR Code / Bank Transfer / E-wallet' },
-                ].map(({ value, label, desc }) => (
+              {/* Address details */}
+              <div>
+                <label className="block font-mono text-xs font-black mb-2 text-text-primary">SHIPPING ADDRESS (WHERE THE DOG LIVES)</label>
+                <input
+                  name="address"
+                  type="text"
+                  placeholder="123 Strange St"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className={inputClass('address')}
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-[10px] mt-1 uppercase font-mono font-black">{errors.address}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs font-black mb-2 text-text-primary">CITY / PROVINCE</label>
+                <input
+                  name="city"
+                  type="text"
+                  placeholder="Saigon"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className={inputClass('city')}
+                />
+                {errors.city && (
+                  <p className="text-red-500 text-[10px] mt-1 uppercase font-mono font-black">{errors.city}</p>
+                )}
+              </div>
+
+              {/* Payment Methods */}
+              <div className="mt-8 pt-8 border-t-4 border-text-primary border-dashed">
+                <h2 className="font-display text-2xl font-black mb-6 flex items-center gap-2 uppercase">
+                  <span className="material-symbols-outlined text-accent">payments</span>
+                  Payment Method
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* COD Payment Method */}
+                  <label className="relative cursor-pointer">
+                    <input
+                      name="payment"
+                      type="radio"
+                      value="cod"
+                      checked={formData.payment === 'cod'}
+                      onChange={handleChange}
+                      className="peer sr-only"
+                    />
+                    <div className="p-4 border-4 border-[#1e1b14] rounded-[15px_35px_15px_35px] bg-white hover:bg-[#efe7da] transition-all duration-200 peer-checked:bg-[#daeb8d] peer-checked:shadow-[4px_4px_0px_0px_rgba(30,27,20,1)] peer-checked:-translate-y-0.5 h-full">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 blob-shape-2 bg-[#ff6b35] flex items-center justify-center border-2 border-[#1e1b14] shrink-0">
+                          <span className="material-symbols-outlined text-[#1e1b14]">payments</span>
+                        </div>
+                        <div>
+                          <p className="font-black font-mono text-sm text-[#1e1b14]">Cash on Delivery</p>
+                          <p className="text-xs text-[#594139] font-mono font-bold mt-1">Pay the delivery weirdo in cash</p>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Online Payment (PayOS) Method */}
+                  <label className="relative cursor-pointer">
+                    <input
+                      name="payment"
+                      type="radio"
+                      value="payos"
+                      checked={formData.payment === 'payos'}
+                      onChange={handleChange}
+                      className="peer sr-only"
+                    />
+                    <div className="p-4 border-4 border-[#1e1b14] rounded-[30px_10px_40px_20px] bg-white hover:bg-[#efe7da] transition-all duration-200 peer-checked:bg-[#daeb8d] peer-checked:shadow-[4px_4px_0px_0px_rgba(30,27,20,1)] peer-checked:-translate-y-0.5 h-full">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 blob-shape-2 bg-[#ff6b35] flex items-center justify-center border-2 border-[#1e1b14] shrink-0">
+                          <span className="material-symbols-outlined text-[#1e1b14]">qr_code_2</span>
+                        </div>
+                        <div>
+                          <p className="font-black font-mono text-sm text-[#1e1b14]">PayOS Payment</p>
+                          <p className="text-xs text-[#594139] font-mono font-bold mt-1">Scan QR code instantly via Bank Transfer</p>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting || selectedItems.length === 0}
+                className="w-full bg-accent text-text-primary border-4 border-text-primary py-4 px-8 font-display text-xl font-black shadow-[4px_4px_0px_0px_#343027] jiggle-hover transition-all active:translate-y-1 active:translate-x-1 active:shadow-none uppercase tracking-wide cursor-pointer wobbly-border-1 mt-6"
+              >
+                {isSubmitting ? 'PROCESSING...' : 'Confirm Order'}
+              </button>
+
+            </form>
+          </section>
+        </main>
+
+        {/* Right Column: Order Summary Sidebar */}
+        <div className="lg:col-span-5">
+          <div className="bg-surface-secondary border-4 border-text-primary p-8 shadow-[8px_8px_0px_0px_#ff6b35] sticky top-32 flex flex-col gap-6 wobbly-border-3">
+            <h2 className="font-display text-2xl font-black text-text-primary mb-2 uppercase">The Damage</h2>
+
+            {/* Select All */}
+            <label className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-dashed border-text-primary cursor-pointer group font-mono text-xs font-black">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                onChange={toggleAll}
+                className="w-4 h-4 cursor-pointer"
+                style={{ accentColor: 'var(--accent)' }}
+              />
+              <span>SELECT ALL ({cartItems.length} items)</span>
+            </label>
+
+            {/* Summary Items List */}
+            <div className="space-y-4 mb-6">
+              {cartItems.map((item) => {
+                const isSelected = selectedIds.has(item.id);
+                return (
                   <label
-                    key={value}
-                    className={`flex items-center gap-3 border p-4 cursor-pointer hover:bg-secondary bg-card text-primary transition-colors ${
-                      formData.payment === value ? 'border-accent' : 'border-token'
+                    key={item.id}
+                    className={`flex gap-3 items-center cursor-pointer rounded transition-opacity ${
+                      isSelected ? '' : 'opacity-40'
                     }`}
                   >
                     <input
-                      type="radio"
-                      name="payment"
-                      value={value}
-                      checked={formData.payment === value}
-                      onChange={handleChange}
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleItem(item.id)}
+                      className="w-4 h-4 cursor-pointer flex-shrink-0"
                       style={{ accentColor: 'var(--accent)' }}
                     />
-                    <div>
-                      <span className="text-sm font-sans font-semibold">{label}</span>
-                      <p className="text-[10px] text-muted mt-0.5 uppercase tracking-wider">{desc}</p>
+                    <img
+                      src={item.imgUrl}
+                      alt={item.title}
+                      className="w-12 h-12 object-cover bg-secondary border-2 border-text-primary flex-shrink-0 wobbly-border-1"
+                    />
+                    <div className="flex-grow min-w-0">
+                      <p className="font-mono text-xs font-black uppercase truncate">
+                        {item.title}
+                      </p>
+                      <p className="font-mono text-[10px] text-text-muted font-bold">
+                        x{item.quantity}
+                      </p>
                     </div>
+                    <span
+                      className={`font-mono text-sm font-black whitespace-nowrap ${
+                        isSelected ? '' : 'line-through text-text-muted'
+                      }`}
+                    >
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
                   </label>
-                ))}
+                );
+              })}
+            </div>
+
+            <div className="border-t-3 border-text-primary pt-4 space-y-2 mb-4 font-mono text-xs font-black">
+              <div className="flex justify-between">
+                <span>Subtotal ({selectedItems.length} items)</span>
+                <span>${totalPrice.toFixed(2)}</span>
               </div>
-            </section>
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                {shippingFee > 0 ? (
+                  <span>${shippingFee.toFixed(2)}</span>
+                ) : (
+                  <span className="text-accent-secondary font-black">Free!</span>
+                )}
+              </div>
+            </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting || selectedItems.length === 0}
-              className="w-full py-4 uppercase tracking-widest text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{
-                background: 'var(--accent)',
-                color: '#000',
-                boxShadow: 'var(--shadow-accent)',
-              }}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.background = 'var(--accent-dim)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.background = 'var(--accent)';
-                }
-              }}
+            <div className="border-t-3 border-text-primary pt-4 flex justify-between font-display text-xl font-black">
+              <span>Total</span>
+              <span className="text-accent font-black">${finalTotal.toFixed(2)}</span>
+            </div>
+
+            {selectedItems.length === 0 && (
+              <p className="text-red-500 text-xs font-black font-mono text-center">
+                Please select at least 1 item to proceed.
+              </p>
+            )}
+
+            <Link
+              to="/bones"
+              className="text-center font-mono text-xs font-black text-text-primary hover:text-accent underline wavy-line mt-2 inline-block self-center transition-colors"
             >
-              {isSubmitting ? 'Processing...' : 'Confirm Order'}
-            </button>
-          </form>
+              Keep exploring the weird
+            </Link>
+          </div>
         </div>
 
-        {/* ── Order Summary ────────────────────────────────────────────────── */}
-        <div className="w-full lg:w-1/3 bg-card p-8 h-fit border border-token text-primary">
-          <h2 className="text-lg font-bold uppercase font-display mb-4 tracking-wider">
-            Order Summary
-          </h2>
-
-          {/* Select all */}
-          <label className="flex items-center gap-3 mb-4 pb-4 border-b border-token cursor-pointer group">
-            <input
-              type="checkbox"
-              checked={isAllSelected}
-              onChange={toggleAll}
-              className="w-4 h-4 cursor-pointer"
-              style={{ accentColor: 'var(--accent)' }}
-            />
-            <span className="text-[10px] font-bold uppercase tracking-widest group-hover:opacity-60 transition-opacity">
-              Select all ({cartItems.length} items)
-            </span>
-          </label>
-
-          <div className="space-y-3 mb-6">
-            {cartItems.map((item) => {
-              const isSelected = selectedIds.has(item.id);
-              return (
-                <label
-                  key={item.id}
-                  className={`flex gap-3 items-center cursor-pointer rounded transition-opacity ${
-                    isSelected ? '' : 'opacity-40'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleItem(item.id)}
-                    className="w-4 h-4 cursor-pointer flex-shrink-0"
-                    style={{ accentColor: 'var(--accent)' }}
-                  />
-                  <img
-                    src={item.imgUrl}
-                    alt={item.title}
-                    className="w-12 h-12 object-cover bg-secondary border border-token flex-shrink-0"
-                  />
-                  <div className="flex-grow min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wider truncate">
-                      {item.title}
-                    </p>
-                    <p className="text-[10px] text-muted uppercase tracking-widest">
-                      x{item.quantity}
-                    </p>
-                  </div>
-                  <span
-                    className={`font-semibold text-sm font-sans whitespace-nowrap ${
-                      isSelected ? '' : 'line-through text-muted'
-                    }`}
-                  >
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-
-          <div className="border-t border-token pt-4 space-y-2 mb-4">
-            <div className="flex justify-between text-sm font-sans text-secondary">
-              <span>Subtotal ({selectedItems.length} items)</span>
-              <span>${totalPrice.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm font-sans text-secondary">
-              <span>Shipping</span>
-              <span className="text-accent font-bold text-xs uppercase tracking-wider">
-                Free
-              </span>
-            </div>
-          </div>
-          <div className="border-t border-token pt-4 flex justify-between font-bold text-lg font-sans">
-            <span>Total</span>
-            <span>${totalPrice.toFixed(2)}</span>
-          </div>
-
-          {selectedItems.length === 0 && (
-            <p className="text-red-500 text-xs mt-3 text-center font-semibold">
-              Please select at least 1 item
-            </p>
-          )}
-        </div>
       </div>
+
     </div>
   );
 };

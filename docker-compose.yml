@@ -4,7 +4,7 @@ services:
   # 1. API Gateway (Nginx)
   api-gateway:
     image: nginx:alpine
-    container_name: record_store_gateway
+    container_name: felix_doggy_gateway
     volumes:
       - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
@@ -22,7 +22,7 @@ services:
       context: ./frontend
       args:
         - VITE_GOOGLE_CLIENT_ID=957845460758-nkum4phpedgrt7mpi1a4o07m2o4ocjhs.apps.googleusercontent.com
-    container_name: record_store_frontend
+    container_name: felix_doggy_frontend
     environment:
       - VITE_API_URL=/api
     depends_on:
@@ -40,7 +40,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: record_store_backend
+    container_name: felix_doggy_backend
     environment:
       - DATABASE_URL=postgresql://postgres:root@postgres:5432/record_store?schema=public
       - JWT_SECRET=supersecretkey_for_record_store_2026
@@ -72,7 +72,7 @@ services:
   # 4. PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: record_store_postgres
+    container_name: felix_doggy_postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
@@ -92,7 +92,7 @@ services:
   # 5. Redis Cache
   redis:
     image: redis:alpine
-    container_name: record_store_redis
+    container_name: felix_doggy_redis
     ports:
       - "6379:6379"
     healthcheck:

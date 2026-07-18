@@ -26,7 +26,7 @@ const FAQ: React.FC = () => {
         <div className="bg-card border border-token rounded-3xl p-10 shadow-sm">
           <h2 className="text-xl font-bold uppercase tracking-[0.2em] mb-4 text-primary">3. Do the products have a warranty?</h2>
           <p className="text-sm text-secondary leading-relaxed">
-            Basic merchandise is not covered by a warranty. Vinyl records and CDs can be returned or exchanged if they are defective or not as described.
+            Basic toys and merchandise are not covered by a warranty. Bent Bones and Paw treats can be returned or exchanged if they are defective or not as described.
           </p>
         </div>
       </div>

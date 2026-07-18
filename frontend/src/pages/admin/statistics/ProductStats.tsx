@@ -27,7 +27,10 @@ const today = new Date().toISOString().split('T')[0];
 const firstDayMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  vinyl: 'Vinyl', cd: 'CD', merch: 'Merch',
+  dogs: 'Adopt a Dog',
+  food: 'Dog Food',
+  toys: 'Dog Toys',
+  clothes: 'Dog Clothes',
 };
 
 const ProductStats: React.FC = () => {

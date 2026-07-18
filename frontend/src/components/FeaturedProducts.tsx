@@ -18,7 +18,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   products,
   title,
   subtitle,
-  viewAllLink = '/vinyl',
+  viewAllLink = '/paws',
   viewAllLabel = 'View All',
   columns = 4,
   cardSize = 'md',

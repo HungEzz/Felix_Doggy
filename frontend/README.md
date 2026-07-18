@@ -1,6 +1,6 @@
-# Classic Records — Frontend
+# Felix Doggy — Frontend
 
-Single-page application for **Classic Records**, an e-commerce platform for vinyl records, CDs, and music merchandise. Built with React 19, Vite 8, Redux Toolkit, and Tailwind CSS 4.
+Single-page application for **Felix Doggy**, an e-commerce platform for dogs, dog food, toys, and clothes. Built with React 19, Vite 8, Redux Toolkit, and Tailwind CSS 4.
 
 ---
 
@@ -23,10 +23,10 @@ Single-page application for **Classic Records**, an e-commerce platform for viny
 
 ## 1. Project Overview
 
-Classic Records is a full-featured record store storefront and admin panel where:
+Felix Doggy is a full-featured dog-themed storefront and admin panel where:
 
 **Customers can:**
-- Browse vinyl records, CDs, and merchandise with search, sort, and filter
+- Browse dogs, dog food, toys, and clothes with search, sort, and filter
 - View detailed product pages with stock awareness
 - Add products to a persistent shopping cart with quantity control
 - Checkout with form validation (supports guest and authenticated users)
@@ -42,7 +42,7 @@ Classic Records is a full-featured record store storefront and admin panel where
 - View analytics dashboards with interactive charts (revenue, orders, products, users, inventory)
 - Export statistics data to CSV/Excel
 
-**Target audience:** Music enthusiasts in Vietnam looking for vinyl records, CDs, and music merchandise. The UI is bilingual (Vietnamese labels, English product content).
+**Target audience:** Pet lovers in Vietnam looking for dogs to adopt, dog food, toys, and clothes. The UI is bilingual (Vietnamese labels, English product content).
 
 ---
 
@@ -137,7 +137,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 
 #### Product Browsing & Search
 - **Home page** with hero banner carousel (5 slides, auto-play, pause on hover), category cards, trending section, featured collections, and promotional banner
-- **Category pages** (Vinyl, CD, Merch) with search, sort (featured/price/alphabetical), and filter bars
+- **Category pages** (Paws, Bones, Toys, Clothes) with search, sort (featured/price/alphabetical), and filter bars
 - **Product detail page** with full-size image, stock display, quantity selector, and add-to-cart
 - **Instant search** in navbar with product suggestions (title + artist matching, max 6 results)
 - **Intersection Observer** scroll-triggered fade-up animations on the home page
@@ -279,9 +279,9 @@ This prevents the admin session from being overwritten when an admin also browse
 
 ### Backend API Documentation
 For detailed specification of all backend endpoints, payload examples, and interactive testing:
-* **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
-* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
-* **Full Spec Guide:** [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/record-store-ecommerce/backend/README.md#10-api-documentation)
+* **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Gateway), or [https://felix-doggy-ecommerce.onrender.com/api-docs](https://felix-doggy-ecommerce.onrender.com/api-docs) (Production Backend)
+* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json](https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json)
+* **Full Spec Guide:** [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/Felix_Doggy_Ecommerce/backend/README.md#10-api-documentation)
 
 ### Axios Configuration (`services/api.ts`)
 
@@ -366,9 +366,10 @@ frontend/
 │   │       └── StatsUtils.tsx      # Shared stats components: cards, charts, filters, export, skeleton
 │   ├── pages/
 │   │   ├── Home.tsx                # Landing page — hero, categories, featured, trending, promo
-│   │   ├── Vinyl.tsx               # Vinyl records catalog page
-│   │   ├── CD.tsx                  # CDs catalog page
-│   │   ├── Merch.tsx               # Merchandise catalog page
+│   │   ├── Paws.tsx                # Adopt a dog page
+│   │   ├── Bones.tsx               # Dog food page
+│   │   ├── Toys.tsx                # Dog toys page
+│   │   ├── Clothes.tsx             # Dog clothes page
 │   │   ├── ProductDetail.tsx       # Single product page with add-to-cart
 │   │   ├── Cart.tsx                # Shopping cart with quantity controls and selective checkout
 │   │   ├── Checkout.tsx            # Checkout form with validation and order submission

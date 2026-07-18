@@ -5,6 +5,7 @@ import { orderRepository } from './order.repository';
 import { authRepository } from '../auth/auth.repository';
 import { productCache } from '../products/product.cache';
 import { payosService } from './payos.service';
+import { sendOrderConfirmationEmail } from '../../config/mail';
 
 export const orderService = {
   getUserIdFromAuthHeader(authHeader?: string) {
@@ -32,6 +33,11 @@ export const orderService = {
       () => orderRepository.createCheckoutOrder(userId, customerEmail, customerPhone, shippingAddr, items, paymentMethod),
       { maxAttempts: 3, baseDelayMs: 500, label: 'checkout transaction' },
     );
+
+    // Send order confirmation email asynchronously
+    sendOrderConfirmationEmail(customerEmail, order).catch((err) => {
+      console.error('Failed to send order confirmation email:', err);
+    });
 
     // Invalidate Redis cache for ordered products so stock is fresh
     try {
@@ -161,5 +167,78 @@ export const orderService = {
 
   getMyOrders(userId: string) {
     return orderRepository.findMyOrders(userId);
+  },
+
+  async trackOrder(idOrCode: string, contact: string) {
+    if (!idOrCode || !contact) {
+      throw new Error('Order ID and contact info are required');
+    }
+    const order = await orderRepository.findOrderByIdOrCode(idOrCode);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    const normalizedContact = contact.trim().toLowerCase();
+    const orderEmail = (order.customerEmail ?? '').trim().toLowerCase();
+    const orderPhone = (order.customerPhone ?? '').trim();
+
+    if (orderEmail !== normalizedContact && orderPhone !== normalizedContact) {
+      throw new Error('Unauthorized: Email or Phone number does not match this order');
+    }
+
+    return order;
+  },
+
+  async cancelOrder(idOrCode: string, contact: string | null, cancelReason: string, userId?: string) {
+    if (!idOrCode) {
+      throw new Error('Order ID is required');
+    }
+    if (!cancelReason || !cancelReason.trim()) {
+      throw new Error('Cancellation reason is required');
+    }
+
+    const order = await orderRepository.findOrderByIdOrCode(idOrCode);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Verify order is PENDING
+    if (order.status !== 'PENDING') {
+      throw new Error(`Only pending orders can be cancelled. Current status is: ${order.status}`);
+    }
+
+    // Verify ownership
+    if (userId) {
+      if (order.userId !== userId) {
+        throw new Error('Unauthorized to cancel this order');
+      }
+    } else {
+      if (!contact) {
+        throw new Error('Verification contact is required for guest order cancellation');
+      }
+      const normalizedContact = contact.trim().toLowerCase();
+      const orderEmail = (order.customerEmail ?? '').trim().toLowerCase();
+      const orderPhone = (order.customerPhone ?? '').trim();
+
+      if (orderEmail !== normalizedContact && orderPhone !== normalizedContact) {
+        throw new Error('Unauthorized: Verification contact does not match this order');
+      }
+    }
+
+    // Update status and save reason
+    const cancelledOrder = await orderRepository.cancelOrder(order.id, cancelReason.trim());
+
+    // Invalidate Redis cache for cancelled products so stock is fresh
+    try {
+      if (cancelledOrder && cancelledOrder.orderItems) {
+        for (const item of cancelledOrder.orderItems) {
+          await productCache.deleteCachedProduct(item.productId);
+        }
+      }
+    } catch {
+      // Non-critical — don't fail if Redis is unavailable
+    }
+
+    return cancelledOrder;
   },
 };

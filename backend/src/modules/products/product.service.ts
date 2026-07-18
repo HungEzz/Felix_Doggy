@@ -2,7 +2,7 @@ import { redis } from '../../config/redis';
 import { CACHE_KEYS, productCache } from './product.cache';
 import { productRepository } from './product.repository';
 
-const VALID_CATEGORIES = ['vinyl', 'cd', 'merch'];
+const VALID_CATEGORIES = ['dogs', 'food', 'toys', 'clothes'];
 
 const validateProductInput = (body: any): string | null => {
   const { title, artist, price, imgUrl, category, stock } = body;

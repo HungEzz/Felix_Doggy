@@ -1,4 +1,5 @@
 import { adminRepository } from './admin.repository';
+import { productCache } from '../products/product.cache';
 
 export const adminService = {
   async getStats() {
@@ -61,8 +62,22 @@ export const adminService = {
     return adminRepository.findOrders(queryOptions);
   },
 
-  updateOrderStatus(id: string, status: string) {
-    return adminRepository.updateOrderStatus(id, status);
+  async updateOrderStatus(id: string, status: string) {
+    const updatedOrder = await adminRepository.updateOrderStatus(id, status);
+    
+    if (status === 'CANCELLED') {
+      try {
+        if (updatedOrder && (updatedOrder as any).orderItems) {
+          for (const item of (updatedOrder as any).orderItems) {
+            await productCache.deleteCachedProduct(item.productId);
+          }
+        }
+      } catch {
+        // Non-critical
+      }
+    }
+    
+    return updatedOrder;
   },
 
   deleteOrder(id: string) {

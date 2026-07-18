@@ -1,30 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart } from 'lucide-react';
 import { FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', paddingTop: 14, paddingBottom: 12, marginTop: 'auto' }}>
+    <footer style={{ background: 'var(--bg-secondary)', borderTop: '4px solid var(--accent)', paddingTop: 40, paddingBottom: 24, marginTop: 'auto' }}>
       <div className="container-main">
         {/* Top row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 48, marginBottom: 56 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 48, marginBottom: 40 }}>
           {/* Brand */}
           <div style={{ gridColumn: '1 / 2' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: 'radial-gradient(circle, #333 0%, #333 28%, var(--accent) 28%, var(--accent) 32%, #1a1a1a 32%)',
-                boxShadow: '0 0 16px rgba(29,185,84,0.3)',
-              }} />
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>
-                Record<span style={{ color: 'var(--accent)' }}>.</span>Store
+              <img src="/image.png" alt="Felix Doggy Logo" style={{ height: '36px', width: 'auto', borderRadius: '4px' }} />
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, color: 'var(--accent)', fontStyle: 'italic', letterSpacing: '-0.02em' }}>
+                Felix Doggy
               </span>
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24, maxWidth: 260 }}>
-              Your destination for premium vinyl records, CDs, and exclusive music merchandise.
+              Embrace the goofy, the wobbly, and the beautifully imperfect companions in your life. Normal is boring anyway.
             </p>
             {/* Social */}
             <div style={{ display: 'flex', gap: 8 }}>
@@ -37,26 +33,24 @@ const Footer: React.FC = () => {
                   key={i}
                   href={href}
                   style={{
-                    width: 45, height: 45,
-                    borderRadius: 'var(--radius-full)',
+                    width: 42, height: 42,
+                    borderRadius: 'var(--radius-md)',
                     background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
+                    border: '2px solid var(--text-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--text-muted)',
+                    color: 'var(--text-primary)',
                     transition: 'all 0.2s ease',
                     textDecoration: 'none',
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent)';
-                    (e.currentTarget as HTMLAnchorElement).style.color = '#000';
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--accent)';
+                    (e.currentTarget as HTMLAnchorElement).style.transform = 'translate(-2px, -2px) rotate(3deg)';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '3px 3px 0px 0px var(--text-primary)';
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLAnchorElement).style.background = 'var(--bg-card)';
-                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-muted)';
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)';
+                    (e.currentTarget as HTMLAnchorElement).style.transform = 'none';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none';
                   }}
                 >
                   <Icon size={16} />
@@ -67,18 +61,19 @@ const Footer: React.FC = () => {
 
           {/* Shop */}
           <div>
-            <h4 style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em' }}>Shop</h4>
+            <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Shop</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { to: '/vinyl', label: 'Vinyl Records' },
-                { to: '/cd', label: 'CDs' },
-                { to: '/merch', label: 'Merchandise' },
-                { to: '/cart', label: 'Shopping Cart' },
+                { to: '/paws', label: 'Adopt a Dog' },
+                { to: '/bones', label: 'Dog Food' },
+                { to: '/toys', label: 'Dog Toys' },
+                { to: '/clothes', label: 'Dog Clothes' },
+                { to: '/cart', label: 'Your Box (Cart)' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
                     to={to}
-                    style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }}
+                    style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 13, fontWeight: 600, transition: 'color 0.2s' }}
                     onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--accent)')}
                     onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-secondary)')}
                   >
@@ -91,18 +86,19 @@ const Footer: React.FC = () => {
 
           {/* Support */}
           <div>
-            <h4 style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em' }}>Support</h4>
+            <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Support</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
+                { to: '/about', label: 'About Us' },
                 { to: '/contact', label: 'Contact Us' },
-                { to: '/shipping-returns', label: 'Shipping & Returns' },
-                { to: '/faq', label: 'FAQ' },
-                { to: '/account', label: 'My Account' },
+                { to: '/shipping-returns', label: 'Shipping & Delivery' },
+                { to: '/faq', label: 'Manifest-no (FAQ)' },
+                { to: '/account', label: 'Weirdo Dashboard' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
                     to={to}
-                    style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }}
+                    style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 13, fontWeight: 600, transition: 'color 0.2s' }}
                     onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--accent)')}
                     onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-secondary)')}
                   >
@@ -115,12 +111,12 @@ const Footer: React.FC = () => {
 
           {/* Contact info */}
           <div>
-            <h4 style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em' }}>Get in Touch</h4>
+            <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Stay Strange</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { Icon: Mail, text: 'support@recordstore.vn' },
-                { Icon: Phone, text: '+84 123 456 789' },
-                { Icon: MapPin, text: '123 Music St, District 1, HCMC' },
+                { Icon: Mail, text: 'support@felixdoggy.com' },
+                { Icon: Phone, text: '+84 123 Paw Paw' },
+                { Icon: MapPin, text: '404 Weirdo Lane, Saigon, VN' },
               ].map(({ Icon, text }, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <Icon size={15} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 1 }} />
@@ -131,36 +127,36 @@ const Footer: React.FC = () => {
 
             {/* Newsletter mini */}
             <div style={{ marginTop: 24 }}>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Subscribe for new releases</p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Subscribe for weird updates</p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   placeholder="Your email"
                   style={{
                     flex: 1,
                     background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-full)',
+                    border: '2px solid var(--text-primary)',
+                    borderRadius: 'var(--radius-md)',
                     padding: '8px 14px',
                     fontSize: 12,
                     color: 'var(--text-primary)',
                     outline: 'none',
+                    fontFamily: 'var(--font-sans)',
                   }}
-                  onFocus={e => ((e.target as HTMLInputElement).style.borderColor = 'var(--accent)')}
-                  onBlur={e => ((e.target as HTMLInputElement).style.borderColor = 'var(--border)')}
                 />
                 <button
                   style={{
                     background: 'var(--accent)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-full)',
+                    border: '2px solid var(--text-primary)',
+                    borderRadius: 'var(--radius-md)',
                     padding: '8px 14px',
                     fontSize: 12,
-                    fontWeight: 600,
-                    color: '#000',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
                     cursor: 'pointer',
                   }}
+                  className="organic-brutalism-btn"
                 >
-                  <Music size={14} />
+                  <Heart size={14} fill="currentColor" />
                 </button>
               </div>
             </div>
@@ -168,19 +164,27 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Divider */}
-        <hr className="divider" />
+        <hr className="divider" style={{ borderColor: 'var(--text-primary)', borderWidth: 1 }} />
 
         {/* Bottom row */}
         <div style={{ paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>© {year} Record Store. All rights reserved.</p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>© {year} Felix Doggy. All rights reserved.</p>
           <div style={{ display: 'flex', gap: 24 }}>
-            {['Privacy', 'Terms', 'Cookies'].map(t => (
-              <a key={t} href="#" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--text-primary)')}
-                onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}>
-                {t}
-              </a>
-            ))}
+            <Link to="/privacy" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s', fontWeight: 600 }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--text-primary)')}
+              onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}>
+              Privacy
+            </Link>
+            <Link to="/terms" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s', fontWeight: 600 }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--text-primary)')}
+              onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}>
+              Terms
+            </Link>
+            <Link to="/faq" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s', fontWeight: 600 }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--text-primary)')}
+              onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}>
+              Mascot Club
+            </Link>
           </div>
         </div>
       </div>

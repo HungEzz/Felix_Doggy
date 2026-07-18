@@ -85,8 +85,8 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
         <div style={{ position: 'absolute', inset: 0, background: gradients[current % gradients.length] }} />
       </div>
 
-      {/* Vinyl decorative */}
-      <div className="hero-vinyl" style={{
+      {/* Frisbee toy decorative */}
+      <div className="hero-frisbee" style={{
         position: 'absolute',
         right: '8%', top: '50%',
         transform: 'translateY(-50%)',
@@ -95,8 +95,8 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
         opacity: 0.5,
         pointerEvents: 'none',
       }}>
-        <div className="vinyl-disc animate-spin-slow" style={{ width: '100%', height: '100%' }}>
-          <div className="vinyl-label">
+        <div className="doggy-disc animate-spin-slow" style={{ width: '100%', height: '100%' }}>
+          <div className="doggy-label">
             <img src={slide.imgUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
           </div>
         </div>
@@ -269,7 +269,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ products }) => {
             max-width: 100% !important;
             padding: 24px 20px !important;
           }
-          .hero-vinyl {
+          .hero-frisbee {
             display: none !important;
           }
         }

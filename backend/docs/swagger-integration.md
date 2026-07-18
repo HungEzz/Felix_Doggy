@@ -29,7 +29,7 @@ export function setupSwagger(app: Express): void {
   const options: swaggerUi.SwaggerUiOptions = {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Classic Records API Docs',
+    customSiteTitle: 'Felix Doggy API Docs',
     swaggerOptions: {
       persistAuthorization: true,
       docExpansion: 'list',

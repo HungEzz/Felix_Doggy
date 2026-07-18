@@ -5,15 +5,17 @@ import AdminLayout from './layouts/AdminLayout';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
-import Vinyl from './pages/Vinyl';
+import Bones from './pages/Bones';
 import Checkout from './pages/Checkout';
 import User from './pages/User';
-import Merch from './pages/Merch';
-import CD from './pages/CD';
+import Toys from './pages/Toys';
+import Paws from './pages/Paws';
+import Clothes from './pages/Clothes';
 import Contact from './pages/Contact';
 import ShippingReturns from './pages/ShippingReturns';
 import FAQ from './pages/FAQ';
 import OrderSuccess from './pages/OrderSuccess';
+import OrderTracking from './pages/OrderTracking';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -24,6 +26,10 @@ import OrderStats from './pages/admin/statistics/OrderStats';
 import ProductStats from './pages/admin/statistics/ProductStats';
 import UserStats from './pages/admin/statistics/UserStats';
 import InventoryStats from './pages/admin/statistics/InventoryStats';
+import NotFound from './pages/NotFound';
+import About from './pages/About';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -52,16 +58,22 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
-          <Route path="vinyl" element={<Vinyl />} />
-          <Route path="cd" element={<CD />} />
-          <Route path="merch" element={<Merch />} />
+          <Route path="bones" element={<Bones />} />
+          <Route path="paws" element={<Paws />} />
+          <Route path="toys" element={<Toys />} />
+          <Route path="clothes" element={<Clothes />} />
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="about" element={<About />} />
+          <Route path="terms" element={<Terms />} />
+          <Route path="privacy" element={<Privacy />} />
           <Route path="shipping-returns" element={<ShippingReturns />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="order-success" element={<OrderSuccess />} />
+          <Route path="order-tracking/:id" element={<OrderTracking />} />
+          <Route path="order-tracking" element={<OrderTracking />} />
           <Route path="account" element={<User />} />
         </Route>
 
@@ -84,6 +96,9 @@ const App: React.FC = () => {
           <Route path="statistics/users" element={<UserStats />} />
           <Route path="statistics/inventory" element={<InventoryStats />} />
         </Route>
+
+        {/* Catch-all 404 page */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <ChatBot />
     </Router>

@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { Calendar, Download, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -14,15 +13,15 @@ export interface DateFilter {
 
 // ─── Colors ────────────────────────────────────────────────────────────────────
 export const CHART_COLORS = {
-  accent: '#1db954',
+  accent: '#ff6b35', // Warm burnt orange
   purple: '#8b5cf6',
   amber: '#f59e0b',
-  rose: '#f43f5e',
-  blue: '#3b82f6',
-  teal: '#14b8a6',
+  rose: '#ba1a1a',   // Dark red warning
+  blue: '#576415',   // Olive green
+  teal: '#daeb8d',   // Light yellow green
 };
 
-export const PIE_COLORS = ['#1db954', '#8b5cf6', '#f59e0b', '#3b82f6', '#f43f5e'];
+export const PIE_COLORS = ['#ff6b35', '#576415', '#daeb8d', '#343027', '#efe7da'];
 
 // ─── Date Filter Component ─────────────────────────────────────────────────────
 interface TimeFilterProps {
@@ -42,45 +41,41 @@ export const TimeFilter: React.FC<TimeFilterProps> = ({ value, onChange }) => {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-      <Calendar size={15} style={{ color: 'var(--text-muted)' }} />
-      {PERIODS.map((p) => (
-        <button
-          key={p.value}
-          onClick={() => onChange({ ...value, period: p.value })}
-          style={{
-            padding: '6px 14px',
-            borderRadius: 20,
-            border: `1px solid ${value.period === p.value ? '#1db954' : 'var(--border-strong)'}`,
-            background: value.period === p.value ? 'rgba(29,185,84,0.1)' : 'var(--bg-card)',
-            color: value.period === p.value ? '#1db954' : 'var(--text-secondary)',
-            fontSize: 12.5,
-            fontWeight: value.period === p.value ? 700 : 500,
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-            fontFamily: 'inherit',
-          }}
-        >
-          {p.label}
-        </button>
-      ))}
+    <div className="flex items-center gap-3 flex-wrap">
+      <span className="material-symbols-outlined text-[#594139] text-lg font-bold">calendar_month</span>
+      {PERIODS.map((p) => {
+        const isActive = value.period === p.value;
+        return (
+          <button
+            key={p.value}
+            onClick={() => onChange({ ...value, period: p.value })}
+            className={`font-mono text-xs px-4 py-1.5 rounded-full border-2 border-[#1e1b14] transition-all cursor-pointer ${
+              isActive 
+                ? 'bg-[#576415] text-white shadow-[2px_2px_0px_0px_#1e1b14]' 
+                : 'bg-[#f5ede0] hover:bg-[#efe7da] text-[#1e1b14]'
+            }`}
+          >
+            {p.label}
+          </button>
+        );
+      })}
 
       {value.period === 'custom' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 4 }}>
+        <div className="flex items-center gap-2 ml-2">
           <input
             type="date"
             max={today}
             value={value.startDate}
             onChange={(e) => onChange({ ...value, startDate: e.target.value })}
-            style={{ padding: '5px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            className="bg-white border-2 border-[#1e1b14] px-2 py-1 font-mono text-xs text-[#1e1b14] rounded-lg focus:outline-none focus:border-[#ab3500]"
           />
-          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>to</span>
+          <span className="font-mono text-xs text-[#594139] font-bold">to</span>
           <input
             type="date"
             max={today}
             value={value.endDate}
             onChange={(e) => onChange({ ...value, endDate: e.target.value })}
-            style={{ padding: '5px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            className="bg-white border-2 border-[#1e1b14] px-2 py-1 font-mono text-xs text-[#1e1b14] rounded-lg focus:outline-none focus:border-[#ab3500]"
           />
         </div>
       )}
@@ -98,56 +93,60 @@ interface StatCardProps {
   trend?: { value: number; label: string };
 }
 
-export const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color = '#1db954', trend }) => (
-  <div style={{
-    background: 'var(--bg-card)',
-    border: '1px solid var(--border)',
-    borderRadius: 14,
-    padding: '20px 22px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-    transition: 'box-shadow 0.2s',
-  }}
-    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-md)')}
-    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-        {title}
-      </span>
-      <div style={{
-        width: 38, height: 38, borderRadius: 10,
-        background: `${color}18`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color,
-      }}>
-        {icon}
+export const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color = '#ff6b35', trend }) => {
+  // Deterministic tilt based on title
+  const rot = title.charCodeAt(0) % 2 === 0 ? -1.5 : 1.5;
+  
+  return (
+    <div 
+      className="bg-[#f5ede0] border-4 border-[#1e1b14] blob-card-border p-6 shadow-[5px_5px_0px_0px_rgba(87,100,21,1)] jiggle transition-all group relative overflow-hidden flex flex-col justify-between min-h-[140px]"
+      style={{ transform: `rotate(${rot}deg)` }}
+    >
+      <div className="absolute -right-4 -top-4 w-20 h-20 bg-[#efe7da] rounded-full opacity-35 blob-border pointer-events-none group-hover:scale-125 transition-transform duration-300"></div>
+      
+      <div className="flex justify-between items-start mb-2 relative z-10">
+        <div>
+          <p className="font-mono text-[9px] text-[#594139] font-black uppercase tracking-wider mb-1">
+            {title}
+          </p>
+          <h3 className="font-sans text-2xl font-black text-[#1e1b14]">
+            {value}
+          </h3>
+        </div>
+        
+        <div 
+          className="w-10 h-10 border-2 border-[#1e1b14] rounded-full flex items-center justify-center shrink-0 shadow-sm blob-border text-white"
+          style={{ backgroundColor: color }}
+        >
+          {icon}
+        </div>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-between">
+        {subtitle ? (
+          <p className="font-mono text-[9px] text-[#594139] font-bold uppercase">{subtitle}</p>
+        ) : (
+          <div />
+        )}
+        
+        {trend && (
+          <div className="flex items-center gap-1">
+            <span 
+              className="font-mono text-[9px] font-black uppercase px-2 py-0.5 border border-[#1e1b14] rounded-full"
+              style={{
+                backgroundColor: trend.value >= 0 ? '#daeb8d' : '#ffdad6',
+                color: trend.value >= 0 ? '#181e00' : '#93000a',
+              }}
+            >
+              {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
+            </span>
+            <span className="font-mono text-[8px] text-[#594139] font-bold">{trend.label}</span>
+          </div>
+        )}
       </div>
     </div>
-    <div>
-      <p style={{
-        fontFamily: 'Plus Jakarta Sans, sans-serif',
-        fontWeight: 800, fontSize: 28,
-        color: 'var(--text-primary)', lineHeight: 1, marginBottom: 4,
-      }}>
-        {value}
-      </p>
-      {subtitle && <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{subtitle}</p>}
-    </div>
-    {trend && (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <span style={{
-          fontSize: 11, fontWeight: 700,
-          color: trend.value >= 0 ? '#1db954' : '#ef4444',
-        }}>
-          {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
-        </span>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{trend.label}</span>
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 // ─── Page Header ───────────────────────────────────────────────────────────────
 interface StatsPageHeaderProps {
@@ -164,57 +163,35 @@ interface StatsPageHeaderProps {
 export const StatsPageHeader: React.FC<StatsPageHeaderProps> = ({
   title, subtitle, icon, color, filter, onFilterChange, onExport, exporting,
 }) => (
-  <div style={{ marginBottom: 28 }}>
-    <div className="stats-header-inner" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: 12,
-          background: `${color}18`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color, flexShrink: 0,
-        }}>
+  <div className="space-y-6">
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pl-4 border-l-8" style={{ borderColor: color }}>
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-full border-2 border-[#1e1b14] flex items-center justify-center shrink-0 shadow-sm blob-border text-white" style={{ backgroundColor: color }}>
           {icon}
         </div>
         <div>
-          <h1 style={{
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
-            fontWeight: 800, fontSize: 24,
-            color: 'var(--text-primary)', marginBottom: 2,
-            letterSpacing: '-0.02em',
-          }}>
+          <h2 className="font-sans text-3xl font-black text-[#1e1b14] uppercase tracking-tight mb-0.5">
             {title}
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{subtitle}</p>
+          </h2>
+          <p className="font-sans text-sm text-[#594139] font-bold">{subtitle}</p>
         </div>
       </div>
-
-      <button
+      
+      <button 
         onClick={onExport}
         disabled={exporting}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '9px 18px',
-          background: exporting ? 'var(--bg-secondary)' : 'var(--text-primary)',
-          color: exporting ? 'var(--text-muted)' : 'var(--text-inverse)',
-          border: 'none', borderRadius: 10,
-          fontSize: 12.5, fontWeight: 700,
-          cursor: exporting ? 'not-allowed' : 'pointer',
-          fontFamily: 'inherit',
-          transition: 'all 0.15s',
-          whiteSpace: 'nowrap',
-        }}
+        className="wobbly-border bg-[#ab3500] hover:bg-[#ff6b35] text-white py-3 px-6 font-mono text-xs font-bold hard-shadow-dark jiggle flex items-center gap-2 group cursor-pointer"
       >
-        {exporting ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={14} />}
-        Export Excel
+        {exporting ? (
+          <span className="material-symbols-outlined text-xs font-bold animate-spin">sync</span>
+        ) : (
+          <span className="material-symbols-outlined text-xs font-bold group-hover:animate-bounce">download</span>
+        )}
+        {exporting ? 'Exporting...' : 'Export Excel Data'}
       </button>
     </div>
 
-    <div className="stats-time-filter" style={{
-      background: 'var(--bg-card)',
-      border: '1px solid var(--border)',
-      borderRadius: 12,
-      padding: '12px 16px',
-    }}>
+    <div className="bg-[#efe7da] border-4 border-[#1e1b14] p-4 shadow-[4px_4px_0px_0px_#1e1b14] rounded-[12px] mt-6">
       <TimeFilter value={filter} onChange={onFilterChange} />
     </div>
   </div>
@@ -225,28 +202,19 @@ export const StatsSkeleton: React.FC = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
     <div className="stats-grid-container cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} style={{
-          height: 120, borderRadius: 14,
-          background: 'linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-card) 50%, var(--bg-secondary) 75%)',
-          backgroundSize: '200% 100%',
-          animation: 'shimmer 1.4s infinite',
-        }} />
+        <div key={i} className="bg-[#efe7da] border-4 border-[#1e1b14] rounded-xl h-28 animate-pulse shadow-sm" />
       ))}
     </div>
-    <div style={{ height: 320, borderRadius: 14, background: 'linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-card) 50%, var(--bg-secondary) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+    <div className="bg-[#efe7da] border-4 border-[#1e1b14] rounded-xl h-80 animate-pulse shadow-sm" />
   </div>
 );
 
 // ─── Empty State ───────────────────────────────────────────────────────────────
 export const EmptyState: React.FC<{ message?: string }> = ({ message = 'No data available for this time period.' }) => (
-  <div style={{
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    padding: '60px 24px', color: 'var(--text-muted)', textAlign: 'center',
-    background: 'var(--bg-card)', borderRadius: 14, border: '1px solid var(--border)',
-  }}>
-    <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>No data yet</p>
-    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{message}</p>
+  <div className="flex flex-col items-center justify-center p-12 text-center bg-[#fff8f0] border-2 border-[#1e1b14] rounded-xl hard-shadow-sm">
+    <span className="material-symbols-outlined text-5xl text-[#594139]/40 mb-3">bar_chart</span>
+    <p className="font-sans text-sm font-black text-[#1e1b14] uppercase tracking-wide mb-1">No data yet</p>
+    <p className="font-mono text-xs text-[#594139] font-bold">{message}</p>
   </div>
 );
 
@@ -299,7 +267,7 @@ export const exportToExcel = async (
       return;
     }
 
-    // Build CSV (browsers can open as spreadsheet)
+    // Build CSV
     const header = columns.map((c) => `"${c.label}"`).join(',');
     const body = rows
       .map((row) =>
@@ -312,7 +280,7 @@ export const exportToExcel = async (
       )
       .join('\n');
 
-    const csv = '\uFEFF' + header + '\n' + body; // BOM for Excel UTF-8
+    const csv = '\uFEFF' + header + '\n' + body;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -330,39 +298,28 @@ export const exportToExcel = async (
 export const ChartCard: React.FC<{ title: string; subtitle?: string; children: React.ReactNode; minHeight?: number }> = ({
   title, subtitle, children, minHeight = 300,
 }) => (
-  <div style={{
-    background: 'var(--bg-card)',
-    border: '1px solid var(--border)',
-    borderRadius: 14,
-    padding: '20px 22px',
-    overflow: 'hidden',
-  }}>
-    <div style={{ marginBottom: 16 }}>
-      <h3 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{title}</h3>
-      {subtitle && <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{subtitle}</p>}
+  <div className="bg-white border-4 border-[#1e1b14] p-6 shadow-[6px_6px_0px_0px_#1e1b14] rounded-[16px] relative overflow-hidden">
+    <div className="mb-6 relative z-10">
+      <h3 className="font-sans text-sm font-black text-[#1e1b14] uppercase tracking-wider mb-1">{title}</h3>
+      {subtitle && <p className="font-mono text-[10px] text-[#594139] font-bold uppercase">{subtitle}</p>}
     </div>
-    <div style={{ minHeight }}>{children}</div>
+    <div className="relative z-10" style={{ minHeight }}>{children}</div>
   </div>
 );
 
 // ─── Status Badge ───────────────────────────────────────────────────────────────
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  PENDING:    { label: 'Pending', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-  PROCESSING: { label: 'Processing', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-  SHIPPED:    { label: 'Shipped', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-  COMPLETED:  { label: 'Completed', color: '#1db954', bg: 'rgba(29,185,84,0.1)' },
-  CANCELLED:  { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+  PENDING:    { label: 'Out there', color: '#5f1900', bg: '#ffdbd0' },
+  PROCESSING: { label: 'On road', color: '#181e00', bg: '#daeb8d' },
+  SHIPPED:    { label: 'On road', color: '#181e00', bg: '#daeb8d' },
+  COMPLETED:  { label: 'Delivered', color: '#181e00', bg: '#daeb8d' },
+  CANCELLED:  { label: 'Boxed up', color: '#93000a', bg: '#ffdad6' },
 };
 
 export const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const cfg = STATUS_MAP[status] || { label: status, color: 'var(--text-muted)', bg: 'var(--bg-secondary)' };
+  const cfg = STATUS_MAP[status.toUpperCase()] || { label: status, color: '#1e1b14', bg: '#e9e2d5' };
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center',
-      padding: '2px 8px', borderRadius: 999,
-      fontSize: 11, fontWeight: 700,
-      color: cfg.color, background: cfg.bg,
-    }}>
+    <span className="inline-block border-2 border-[#1e1b14] font-mono text-[9px] font-black uppercase px-2.5 py-1 rounded-full" style={{ color: cfg.color, backgroundColor: cfg.bg }}>
       {cfg.label}
     </span>
   );
@@ -380,6 +337,109 @@ if (typeof document !== 'undefined') {
     style.textContent = `
       @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
       @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      
+      /* Global stats pages style overrides */
+      .space-y-12,
+      main {
+        background-color: #fff8f0 !important;
+      }
+      
+      /* Target the table wrappers */
+      div:has(> table) {
+        border: 4px solid #1e1b14 !important;
+        border-radius: 16px !important;
+        background-color: #ffffff !important;
+        box-shadow: 6px 6px 0px 0px #1e1b14 !important;
+        overflow: hidden !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+        padding: 8px !important;
+      }
+      
+      /* Table header */
+      table thead tr {
+        border-bottom: 4px solid #1e1b14 !important;
+        background-color: #efe7da !important;
+      }
+      
+      table th {
+        font-family: 'Space Mono', monospace !important;
+        font-size: 10px !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        color: #594139 !important;
+        letter-spacing: 0.05em !important;
+        padding: 14px 16px !important;
+        border-bottom: 4px solid #1e1b14 !important;
+      }
+      
+      /* Table cells */
+      table td {
+        padding: 14px 16px !important;
+        font-family: 'Work Sans', sans-serif !important;
+        font-size: 13px !important;
+        color: #1e1b14 !important;
+        border-bottom: 2px dashed #e1bfb5 !important;
+      }
+      
+      table tbody tr:hover {
+        background-color: #fbf3e6 !important;
+      }
+      
+      table tbody tr:last-child td {
+        border-bottom: none !important;
+      }
+      
+      /* Custom title overrides inside files */
+      h3[style*="fontFamily"] {
+        font-family: 'Bricolage Grotesque', sans-serif !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.02em !important;
+        color: #1e1b14 !important;
+      }
+      
+      /* InventoryStats custom header styling */
+      .stats-header-inner {
+        padding-left: 1rem !important;
+        border-left: 8px solid #576415 !important;
+      }
+      .stats-header-inner h1 {
+        font-family: 'Bricolage Grotesque', sans-serif !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        color: #1e1b14 !important;
+      }
+      .stats-header-inner button {
+        border: 3px solid #1e1b14 !important;
+        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+        background-color: #ab3500 !important;
+        color: #ffffff !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 10px 20px !important;
+        box-shadow: 4px 4px 0px 0px #1e1b14 !important;
+        transition: all 0.2s !important;
+        cursor: pointer !important;
+      }
+      .stats-header-inner button:hover {
+        background-color: #ff6b35 !important;
+        box-shadow: 6px 6px 0px 0px #1e1b14 !important;
+        transform: translate(-2px, -2px) rotate(1deg) !important;
+      }
+      
+      /* Recharts Tooltip popup customization */
+      .recharts-default-tooltip {
+        border: 3px solid #1e1b14 !important;
+        border-radius: 12px !important;
+        background-color: #fff8f0 !important;
+        box-shadow: 4px 4px 0px 0px #1e1b14 !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: #1e1b14 !important;
+      }
       
       /* Responsive Header & Grid overrides */
       @media (max-width: 768px) {

@@ -13,11 +13,37 @@ export const adminRepository = {
       select: { id: true, email: true, role: true },
     }),
   findOrders: (queryOptions: any) => prisma.order.findMany(queryOptions),
-  updateOrderStatus: (id: string, status: string) =>
-    prisma.order.update({
+  updateOrderStatus: (id: string, status: string) => {
+    if (status === 'CANCELLED') {
+      return prisma.$transaction(async (tx) => {
+        const order = await tx.order.findUnique({
+          where: { id },
+          include: { orderItems: true }
+        });
+        if (!order) {
+          throw new Error('Order not found');
+        }
+        if (order.status !== 'CANCELLED') {
+          for (const item of order.orderItems) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { increment: item.quantity } }
+            });
+          }
+        }
+        return tx.order.update({
+          where: { id },
+          data: { status },
+          include: { orderItems: { include: { product: true } } },
+        });
+      });
+    }
+    return prisma.order.update({
       where: { id },
       data: { status },
-    }),
+      include: { orderItems: { include: { product: true } } },
+    });
+  },
   findOrderById: (id: string) =>
     prisma.order.findUnique({
       where: { id },

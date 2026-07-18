@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import api from '../services/api';
 import { clearCart } from '../store/cartSlice';
 import { fetchProducts } from '../store/productSlice';
@@ -23,7 +22,7 @@ const OrderSuccess: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
     codOrderId ? 'success' : 'loading',
   );
-  const [orderData, setOrderData] = useState<any>(null);
+  const [orderData, setOrderData] = useState<any>((location.state as any)?.order || null);
   const [displayOrderCode, setDisplayOrderCode] = useState<string>('—');
 
   useEffect(() => {
@@ -34,8 +33,27 @@ const OrderSuccess: React.FC = () => {
   // COD: set order code from UUID
   useEffect(() => {
     if (codOrderId) {
-      setDisplayOrderCode(`#${codOrderId.split('-')[0].toUpperCase()}`);
+      setDisplayOrderCode(codOrderId.split('-')[0].toUpperCase());
     }
+  }, [codOrderId]);
+
+  // For COD orders: fetch details from /orders/my-orders if not already loaded in state
+  useEffect(() => {
+    if (!codOrderId || orderData) return;
+
+    const fetchCodOrderDetails = async () => {
+      try {
+        const orders: any = await api.get('/orders/my-orders');
+        const match = orders.find((o: any) => o.id === codOrderId);
+        if (match) {
+          setOrderData(match);
+        }
+      } catch (err) {
+        console.error('Failed to fetch COD order details:', err);
+      }
+    };
+
+    fetchCodOrderDetails();
   }, [codOrderId]);
 
   // PayOS: verify payment status from server (NOT trusting URL params)
@@ -47,7 +65,7 @@ const OrderSuccess: React.FC = () => {
         const result: any = await api.get(`/orders/verify-payment/${payosOrderCode}`);
         const order = result?.order;
         setOrderData(order);
-        setDisplayOrderCode(`#${order?.orderCode || payosOrderCode}`);
+        setDisplayOrderCode(order?.orderCode || payosOrderCode);
 
         if (order?.status === 'PENDING') {
           // Payment confirmed — clear cart and refresh stock
@@ -72,158 +90,211 @@ const OrderSuccess: React.FC = () => {
     verifyPayment();
   }, [payosOrderCode, dispatch]);
 
-  const statusConfig = {
-    loading: {
-      icon: <Clock size={64} strokeWidth={1} className="text-muted animate-pulse" />,
-      label: 'Confirming payment',
-      title: 'Please wait...',
-      message: 'The system is confirming your payment.',
-      submessage: '',
-    },
-    success: {
-      icon: <CheckCircle size={64} strokeWidth={1} className="text-accent" />,
-      label: 'Order placed successfully',
-      title: 'Thank you!',
-      message: 'Your order has been received and is being processed.',
-      submessage: 'We will send a confirmation email as soon as possible.',
-    },
-    pending: {
-      icon: <Clock size={64} strokeWidth={1} className="text-yellow-500" />,
-      label: 'Waiting for payment confirmation',
-      title: 'Almost done!',
-      message: 'The system is waiting for payment confirmation from the bank.',
-      submessage: 'Your order will be processed as soon as payment is confirmed. Please check back in a few minutes.',
-    },
-    error: {
-      icon: <AlertCircle size={64} strokeWidth={1} className="text-red-500" />,
-      label: 'Payment error',
-      title: 'An error occurred',
-      message: 'Cannot confirm payment. Please contact support.',
-      submessage: '',
-    },
+  // Determine stage progress
+  const getStatusStep = () => {
+    const status = orderData?.status || 'PENDING';
+    if (status === 'CANCELLED') return -1;
+    if (status === 'COMPLETED') return 4;
+    if (status === 'SHIPPED') return 3;
+    if (status === 'PROCESSING') return 2;
+    return 1; // PENDING
   };
 
-  const config = statusConfig[paymentStatus];
+  const activeStep = getStatusStep();
+  const highlightedLineWidth = 
+    activeStep === 4 ? '100%' 
+    : activeStep === 3 ? '75%' 
+    : activeStep === 2 ? '50%' 
+    : '25%';
+
+  // Estimated arrival date calculation (5 days after creation)
+  const estDate = orderData?.createdAt 
+    ? new Date(new Date(orderData.createdAt).getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : '3–5 days';
+
+  // Receipt email target
+  const customerEmail = orderData?.customerEmail || JSON.parse(localStorage.getItem('user') || '{}')?.email || 'weirdo@example.com';
 
   return (
-    <div className="flex-grow flex items-center justify-center px-6 py-20">
-      <div
-        className={`w-full max-w-[520px] text-center transition-all duration-700 ease-out ${
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-        }`}
-      >
-        {/* Icon */}
-        <div className="flex justify-center mb-8">
-          <div
-            className={`transition-all duration-500 delay-200 ${
-              visible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-            }`}
-          >
-            {config.icon}
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', flexGrow: 1 }}>
+      <main className={`flex-grow flex flex-col items-center justify-center px-6 py-6 md:py-10 relative z-10 w-full max-w-4xl mx-auto transition-all duration-700 ease-out ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+      }`}>
+        
+        {/* Local Styles for Success Page shapes */}
+        <style>{`
+          .blob-shape-1 {
+              border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+          }
+          .blob-shape-2 {
+              border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+          }
+          .blob-shape-3 {
+              border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;
+          }
+          .brutalist-border {
+              border: 3px solid var(--text-primary);
+          }
+          .brutalist-shadow {
+              box-shadow: 6px 6px 0px 0px var(--text-primary);
+          }
+        `}</style>
+
+        {/* Celebratory Mascot */}
+        <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4 mx-auto">
+          <div className="absolute inset-0 bg-[#8B9A46] blob-shape-1 transform -rotate-6"></div>
+          <img className="absolute inset-0 w-full h-full object-contain p-3 z-10" 
+            alt="Goofy dog mascot celebrating" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwt6Aw-Vb4ByCTCer5EP9X3zXpH0de6LFOCSXwPy_qWEyu61oB7k4OH1s6GnkQBzLGRmD-BinlbLjOcmIE1Q5HncYN4hd07T7McPlcdPWUP3LxvEzjw3cVGzzuRVnFfDpvB8knHaWhV8SkWF5lyV6f8ELKpSOEtZXjUKxvPcAwo32fdlIrwDqxlTW6tEcg9uVysLmIvL09XdJKvkVCIhrW5ULGkswaCMS9MTmQiN3T_Z4OZNBBjB2dehW2WwAezknMrCy4kBqaOg" />
+          
+          <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#FF6B35] rounded-full brutalist-border z-20 flex items-center justify-center">
+            <span className="material-symbols-outlined text-white text-lg">celebration</span>
           </div>
         </div>
 
-        {/* Title */}
-        <div
-          className={`transition-all duration-500 delay-300 ${
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-muted mb-4 block">
-            {config.label}
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-wide font-display mb-4 text-primary">
-            {config.title}
+        {/* Headings */}
+        <div className="text-center mb-6 max-w-2xl">
+          <h1 className="font-display text-3xl md:text-5xl text-text-primary transform -rotate-2 mb-2 leading-tight uppercase font-black">
+            {paymentStatus === 'loading' ? 'Confirming...' : paymentStatus === 'error' ? 'Oh No!' : 'Weirdness confirmed!'}
           </h1>
-          <p className="text-sm text-secondary font-sans leading-relaxed mb-2">
-            {config.message}
+          <p className="font-sans text-sm text-text-secondary font-bold">
+            {paymentStatus === 'loading' 
+              ? 'We are verifying your online payment session.' 
+              : paymentStatus === 'error' 
+              ? 'We encountered an error verifying your payment.' 
+              : `Order #${displayOrderCode} is on its way to your pal's den.`}
           </p>
-          {config.submessage && (
-            <p className="text-sm text-secondary font-sans">
-              {config.submessage}
-            </p>
-          )}
         </div>
 
-        {/* Order Code */}
-        <div
-          className={`my-10 py-6 px-8 bg-card border border-token text-primary transition-all duration-500 delay-[400ms] ${
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <p className="text-[10px] uppercase tracking-[0.3em] text-muted mb-2">Order ID</p>
-          <p className="text-2xl font-bold font-display tracking-widest text-primary">{displayOrderCode}</p>
-          {orderData?.paymentMethod === 'payos' && paymentStatus === 'success' && (
-            <p className="text-[10px] uppercase tracking-wider text-accent mt-2 font-semibold">
-              ✓ Online payment completed
-            </p>
-          )}
-          {paymentStatus === 'pending' && (
-            <p className="text-[10px] uppercase tracking-wider text-yellow-500 mt-2 font-semibold animate-pulse">
-              ⏳ Confirming...
-            </p>
-          )}
-        </div>
+        {/* Weirdness Progress Bar (Order Status Tracker) */}
+        {paymentStatus !== 'error' && (
+          <div className="w-full mb-8 px-4">
+            <div className="relative flex items-center justify-between">
+              {/* Connecting Line */}
+              <div className="absolute left-0 top-1/2 w-full h-1 bg-text-secondary/20 -z-10 brutalist-border"></div>
+              {/* Highlighted Line */}
+              <div className="absolute left-0 top-1/2 h-1 bg-[#FF6B35] -z-10 brutalist-border transition-all duration-500" style={{ width: highlightedLineWidth }}></div>
 
-        {/* Info boxes */}
-        <div
-          className={`grid grid-cols-2 gap-4 mb-10 text-left transition-all duration-500 delay-500 ${
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <div className="border border-token bg-card p-5 text-primary">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Shipping</p>
-            <p className="text-xs font-sans text-secondary leading-relaxed">
-              Estimated 3–5 business days
-            </p>
+              {/* Stage 1 Placed */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full brutalist-border flex items-center justify-center transform rotate-6 mb-2 ${
+                  activeStep >= 1 ? 'bg-[#FF6B35] brutalist-shadow text-white' : 'bg-card text-text-muted'
+                }`}>
+                  <span className="material-symbols-outlined text-sm font-bold">check</span>
+                </div>
+                <span className={`font-mono text-xs px-2 py-1 rounded-full ${
+                  activeStep >= 1 ? 'font-bold bg-card border-2 border-text-primary' : 'text-text-secondary opacity-60'
+                }`}>Placed</span>
+              </div>
+
+              {/* Stage 2 Packed */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full brutalist-border flex items-center justify-center transform -rotate-3 mb-2 ${
+                  activeStep >= 2 ? 'bg-[#FF6B35] brutalist-shadow text-white' : 'bg-card text-text-muted'
+                }`}>
+                  {activeStep >= 2 ? <span className="material-symbols-outlined text-sm font-bold">check</span> : <div className="w-2.5 h-2.5 rounded-full bg-text-secondary/20"></div>}
+                </div>
+                <span className={`font-mono text-xs px-2 py-1 rounded-full ${
+                  activeStep >= 2 ? 'font-bold bg-card border-2 border-text-primary' : 'text-text-secondary opacity-60'
+                }`}>Packed</span>
+              </div>
+
+              {/* Stage 3 Shipped */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full brutalist-border flex items-center justify-center transform rotate-2 mb-2 ${
+                  activeStep >= 3 ? 'bg-[#FF6B35] brutalist-shadow text-white' : 'bg-card text-text-muted'
+                }`}>
+                  {activeStep >= 3 ? <span className="material-symbols-outlined text-sm font-bold">check</span> : <div className="w-2.5 h-2.5 rounded-full bg-text-secondary/20"></div>}
+                </div>
+                <span className={`font-mono text-xs px-2 py-1 rounded-full ${
+                  activeStep >= 3 ? 'font-bold bg-card border-2 border-text-primary' : 'text-text-secondary opacity-60'
+                }`}>Shipped</span>
+              </div>
+
+              {/* Stage 4 Delivered */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full brutalist-border flex items-center justify-center transform -rotate-6 mb-2 ${
+                  activeStep >= 4 ? 'bg-[#FF6B35] brutalist-shadow text-white' : 'bg-card text-text-muted'
+                }`}>
+                  {activeStep >= 4 ? <span className="material-symbols-outlined text-sm font-bold">check</span> : <div className="w-2.5 h-2.5 rounded-full bg-text-secondary/20"></div>}
+                </div>
+                <span className={`font-mono text-xs px-2 py-1 rounded-full ${
+                  activeStep >= 4 ? 'font-bold bg-card border-2 border-text-primary' : 'text-text-secondary opacity-60'
+                }`}>Delivered</span>
+              </div>
+            </div>
           </div>
-          <div className="border border-token bg-card p-5 text-primary">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted mb-2">Support</p>
-            <p className="text-xs font-sans text-secondary leading-relaxed">
-              support@recordstore.vn
-            </p>
+        )}
+
+        {/* Order Summary Card */}
+        {orderData && (
+          <div className="w-full bg-card p-8 blob-shape-2 brutalist-border brutalist-shadow mb-12 relative overflow-hidden">
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#8B9A46] rounded-full opacity-20 -z-10 blur-xl"></div>
+            <h2 className="font-display text-2xl font-black text-text-primary mb-6 flex items-center gap-2 uppercase">
+              <span className="material-symbols-outlined text-[#FF6B35]">receipt_long</span>
+              The Goods
+            </h2>
+
+            {/* Items list */}
+            <ul className="space-y-4 mb-6 relative">
+              {orderData.orderItems?.map((item: any, i: number) => (
+                <li key={item.id} 
+                  className={`flex justify-between items-center bg-secondary p-4 rounded-xl border-3 border-text-primary transform ${
+                    i % 2 === 0 ? 'rotate-1' : '-rotate-1'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-card rounded-lg border-2 border-text-primary overflow-hidden blob-shape-3">
+                      <img className="w-full h-full object-cover" alt={item.product?.title} src={item.product?.imgUrl} />
+                    </div>
+                    <div>
+                      <span className="font-sans text-sm font-bold block text-text-primary">{item.product?.title}</span>
+                      <span className="font-mono text-xs text-text-secondary">Qty: {item.quantity}</span>
+                    </div>
+                  </div>
+                  <span className={`font-mono text-sm font-black bg-[#8B9A46] text-white px-3 py-1 rounded-full border-2 border-text-primary transform ${
+                    i % 2 === 0 ? '-rotate-3' : 'rotate-2'
+                  }`}>
+                    ${(item.priceAtTime * item.quantity).toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 border-dashed border-text-secondary/40">
+              <div className="bg-secondary p-4 rounded-2xl border-2 border-text-primary relative">
+                <span className="absolute -top-3 left-4 bg-[#FF6B35] text-white font-mono text-[10px] font-bold px-2 py-1 rounded-full border-2 border-text-primary transform -rotate-6 uppercase">Ship To</span>
+                <p className="font-sans text-xs text-text-primary mt-2 leading-relaxed">{orderData.shippingAddr || 'N/A'}</p>
+              </div>
+              <div className="bg-secondary p-4 rounded-2xl border-2 border-text-primary relative">
+                <span className="absolute -top-3 left-4 bg-[#8B9A46] text-white font-mono text-[10px] font-bold px-2 py-1 rounded-full border-2 border-text-primary transform rotate-3 uppercase">Arriving</span>
+                <p className="font-display text-lg font-black text-[#8B9A46] mt-2 uppercase">{estDate}</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Actions */}
-        <div
-          className={`flex flex-col sm:flex-row gap-3 justify-center transition-all duration-500 delay-[600ms] ${
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <Link
-            to="/"
-            className="px-10 py-4 uppercase tracking-widest text-[10px] font-bold transition-all duration-300 font-sans text-center"
-            style={{
-              background: 'var(--accent)',
-              color: '#000',
-              boxShadow: 'var(--shadow-accent)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-dim)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent)';
-            }}
-          >
-            Back to home
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center mb-12">
+          <Link to={`/order-tracking/${displayOrderCode}`} className="w-full sm:w-auto text-decoration-none">
+            <button className="bg-[#FF6B35] text-white font-display text-base font-black py-4 px-8 blob-shape-3 brutalist-border brutalist-shadow jiggle-hover transition-transform duration-200 w-full cursor-pointer uppercase tracking-wide">
+              Track My Order
+            </button>
           </Link>
-          <Link
-            to="/vinyl"
-            className="border border-token px-10 py-4 uppercase tracking-widest text-[10px] font-bold transition-all duration-300 font-sans bg-card text-primary text-center"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent)';
-              e.currentTarget.style.color = 'var(--accent)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--text-primary)';
-            }}
-          >
-            Continue shopping
+          <Link to="/bones" className="w-full sm:w-auto text-decoration-none">
+            <button className="bg-card text-text-primary font-display text-base font-black py-4 px-8 blob-shape-1 brutalist-border transition-transform duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(30,27,20,1)] w-full cursor-pointer uppercase tracking-wide">
+              Continue Shopping
+            </button>
           </Link>
         </div>
-      </div>
+
+        {/* Footer Note */}
+        <p className="font-sans text-sm text-center max-w-lg text-text-secondary bg-secondary p-4 rounded-xl border-2 border-text-primary transform rotate-1">
+          We've emailed your receipt to <span className="font-bold underline decoration-[#FF6B35] decoration-2">{customerEmail}</span>. Check your spam folder — sometimes weird gets flagged.
+        </p>
+
+      </main>
     </div>
   );
 };

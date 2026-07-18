@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Classic Records API
+  title: Felix Doggy API
   description: |
-    REST API for the Classic Records e-commerce platform — a record store
-    selling Vinyl, CD, and Merch products.
+    REST API for the Felix Doggy e-commerce platform — a dog-themed store
+    selling dogs, dog food, toys, and clothes.
 
     ## Authentication
     Protected endpoints require a JWT Bearer token obtained via `POST /api/auth/login`
@@ -21,7 +21,7 @@ info:
     Specific endpoints apply stricter limits as documented.
   version: 1.0.0
   contact:
-    name: Classic Records Dev Team
+    name: Felix Doggy Dev Team
   license:
     name: MIT
     identifier: MIT
@@ -124,18 +124,18 @@ components:
         imgUrl:
           type: string
           format: uri
-          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/abbey-road.jpg"
+          example: "https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop"
         category:
           type: string
-          enum: [vinyl, cd, merch]
-          example: "vinyl"
+          enum: [dogs, food, toys, clothes]
+          example: "dogs"
         stock:
           type: integer
           minimum: 0
           example: 50
         description:
           type: [string, "null"]
-          example: "Remastered 180g vinyl pressing."
+          example: "Extremely talkative, does dramatic howling concerts at 3 AM."
       required: [id, title, artist, price, imgUrl, category, stock]
 
     Order:
@@ -408,11 +408,11 @@ components:
           type: string
           format: uri
           minLength: 1
-          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/dark-side.jpg"
+          example: "https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop"
         category:
           type: string
-          enum: [vinyl, cd, merch]
-          example: "vinyl"
+          enum: [dogs, food, toys, clothes]
+          example: "dogs"
         stock:
           oneOf:
             - type: integer
@@ -421,7 +421,7 @@ components:
           example: 25
         description:
           type: [string, "null"]
-          example: "50th anniversary remaster."
+          example: "Extremely talkative, does dramatic howling concerts at 3 AM."
       required: [title, artist, price, imgUrl, category, stock]
 
     CheckoutRequest:
@@ -481,7 +481,7 @@ components:
       properties:
         message:
           type: string
-          example: "Có vinyl nào của The Beatles không?"
+          example: "Cửa hàng có chú chó Husky nào không?"
         history:
           type: array
           description: Previous conversation turns.
@@ -690,7 +690,7 @@ components:
           type: string
           format: uri
           description: Cloudinary URL of the uploaded image.
-          example: "https://res.cloudinary.com/example/image/upload/v1/record-store/1718000000-album.jpg"
+          example: "https://images.unsplash.com/photo-1590419690008-905895e8fe0d?w=600&h=600&fit=crop"
       required: [imgUrl]
 
     ChatResponse:
@@ -699,7 +699,7 @@ components:
         response:
           type: string
           description: AI assistant text response (may contain basic HTML).
-          example: "Chúng tôi có 3 đĩa vinyl của The Beatles..."
+          example: "Chúng tôi hiện đang có chú chó Husky nghịch ngợm này với giá 0.08 đô..."
         actions:
           type: array
           description: Side-effect actions the frontend should execute (e.g. add items to cart).
@@ -1454,7 +1454,7 @@ paths:
           description: Filter by product category.
           schema:
             type: string
-            enum: [vinyl, cd, merch]
+            enum: [dogs, food, toys, clothes]
       responses:
         '200':
           description: List of products.
@@ -1507,7 +1507,7 @@ paths:
                 invalidCategory:
                   summary: Invalid category
                   value:
-                    message: "Danh mục không hợp lệ. Chỉ chấp nhận: vinyl, cd, merch."
+                    message: "Danh mục không hợp lệ. Chỉ chấp nhận: dogs, food, toys, clothes."
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':

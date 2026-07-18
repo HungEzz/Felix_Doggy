@@ -68,7 +68,7 @@ async function getChatResponse(
     console.error('Chat Error:', error);
     return {
       response:
-        'Sorry, I am having trouble connecting to the server. Please try again later or contact our hotline 1800-CLASSIC.',
+        'Sorry, I am having trouble connecting to the server. Please try again later or contact our hotline 1800-FELIX.',
       actions: [],
     };
   }
@@ -78,9 +78,10 @@ async function getChatResponse(
 // QUICK REPLY SUGGESTIONS
 // ============================================================
 const QUICK_REPLIES = [
-  { label: '🎵 Browse Vinyl', text: 'Show me Vinyl products' },
-  { label: '💿 Browse CDs', text: 'Show me CDs under $30' },
-  { label: '👕 Browse Merch', text: 'What merch do you have?' },
+  { label: '🐶 Adopt a Dog', text: 'Show me dogs' },
+  { label: '🦴 Dog Food', text: 'Show me dog food' },
+  { label: '🧸 Dog Toys', text: 'Show me dog toys' },
+  { label: '👕 Dog Clothes', text: 'Show me dog clothes' },
   { label: '📦 My Orders', text: 'Show me my orders' },
   { label: '📊 Stats (admin)', text: 'Show me sales statistics' },
   { label: '🚚 Shipping Info', text: 'What is the shipping policy?' },
@@ -91,14 +92,14 @@ const QUICK_REPLIES = [
 // ============================================================
 const MAX_HISTORY_ITEMS = 12;
 const IDLE_CLEAR_MS = 30 * 60 * 1000; // 30 minutes
-const MESSAGES_STORAGE_KEY = 'classic_records_chat_messages';
-const LAST_ACTIVITY_KEY = 'classic_records_chat_last_activity';
+const MESSAGES_STORAGE_KEY = 'felix_doggy_chat_messages';
+const LAST_ACTIVITY_KEY = 'felix_doggy_chat_last_activity';
 
 const INITIAL_GREETING: Message = {
   id: '0',
   role: 'assistant',
   content:
-    '👋 Hello! I am the AI assistant of **Classic Records**, powered by DeepSeek.\n\nI can help you:\n• Find products (Vinyl/CD/Merch, by artist, price, etc.)\n• Add products to your cart directly\n• View your orders (requires login)\n• Manage orders (update status, delete) — admin\n\nWhat can I do for you today?',
+    '👋 Hello! I am the AI assistant of **Felix Doggy**, powered by DeepSeek.\n\nI can help you:\n• Find products (Dogs, Food, Toys, Clothes, by price, etc.)\n• Add products to your cart directly\n• View your orders (requires login)\n• Manage orders (update status, delete) — admin\n\nWhat can I do for you today?',
   timestamp: new Date(),
 };
 
@@ -107,7 +108,6 @@ const getRecentHistory = (messages: Message[]) =>
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -210,7 +210,7 @@ const ChatBot: React.FC = () => {
       cancelAnimationFrame(r1);
       handlers.forEach((cleanup) => cleanup());
     };
-  }, [messages, isLoading, isOpen, isMinimized]);
+  }, [messages, isLoading, isOpen]);
 
   const applyChatActions = useCallback(
     (actions: ChatAction[] | undefined) => {
@@ -264,7 +264,7 @@ const ChatBot: React.FC = () => {
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Sorry, an error occurred. Please try again or contact our hotline 1800-CLASSIC.',
+          content: 'Sorry, an error occurred. Please try again or contact our hotline 1800-FELIX.',
           timestamp: new Date(),
         },
       ]);
@@ -292,275 +292,163 @@ const ChatBot: React.FC = () => {
       {/* CHAT WINDOW */}
       {isOpen && (
         <div
-          className="chatbot-window"
+          className="chatbot-window fixed bottom-24 right-6 w-[380px] max-w-[calc(100vw-32px)] z-50 flex flex-col hard-shadow-olive wobbly-border bg-[#f5ede0] overflow-hidden"
           style={{
-            position: 'fixed',
-            bottom: '88px',
-            right: '16px',
-            width: 'min(380px, calc(100vw - 32px))',
-            height: isMinimized ? '60px' : '560px',
-            background: '#fff',
-            borderRadius: '20px',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.18), 0 4px 20px rgba(0,0,0,0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            height: '520px',
+            fontFamily: "'Work Sans', 'Space Mono', sans-serif",
+            transition: 'transform 0.3s ease-in-out',
             zIndex: 9999,
-            fontFamily: "'Syne', 'DM Sans', system-ui, sans-serif",
-            transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)',
-            border: '1px solid rgba(0,0,0,0.08)',
           }}
         >
           {/* HEADER */}
-          <div
-            style={{
-              background: '#0a0a0a',
-              color: '#fff',
-              padding: '16px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              flexShrink: 0,
-              cursor: 'pointer',
-            }}
-            onClick={() => setIsMinimized(!isMinimized)}
-          >
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #333 0%, #000 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                flexShrink: 0,
-                border: '1.5px solid rgba(255,255,255,0.15)',
-              }}
+          <div className="bg-[#ffdbd0] border-b-4 border-[#1e1b14] p-4 flex justify-between items-center relative overflow-hidden flex-shrink-0">
+            {/* Abstract background blob */}
+            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#ff6b35] opacity-20 blob-shape-1 pointer-events-none"></div>
+            
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-12 h-12 bg-white rounded-full border-2 border-[#1e1b14] flex items-center justify-center overflow-hidden flex-shrink-0 jiggle">
+                <img 
+                  className="w-10 h-10 object-contain" 
+                  alt="Mascot" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxR458ER3jIUByiAoy7gBfdk7pjTdPYxSY0nGiQ1hf41EUxqKz_sWe-PeuBoHPK1QveRbNkp1pyBGdpQjxEjfjpmniKaLw_tMUsl1o-6rxpgCeGlTJhgVA4qeVFnHuv6F39ZjPkFsWju4txPmBjBGyHQUNeCRt_OjQbzV8DjTEGOlFG3qI52oE2mqYlEwWNzqs700KN8Ql0qjJ-QMSKoGPYcoY9IiDPXtBrQypqrjdXEDGOFtw-7B7fk9WrhcSfoo-zX7xYw40AQ8" 
+                />
+              </div>
+              <div>
+                <h2 className="font-sans text-sm font-black text-[#5f1900] m-0 uppercase tracking-wide">The Weirdo Whisperer</h2>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-[#576415] animate-pulse"></div>
+                  <span className="font-mono text-[10px] text-[#5f1900] opacity-80 font-bold">Online and plotting</span>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              className="w-8 h-8 flex items-center justify-center bg-white border-2 border-[#1e1b14] rounded-full hard-shadow-sm organic-brutal-btn relative z-10 hover:bg-[#daeb8d] hover:text-[#576415] cursor-pointer" 
+              onClick={() => setIsOpen(false)}
             >
-              🎵
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: '14px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                Classic Records
-              </div>
-              <div style={{ fontSize: '11px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-                Online · Responds instantly
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  color: '#fff',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                }}
-                title={isMinimized ? 'Expand' : 'Minimize'}
-              >
-                {isMinimized ? '▲' : '▼'}
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  color: '#fff',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
-                }}
-                title="Close"
-              >
-                ×
-              </button>
-            </div>
+              <span className="material-symbols-outlined text-lg leading-none">close</span>
+            </button>
           </div>
 
-          {!isMinimized && (
-            <>
-              {/* MESSAGES */}
-              <div
-                ref={messagesContainerRef}
-                style={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  background: '#fcfcfc',
-                }}
-              >
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      maxWidth: '100%',
-                    }}
-                  >
-                    <div
-                      style={{
-                        padding: '12px 16px',
-                        borderRadius: msg.role === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
-                        background: msg.role === 'user' ? '#0a0a0a' : '#fff',
-                        color: msg.role === 'user' ? '#fff' : '#1a1a1a',
-                        fontSize: '13.5px',
-                        lineHeight: '1.6',
-                        boxShadow: msg.role === 'user' ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
-                        border: msg.role === 'user' ? 'none' : '1px solid rgba(0,0,0,0.05)',
-                        whiteSpace: 'pre-wrap',
-                      }}
-                      dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }}
-                    />
-                    <div
-                      style={{
-                        fontSize: '10px',
-                        color: '#999',
-                        marginTop: '4px',
-                        marginRight: msg.role === 'user' ? '4px' : 0,
-                        marginLeft: msg.role === 'assistant' ? '4px' : 0,
-                      }}
-                    >
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {/* CHAT BODY */}
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 bg-[#f5ede0] relative"
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            {/* Background texture line */}
+            <div className="absolute inset-0 pointer-events-none opacity-5">
+              <svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+                <pattern height="40" id="wavy" patternUnits="userSpaceOnUse" width="40" x="0" y="0">
+                  <path d="M0 20 Q 10 0, 20 20 T 40 20" fill="none" stroke="currentColor" stroke-width="2"></path>
+                </pattern>
+                <rect fill="url(#wavy)" height="100%" width="100%" x="0" y="0"></rect>
+              </svg>
+            </div>
+
+            {/* Messages Loop */}
+            {messages.map((msg) => {
+              if (msg.role === 'assistant') {
+                return (
+                  <div className="flex items-end gap-2 relative z-10 max-w-[85%] self-start" key={msg.id}>
+                    <div className="w-8 h-8 rounded-full border-2 border-[#1e1b14] overflow-hidden flex-shrink-0 mb-2 bg-[#fff8f0]">
+                      <img 
+                        className="w-full h-full object-cover" 
+                        alt="Assistant" 
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ8J3ZhJqfWRchRR1kLCBX5QxpJ_RzOIJsbPJD-VjlNuhGZ_5VdAwdJH8X1C60c0YuXbH5VLEJCZh4RKNapPY3H3ZBb77VZtdzyCCcF-WDd6nrtvlRMdwQACIOgOWnYJ08-9lVeuav3pX-Ix5p6Q0pNxFodTqcTXogP0dGhHiEk8VH9GHlphTHBs5BeWB7KWwlM3vdKhDtSCpN-LqKxK9aJht5I9ZcxZJuluvbqdaJFdCatCpqKzTejaaLWPU55iGAJDKA9rPzB44" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 items-start">
+                      <div 
+                        className="bg-[#daeb8d] text-[#181e00] p-4 blob-shape-1 border-2 border-[#1e1b14] hard-shadow-sm font-sans text-sm jiggle origin-bottom-left"
+                        dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }}
+                      />
+                      <span className="font-mono text-[9px] text-[#1e1b14] opacity-50 px-1 font-bold">
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   </div>
-                ))}
-                {isLoading && (
-                  <div style={{ display: 'flex', gap: '4px', padding: '10px' }}>
-                    <div style={{ width: '6px', height: '6px', background: '#ccc', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both' }} />
-                    <div style={{ width: '6px', height: '6px', background: '#ccc', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both 0.2s' }} />
-                    <div style={{ width: '6px', height: '6px', background: '#ccc', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both 0.4s' }} />
+                );
+              } else {
+                return (
+                  <div className="flex justify-end relative z-10 max-w-[85%] self-end" key={msg.id}>
+                    <div className="flex flex-col gap-1 items-end">
+                      <div 
+                        className="bg-[#ffdbd0] text-[#390c00] p-4 blob-shape-2 border-2 border-[#1e1b14] hard-shadow-sm font-sans text-sm jiggle origin-bottom-right"
+                        dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }}
+                      />
+                      <span className="font-mono text-[9px] text-[#1e1b14] opacity-50 px-1 font-bold">
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
+                );
+              }
+            })}
 
-              {/* QUICK REPLIES */}
-              {!isLoading && (
-                <div
-                  style={{
-                    padding: '0 16px 12px',
-                    display: 'flex',
-                    gap: '8px',
-                    overflowX: 'auto',
-                    whiteSpace: 'nowrap',
-                    scrollbarWidth: 'none',
-                    background: '#fcfcfc',
-                  }}
-                >
-                  {QUICK_REPLIES.map((qr, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => sendMessage(qr.text)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        background: '#fff',
-                        border: '1px solid rgba(0,0,0,0.1)',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        color: '#555',
-                        transition: 'all 0.2s',
-                        flexShrink: 0,
-                      }}
-                      onMouseOver={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = '#0a0a0a';
-                        (e.currentTarget as HTMLButtonElement).style.color = '#0a0a0a';
-                      }}
-                      onMouseOut={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,0,0,0.1)';
-                        (e.currentTarget as HTMLButtonElement).style.color = '#555';
-                      }}
-                    >
-                      {qr.label}
-                    </button>
-                  ))}
+            {/* Typing Indicator */}
+            {isLoading && (
+              <div className="flex items-end gap-2 relative z-10 mt-2 self-start">
+                <div className="w-6 h-6 rounded-full border-2 border-[#1e1b14] overflow-hidden flex-shrink-0 mb-1 opacity-70 bg-[#fff8f0]">
+                  <img 
+                    className="w-full h-full object-cover" 
+                    alt="Thinking" 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHKW56tXafLl03OqbIBCd13In5CwQw1hCZ3hHdBBH-3W-ZcY07kJ2OnxJ2W087a4WSNS_vbWSK1b9UFqcGkH2g5NUAHaTWWmlkVAK4yumpKSwn2VkRReRt9WCbw1xPJ7jy8scchbsZYqFgvcCyNPV6bwqWYoq4Q_T3tY7abq6gBl1NVIU5ZpUPjb_mIACUCugc-QyWga4Gl4suhuCahh-oKFVEyvmtNfuFlS3ytd_lq23dnviVwPN4hmaLtwgjwtghLFrq9vbaYaA" 
+                  />
                 </div>
-              )}
-
-              {/* INPUT */}
-              <div
-                style={{
-                  padding: '12px 16px',
-                  borderTop: '1px solid rgba(0,0,0,0.08)',
-                  background: '#fff',
-                  display: 'flex',
-                  gap: '8px',
-                  alignItems: 'center',
-                }}
-              >
-                <input
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type a message..."
-                  disabled={isLoading}
-                  style={{
-                    flex: 1,
-                    border: '1.5px solid rgba(0,0,0,0.1)',
-                    borderRadius: '24px',
-                    padding: '10px 16px',
-                    fontSize: '13px',
-                    outline: 'none',
-                    background: '#f4f4f5',
-                    color: '#1a1a1a',
-                    fontFamily: 'inherit',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onFocus={(e) => ((e.target as HTMLInputElement).style.borderColor = '#0a0a0a')}
-                  onBlur={(e) => ((e.target as HTMLInputElement).style.borderColor = 'rgba(0,0,0,0.1)')}
-                />
-                <button
-                  onClick={() => sendMessage(input)}
-                  disabled={isLoading || !input.trim()}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: input.trim() && !isLoading ? '#0a0a0a' : '#e5e5e5',
-                    border: 'none',
-                    cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px',
-                    flexShrink: 0,
-                    transition: 'background 0.2s',
-                  }}
-                  title="Send"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill={input.trim() && !isLoading ? '#fff' : '#999'}>
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                  </svg>
-                </button>
+                <div className="bg-[#e9e2d5] p-3 blob-shape-1 border-2 border-[#1e1b14] flex gap-1.5 items-center">
+                  <div className="w-2 h-2 bg-[#1e1b14] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                  <div className="w-2 h-2 bg-[#1e1b14] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-[#1e1b14] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                </div>
               </div>
-            </>
+            )}
+          </div>
+
+          {/* QUICK REPLIES */}
+          {!isLoading && (
+            <div className="p-3 bg-[#f5ede0] flex gap-2 overflow-x-auto scrollbar-none relative z-10 border-t border-[#1e1b14]/10 flex-shrink-0">
+              {QUICK_REPLIES.map((qr, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => sendMessage(qr.text)}
+                  className="px-4 py-2 rounded-full bg-white border border-[#1e1b14]/20 font-mono text-xs cursor-pointer text-[#5f5e5e] hover:border-[#1e1b14] hover:text-[#1e1b14] transition-all flex-shrink-0 font-bold"
+                >
+                  {qr.label}
+                </button>
+              ))}
+            </div>
           )}
+
+          {/* INPUT AREA */}
+          <div className="p-4 bg-white border-t-4 border-[#1e1b14] flex gap-3 items-end relative z-10 flex-shrink-0">
+            <div className="relative flex-grow">
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type something weird..."
+                disabled={isLoading}
+                className="w-full bg-[#fbf3e6] wobbly-border p-3 font-mono text-xs text-[#1e1b14] focus:outline-none focus:ring-0 focus:border-[#ab3500] focus:bg-white"
+                style={{ borderStyle: 'solid', borderWidth: '3px', borderColor: '#1e1b14', minHeight: '48px' }}
+              />
+            </div>
+            <button
+              onClick={() => sendMessage(input)}
+              disabled={isLoading || !input.trim()}
+              className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#ffdbd0] text-[#5f1900] border-3 border-[#1e1b14] blob-shape-2 hard-shadow-sm organic-brutal-btn hover:bg-[#ab3500] hover:text-white cursor-pointer"
+              style={{ borderStyle: 'solid', borderWidth: '3px', borderColor: '#1e1b14' }}
+            >
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>pets</span>
+            </button>
+          </div>
         </div>
       )}
 
       {/* TOGGLE BUTTON */}
       <button
-        className="chatbot-toggle"
+        className="chatbot-toggle animate-bounce-slow"
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: 'fixed',
@@ -569,8 +457,8 @@ const ChatBot: React.FC = () => {
           width: '60px',
           height: '60px',
           borderRadius: '50%',
-          background: '#0a0a0a',
-          border: 'none',
+          background: isOpen ? '#1e1b14' : '#8B9A46',
+          border: '4px solid #1e1b14',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -578,7 +466,7 @@ const ChatBot: React.FC = () => {
           boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)',
           zIndex: 10000,
           transition: 'transform 0.2s, box-shadow 0.2s',
-          fontSize: '24px',
+          overflow: 'hidden',
         }}
         onMouseOver={(e) => {
           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.1)';
@@ -588,7 +476,7 @@ const ChatBot: React.FC = () => {
           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)';
         }}
-        title="Chat with Classic Records"
+        title="Chat with Felix Doggy"
         aria-label="Open support chat"
       >
         {isOpen ? (
@@ -596,7 +484,11 @@ const ChatBot: React.FC = () => {
             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
           </svg>
         ) : (
-          <span>💬</span>
+          <img 
+            className="w-full h-full object-cover animate-pulse" 
+            alt="Ngáo Mascot" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiNk6O8gWkORCFO-HRp3LpzjyDDkiq8S1y2E2SUFZh27yRTv8-QQqn_FG9FO9C5lsaLi6I9GVcmT_W_7QgOUNPiiyoe_AKcbHfJXdn7wgs-rucbrD7IUehW8AKKvL2ZPnaqO90Z--g08AeCcT5qKZ9v945cPWOujK4rhwo-N7Spd5Xsve1LyPiPCNX0tqrWc_0TP8MonEi3XATGimrddS-iJYYAaPEqUyttB2sjlACek7Vr5gARFX8M1QBVuJMmmYsKtp012E8G6Q" 
+          />
         )}
         {unreadCount > 0 && !isOpen && (
           <span
@@ -622,11 +514,67 @@ const ChatBot: React.FC = () => {
         )}
       </button>
 
-      {/* BOUNCE ANIMATION */}
+      {/* CHATBOT STYLE EXTENSIONS */}
       <style>{`
+        @media (max-width: 767px) {
+          .chatbot-toggle {
+            bottom: 96px !important;
+            right: 16px !important;
+          }
+          .chatbot-window {
+            bottom: 168px !important;
+            right: 16px !important;
+            height: 460px !important;
+            max-height: calc(100vh - 188px) !important;
+          }
+        }
+
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
           40% { transform: translateY(-6px); opacity: 1; }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 3s infinite ease-in-out;
+        }
+
+        .blob-shape-1 {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+        .blob-shape-2 {
+            border-radius: 40% 60% 70% 30% / 50% 60% 40% 50%;
+        }
+        .blob-shape-container {
+             border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+        .wobbly-border {
+            border: 3px solid #1e1b14;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        }
+        .hard-shadow {
+            box-shadow: 6px 6px 0px 0px #1e1b14;
+        }
+        .hard-shadow-olive {
+             box-shadow: 6px 6px 0px 0px #576415;
+        }
+        .hard-shadow-sm {
+            box-shadow: 3px 3px 0px 0px #1e1b14;
+        }
+        
+        .jiggle:hover {
+            transform: scale(1.02) rotate(-1deg);
+        }
+        
+        .organic-brutal-btn {
+            border: 3px solid #1e1b14;
+            transition: all 0.2s ease-in-out;
+        }
+        .organic-brutal-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px 0px #1e1b14;
         }
       `}</style>
     </>

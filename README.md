@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/🎵-Classic_Records-1DB954?style=for-the-badge&labelColor=000000" alt="Classic Records" />
+  <img src="https://img.shields.io/badge/🐶-Felix_Doggy-FF6B35?style=for-the-badge&labelColor=000000" alt="Felix Doggy" />
 </p>
 
-<h1 align="center">Classic Records — Vinyl & Music E-Commerce Platform</h1>
+<h1 align="center">Felix Doggy — Dog-Themed E-Commerce Platform</h1>
 
 <p align="center">
-  A production-grade, full-stack e-commerce platform for vinyl records, CDs, and music merchandise — built with a modern TypeScript stack, containerized with Docker, and designed for real-world operational resilience.
+  A production-grade, full-stack e-commerce platform for dogs, dog food, toys, and clothes — built with a modern TypeScript stack, containerized with Docker, and designed for real-world operational resilience.
 </p>
 
 <p align="center">
@@ -37,6 +37,7 @@
 ## 📸 Screenshots & Demo
 
 ### 🌐 Client Experience
+
 <p align="center">
   <img src="./.github/screenshots/homepage_desktop.png" width="65%" alt="Homepage Desktop" style="border-radius: 8px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
   <img src="./.github/screenshots/homepage_mobile.png" width="22%" alt="Homepage Mobile" style="border-radius: 8px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
@@ -48,14 +49,25 @@
 <br />
 
 <p align="center">
-  <img src="./.github/screenshots/chatbot.gif" width="45%" alt="AI Chatbot Support" style="border-radius: 8px;" />
+  <img src="./.github/screenshots/chatbot.png" width="45%" alt="AI Chatbot Support" style="border-radius: 8px;" />
   <img src="./.github/screenshots/checkout.png" width="45%" alt="Atomic Checkout Flow" style="border-radius: 8px;" />
 </p>
 <p align="center">
   <em>Interactive Flows: AI Chatbot Support (Left) & OTP Auth/Atomic Checkout (Right)</em>
 </p>
 
+<br />
+
+<p align="center">
+  <img src="./.github/screenshots/product_page.png" width="45%" alt="Product Details Page" style="border-radius: 8px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="./.github/screenshots/payment_page.png" width="45%" alt="Payment Integration Page" style="border-radius: 8px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+</p>
+<p align="center">
+  <em>Detailed Product Catalog Page (Left) & PayOS Payment Gateway Redirect (Right)</em>
+</p>
+
 ### 🔧 Admin & Analytics Dashboard
+
 <p align="center">
   <img src="./.github/screenshots/admin_dashboard.png" width="88%" alt="Admin Dashboard Overview" style="border-radius: 8px;" />
 </p>
@@ -81,18 +93,18 @@
 
 ### The Problem
 
-Independent record stores and music retailers lack affordable, purpose-built e-commerce solutions. Generic platforms don't cater to the unique catalog structure of music products (artist, format, genre) or the niche community expectations around vinyl collecting.
+Independent pet stores and dog adoption shelters lack affordable, purpose-built e-commerce solutions. Generic platforms don't cater to the unique catalog structure of pet products (breed, format, category) or the niche community expectations around dog adoption and care.
 
 ### The Solution
 
-**Classic Records** is a domain-specific e-commerce platform designed for music retailers selling vinyl records, CDs, and merchandise. It provides a complete purchasing flow for customers and a data-driven admin dashboard for store operators.
+**Felix Doggy** is a domain-specific e-commerce platform designed for pet retailers selling dogs (for adoption), dog food, toys, and clothes. It provides a complete purchasing flow for customers and a data-driven admin dashboard for store operators.
 
 ### Target Users
 
-| Persona | Needs |
-|---------|-------|
-| **Customers** | Browse catalog by format (Vinyl/CD/Merch), search products, manage cart, checkout with order tracking |
-| **Store Admins** | Manage inventory, process orders, monitor revenue analytics, manage user accounts |
+| Persona          | Needs                                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Customers**    | Browse catalog by category (Paws/Bones/Toys/Clothes), search products, manage cart, checkout with order tracking |
+| **Store Admins** | Manage inventory, process orders, monitor revenue analytics, manage user accounts                                |
 
 ### Key Capabilities
 
@@ -111,42 +123,42 @@ Independent record stores and music retailers lack affordable, purpose-built e-c
 
 ### 🛒 Customer Experience
 
-| Feature | Description |
-|---------|-------------|
-| **Authentication** | Register with email OTP verification, login with JWT, password reset via email |
-| **Product Catalog** | Browse by category (Vinyl, CD, Merchandise) with filtering and search |
-| **Product Detail** | Rich product pages with image gallery, stock availability, and quantity selection |
-| **Shopping Cart** | Persistent cart with select-all, per-item selection, and quantity management |
-| **Checkout** | Form-validated checkout supporting COD and online payment via **PayOS** (QR Code / bank transfer) with secure webhook signature verification and amount validation |
-| **Order History** | View past orders with status tracking (Pending → Completed → Shipped) |
-| **AI Chatbot** | Integrated conversational assistant powered by LLM APIs |
-| **Dark/Light Theme** | System-wide theme toggle with persistent user preference |
+| Feature              | Description                                                                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Authentication**   | Register with email OTP verification, login with JWT, password reset via email                                                                                     |
+| **Product Catalog**  | Browse by category (Paws, Bones, Toys, Clothes) with filtering and search                                                                                          |
+| **Product Detail**   | Rich product pages with image gallery, stock availability, and quantity selection                                                                                  |
+| **Shopping Cart**    | Persistent cart with select-all, per-item selection, and quantity management                                                                                       |
+| **Checkout**         | Form-validated checkout supporting COD and online payment via **PayOS** (QR Code / bank transfer) with secure webhook signature verification and amount validation |
+| **Order History**    | View past orders with status tracking (Pending → Completed → Shipped)                                                                                              |
+| **AI Chatbot**       | Integrated conversational assistant powered by LLM APIs                                                                                                            |
+| **Dark/Light Theme** | System-wide theme toggle with persistent user preference                                                                                                           |
 
 ### 🔧 Admin Dashboard
 
-| Feature | Description |
-|---------|-------------|
-| **Dashboard Overview** | KPI cards for revenue, users, products, and orders at a glance |
-| **Product Management** | Full CRUD with direct image upload via Multer |
-| **Order Management** | View, filter, and update order status with detailed line items |
-| **User Management** | View registered users and account details |
-| **Revenue Analytics** | Time-series revenue charts with period filtering (Today/Week/Month/Year/Custom) |
-| **Order Analytics** | Order volume trends, status distribution breakdown |
-| **Product Analytics** | Top-selling products, category performance metrics |
-| **User Analytics** | Registration trends, top customers by spend |
-| **Inventory Analytics** | Stock valuation, low-stock alerts, out-of-stock tracking by category |
-| **Data Export** | Export statistics data for external reporting |
+| Feature                 | Description                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| **Dashboard Overview**  | KPI cards for revenue, users, products, and orders at a glance                  |
+| **Product Management**  | Full CRUD with direct image upload via Multer                                   |
+| **Order Management**    | View, filter, and update order status with detailed line items                  |
+| **User Management**     | View registered users and account details                                       |
+| **Revenue Analytics**   | Time-series revenue charts with period filtering (Today/Week/Month/Year/Custom) |
+| **Order Analytics**     | Order volume trends, status distribution breakdown                              |
+| **Product Analytics**   | Top-selling products, category performance metrics                              |
+| **User Analytics**      | Registration trends, top customers by spend                                     |
+| **Inventory Analytics** | Stock valuation, low-stock alerts, out-of-stock tracking by category            |
+| **Data Export**         | Export statistics data for external reporting                                   |
 
 ### 🏗️ Infrastructure
 
-| Feature | Description |
-|---------|-------------|
-| **Docker Compose** | 5-service orchestration (API Gateway, Frontend, Backend, PostgreSQL, Redis) |
-| **API Gateway** | Nginx reverse proxy routing `/` → Frontend, `/api/` → Backend |
-| **Redis Cache** | Read-through caching with TTL, automatic invalidation on writes |
-| **CI/CD Pipelines** | GitLab CI (build → test → deploy) and Jenkins (4-stage with retry) |
-| **Health Checks** | Container-level health monitoring with dependency-aware startup ordering |
-| **Rate Limiting** | Tiered rate limits — general (100 req/window) and strict (10 req/window for auth/checkout) |
+| Feature             | Description                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| **Docker Compose**  | 5-service orchestration (API Gateway, Frontend, Backend, PostgreSQL, Redis)                |
+| **API Gateway**     | Nginx reverse proxy routing `/` → Frontend, `/api/` → Backend                              |
+| **Redis Cache**     | Read-through caching with TTL, automatic invalidation on writes                            |
+| **CI/CD Pipelines** | GitLab CI (build → test → deploy) and Jenkins (4-stage with retry)                         |
+| **Health Checks**   | Container-level health monitoring with dependency-aware startup ordering                   |
+| **Rate Limiting**   | Tiered rate limits — general (100 req/window) and strict (10 req/window for auth/checkout) |
 
 ---
 
@@ -210,50 +222,50 @@ Client Request
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| [React](https://react.dev/) | 19.x | UI component library |
-| [TypeScript](https://www.typescriptlang.org/) | 6.0 | Type-safe JavaScript |
-| [Vite](https://vitejs.dev/) | 8.x | Build tool and dev server |
-| [Redux Toolkit](https://redux-toolkit.js.org/) | 2.x | Global state management |
-| [React Router](https://reactrouter.com/) | 7.x | Client-side routing |
-| [Tailwind CSS](https://tailwindcss.com/) | 4.x | Utility-first CSS framework |
-| [Axios](https://axios-http.com/) | 1.x | HTTP client with interceptors |
-| [Recharts](https://recharts.org/) | 2.x | Charting library for analytics |
-| [Lucide React](https://lucide.dev/) | 1.x | Icon system |
+| Technology                                     | Version | Purpose                        |
+| ---------------------------------------------- | ------- | ------------------------------ |
+| [React](https://react.dev/)                    | 19.x    | UI component library           |
+| [TypeScript](https://www.typescriptlang.org/)  | 6.0     | Type-safe JavaScript           |
+| [Vite](https://vitejs.dev/)                    | 8.x     | Build tool and dev server      |
+| [Redux Toolkit](https://redux-toolkit.js.org/) | 2.x     | Global state management        |
+| [React Router](https://reactrouter.com/)       | 7.x     | Client-side routing            |
+| [Tailwind CSS](https://tailwindcss.com/)       | 4.x     | Utility-first CSS framework    |
+| [Axios](https://axios-http.com/)               | 1.x     | HTTP client with interceptors  |
+| [Recharts](https://recharts.org/)              | 2.x     | Charting library for analytics |
+| [Lucide React](https://lucide.dev/)            | 1.x     | Icon system                    |
 
 ### Backend
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| [Node.js](https://nodejs.org/) | 20.x | JavaScript runtime |
-| [Express](https://expressjs.com/) | 5.x | Web framework |
-| [TypeScript](https://www.typescriptlang.org/) | 6.0 | Type-safe server code |
-| [Prisma](https://www.prisma.io/) | 7.x | Type-safe ORM with migrations |
-| [ioredis](https://github.com/redis/ioredis) | 5.x | Redis client with auto-reconnect |
-| [JSON Web Token](https://github.com/auth0/node-jsonwebtoken) | 9.x | Stateless authentication |
-| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 3.x | Password hashing |
-| [Multer](https://github.com/expressjs/multer) | 2.x | Multipart file upload handling |
-| [Nodemailer](https://nodemailer.com/) | 8.x | Email delivery (OTP) |
-| [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/) | 30.x | Unit testing framework |
+| Technology                                                                    | Version | Purpose                          |
+| ----------------------------------------------------------------------------- | ------- | -------------------------------- |
+| [Node.js](https://nodejs.org/)                                                | 20.x    | JavaScript runtime               |
+| [Express](https://expressjs.com/)                                             | 5.x     | Web framework                    |
+| [TypeScript](https://www.typescriptlang.org/)                                 | 6.0     | Type-safe server code            |
+| [Prisma](https://www.prisma.io/)                                              | 7.x     | Type-safe ORM with migrations    |
+| [ioredis](https://github.com/redis/ioredis)                                   | 5.x     | Redis client with auto-reconnect |
+| [JSON Web Token](https://github.com/auth0/node-jsonwebtoken)                  | 9.x     | Stateless authentication         |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js)                              | 3.x     | Password hashing                 |
+| [Multer](https://github.com/expressjs/multer)                                 | 2.x     | Multipart file upload handling   |
+| [Nodemailer](https://nodemailer.com/)                                         | 8.x     | Email delivery (OTP)             |
+| [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/) | 30.x    | Unit testing framework           |
 
 ### Infrastructure
 
-| Technology | Purpose |
-|-----------|---------|
-| [PostgreSQL 15](https://www.postgresql.org/) | Primary relational database |
-| [Redis](https://redis.io/) | In-memory caching layer |
-| [Nginx](https://nginx.org/) | API Gateway / Reverse Proxy |
-| [Docker Compose](https://docs.docker.com/compose/) | Multi-container orchestration |
-| [GitLab CI/CD](https://docs.gitlab.com/ee/ci/) | Continuous integration pipeline |
-| [Jenkins](https://www.jenkins.io/) | Continuous deployment pipeline |
+| Technology                                         | Purpose                         |
+| -------------------------------------------------- | ------------------------------- |
+| [PostgreSQL 15](https://www.postgresql.org/)       | Primary relational database     |
+| [Redis](https://redis.io/)                         | In-memory caching layer         |
+| [Nginx](https://nginx.org/)                        | API Gateway / Reverse Proxy     |
+| [Docker Compose](https://docs.docker.com/compose/) | Multi-container orchestration   |
+| [GitLab CI/CD](https://docs.gitlab.com/ee/ci/)     | Continuous integration pipeline |
+| [Jenkins](https://www.jenkins.io/)                 | Continuous deployment pipeline  |
 
 ---
 
 ## 📂 Repository Structure
 
 ```
-record-store-ecommerce/
+Felix_Doggy_Ecommerce/
 │
 ├── api-gateway/
 │   └── nginx.conf                  # Reverse proxy routing rules
@@ -282,7 +294,7 @@ record-store-ecommerce/
 │   ├── src/
 │   │   ├── components/              # Navbar, Footer, ProductCard, ChatBot, ProtectedRoute
 │   │   │   └── admin/               # Admin-specific shared components (StatsUtils)
-│   │   ├── pages/                   # Home, Vinyl, CD, Merch, Cart, Checkout, User, FAQ, etc.
+│   │   ├── pages/                   # Home, Paws, Bones, Toys, Clothes, Cart, Checkout, User, FAQ, etc.
 │   │   │   └── admin/               # AdminDashboard, AdminProducts, AdminOrders, AdminUsers
 │   │   │       └── statistics/      # Revenue, Order, Product, User, Inventory analytics pages
 │   │   ├── store/                   # Redux slices (cart, product, user)
@@ -320,25 +332,25 @@ Spin up the entire stack with a single command:
 
 ```bash
 # Clone the repository
-git clone https://github.com/HungEzz/record-store-ecommerce.git
-cd record-store-ecommerce
+git clone https://github.com/HungEzz/Felix_Doggy.git
+cd Felix_Doggy
 
 # Start all 5 services in detached mode
 docker-compose up -d --build
 
 # Initialize the database schema and seed sample data
-docker exec -it record_store_backend npx prisma db push
-docker exec -it record_store_backend npm run seed
+docker exec -it felix_doggy_backend npx prisma db push
+docker exec -it felix_doggy_backend npm run seed
 ```
 
 **Access the application:**
 
-| Service | URL |
-|---------|-----|
-| 🌐 Web App (via Gateway) | [http://localhost:8080](http://localhost:8080) |
-| 🔌 API (via Gateway) | [http://localhost:8080/api/products](http://localhost:8080/api/products) |
-| 🐘 PostgreSQL | `localhost:5432` |
-| ⚡ Redis | `localhost:6379` |
+| Service                  | URL                                                                      |
+| ------------------------ | ------------------------------------------------------------------------ |
+| 🌐 Web App (via Gateway) | [http://localhost:8080](http://localhost:8080)                           |
+| 🔌 API (via Gateway)     | [http://localhost:8080/api/products](http://localhost:8080/api/products) |
+| 🐘 PostgreSQL            | `localhost:5432`                                                         |
+| ⚡ Redis                 | `localhost:6379`                                                         |
 
 **Manage the stack:**
 
@@ -358,6 +370,9 @@ docker-compose down -v           # Stop and remove volumes (reset DB)
 ```bash
 cd backend
 npm install
+
+# Start Redis container in the background
+docker compose up -d redis
 
 # Configure environment variables
 cp .env.example .env   # Then edit with your DB credentials
@@ -400,6 +415,7 @@ npm install
 ```
 
 Configure `frontend/.env`:
+
 ```env
 VITE_API_URL="http://localhost:3000/api"
 VITE_GOOGLE_CLIENT_ID="your-google-client-id-here"
@@ -423,11 +439,11 @@ npm run test:coverage   # Run with coverage report
 
 An interactive Swagger UI is built into the backend to allow quick discovery and testing of all API endpoints.
 
-* **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
-* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
+- **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway), or [https://felix-doggy-ecommerce.onrender.com/api-docs](https://felix-doggy-ecommerce.onrender.com/api-docs) (Production Backend)
+- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json](https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json)
 
 > [!NOTE]
-> For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/record-store-ecommerce/backend/README.md#10-api-documentation).
+> For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/Felix_Doggy_Ecommerce/backend/README.md#10-api-documentation).
 
 ---
 
@@ -464,12 +480,12 @@ Cache invalidation is **write-through**: every product CREATE/UPDATE/DELETE oper
 
 Retry is implemented at **four layers** of the stack:
 
-| Layer | Mechanism | Scope |
-|-------|-----------|-------|
-| **Docker Compose** | `restart: on-failure` + health checks with `depends_on: condition: service_healthy` | Container lifecycle |
-| **Backend — `withRetry()`** | Generic async retry utility with configurable attempts and backoff | Critical DB transactions (checkout) |
-| **Backend — ioredis** | Built-in `retryStrategy` with exponential backoff (max 10s) | Redis connection recovery |
-| **Frontend — Axios Interceptor** | Automatic retry on 5xx/network errors, excludes 4xx and rate limits | HTTP request resilience |
+| Layer                            | Mechanism                                                                           | Scope                               |
+| -------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------- |
+| **Docker Compose**               | `restart: on-failure` + health checks with `depends_on: condition: service_healthy` | Container lifecycle                 |
+| **Backend — `withRetry()`**      | Generic async retry utility with configurable attempts and backoff                  | Critical DB transactions (checkout) |
+| **Backend — ioredis**            | Built-in `retryStrategy` with exponential backoff (max 10s)                         | Redis connection recovery           |
+| **Frontend — Axios Interceptor** | Automatic retry on 5xx/network errors, excludes 4xx and rate limits                 | HTTP request resilience             |
 
 All retry implementations use **exponential backoff** (`500ms → 1s → 2s → 4s`) with maximum delay caps to prevent thundering herd effects.
 
@@ -531,11 +547,13 @@ Docker Compose manages dependencies with health-check-gated startup:
 ### CI/CD Pipelines
 
 **GitLab CI** (`.gitlab-ci.yml`):
+
 ```
 build_frontend → build_backend → deploy_docker (main branch only)
 ```
 
 **Jenkins** (`Jenkinsfile`):
+
 ```
 Checkout → Install Dependencies (retry×3) → Build Frontend (retry×3) → Docker Build & Deploy (retry×3)
 ```
@@ -544,36 +562,36 @@ Both pipelines include retry strategies to handle transient CI infrastructure fa
 
 ### Persistent Volumes
 
-| Volume              | Mount                     | Purpose                                          |
-|---------------------|---------------------------|--------------------------------------------------|
-| `pgdata`            | PostgreSQL data directory | Database persistence across container restarts   |
-| `backend_uploads`   | `/app/uploads` in backend | Uploaded product images persistence              |
+| Volume            | Mount                     | Purpose                                        |
+| ----------------- | ------------------------- | ---------------------------------------------- |
+| `pgdata`          | PostgreSQL data directory | Database persistence across container restarts |
+| `backend_uploads` | `/app/uploads` in backend | Uploaded product images persistence            |
 
 ---
 
 ## 👥 Team & Contributions
 
-| Contributor | Focus Areas                                                                                     |
-|-------------|-------------------------------------------------------------------------------------------------|
-| **HungEzz**    | Backend architecture, Redis caching, Docker & infrastructure, CI/CD pipelines, rate limiting, retry mechanisms, API Gateway configuration, admin statistics & analytics dashboard 
-| **luuvanphat** | Frontend UI/UX, user management, checkout flow, data visualization with Recharts |
-| **ThinChat** | AI chatbot integration, conversational features |
+| Contributor    | Focus Areas                                                                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HungEzz**    | Backend architecture, Redis caching, Docker & infrastructure, CI/CD pipelines, rate limiting, retry mechanisms, API Gateway configuration, admin statistics & analytics dashboard |
+| **luuvanphat** | Frontend UI/UX, user management, checkout flow, data visualization with Recharts                                                                                                  |
+| **ThinChat**   | AI chatbot integration, conversational features                                                                                                                                   |
 
 ---
 
 ## 🗺️ Roadmap
 
-| Phase | Feature | Status |
-|-------|---------|--------|
-| **v1.1** | Payment gateway integration (PayOS) | ✅ Completed |
-| **v1.1** | Full-text search with Elasticsearch | 🔲 Planned |
-| **v1.2** | WebSocket real-time order status updates | 🔲 Planned |
-| **v1.2** | Product reviews and ratings system | 🔲 Planned |
-| **v1.3** | Wishlist and saved items | 🔲 Planned |
-| **v1.3** | Email notification system (order confirmation, shipping updates) | 🔲 Planned |
-| **v2.0** | Microservices decomposition (auth, orders, catalog as independent services) | 🔲 Planned |
-| **v2.1** | Recommendation engine based on purchase history | 🔲 Planned |
-| **v2.1** | Internationalization (i18n) and multi-currency support | 🔲 Planned |
+| Phase    | Feature                                                                     | Status       |
+| -------- | --------------------------------------------------------------------------- | ------------ |
+| **v1.1** | Payment gateway integration (PayOS)                                         | ✅ Completed |
+| **v1.1** | Full-text search with Elasticsearch                                         | 🔲 Planned   |
+| **v1.2** | WebSocket real-time order status updates                                    | 🔲 Planned   |
+| **v1.2** | Product reviews and ratings system                                          | 🔲 Planned   |
+| **v1.3** | Wishlist and saved items                                                    | 🔲 Planned   |
+| **v1.3** | Email notification system (order confirmation, shipping updates)            | 🔲 Planned   |
+| **v2.0** | Microservices decomposition (auth, orders, catalog as independent services) | 🔲 Planned   |
+| **v2.1** | Recommendation engine based on purchase history                             | 🔲 Planned   |
+| **v2.1** | Internationalization (i18n) and multi-currency support                      | 🔲 Planned   |
 
 ---
 
@@ -584,5 +602,5 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  Built with ☕ and 🎵 by the <strong>Classic Records</strong> team.
+  Built with ☕ and 🐾 by the <strong>Felix Doggy</strong> team.
 </p>

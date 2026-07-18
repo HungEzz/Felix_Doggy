@@ -1,271 +1,129 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
-import HeroBanner from '../components/HeroBanner';
-import FeaturedProducts from '../components/FeaturedProducts';
-import { Disc3, Headphones, TrendingUp, Star, ChevronRight, Zap } from 'lucide-react';
-
-/* Simple intersection observer hook */
-function useInView(ref: React.RefObject<Element | null>, threshold = 0.15) {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [ref, threshold]);
-  return inView;
-}
-
-/* Section wrapper with fade-up on scroll */
-const Section: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref);
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'none' : 'translateY(28px)',
-        transition: 'opacity 0.6s ease, transform 0.6s ease',
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-};
 
 const Home: React.FC = () => {
-  const allProducts = useSelector((state: RootState) => state.products.items);
-
-  const heroBannerProducts = allProducts.filter(p => p.category === 'vinyl').slice(0, 5);
-  const featuredVinyl   = allProducts.filter(p => p.category === 'vinyl').slice(0, 8);
-  const featuredCDs     = allProducts.filter(p => p.category === 'cd').slice(0, 4);
-  const featuredMerch   = allProducts.filter(p => p.category === 'merch').slice(0, 4);
-  const trendingAll     = [...allProducts].sort(() => 0.5 - Math.random()).slice(0, 4);
-
-  /* Categories */
-  const categories = [
-    { label: 'Vinyl Records', to: '/vinyl', icon: <Disc3 size={28} />, count: allProducts.filter(p => p.category === 'vinyl').length, color: 'var(--warm-purple)', bg: 'rgba(139,92,246,0.1)' },
-    { label: 'Compact Discs', to: '/cd', icon: <Star size={28} />, count: allProducts.filter(p => p.category === 'cd').length, color: 'var(--accent)', bg: 'var(--accent-soft)' },
-    { label: 'Merchandise', to: '/merch', icon: <Headphones size={28} />, count: allProducts.filter(p => p.category === 'merch').length, color: 'var(--warm-amber)', bg: 'rgba(245,158,11,0.1)' },
-  ];
-
-  /* Stats */
-  const stats = [
-    { label: 'Albums in Stock', value: allProducts.length + '+ titles' },
-    { label: 'Happy Customers', value: '10k+' },
-    { label: 'Artists Featured', value: '200+' },
-    { label: 'Years of Music', value: '7+ yrs' },
-  ];
-
   return (
-    <div style={{ background: 'var(--bg-primary)' }}>
-      {/* ── HERO BANNER ─────────────────────────────────────────────── */}
-      <div className="container-main" style={{ paddingTop: 24 }}>
-        <HeroBanner products={heroBannerProducts.length ? heroBannerProducts : allProducts.slice(0, 5)} />
-      </div>
-
-      {/* ── CATEGORY CARDS ──────────────────────────────────────────── */}
-      <div className="container-main section-sm">
-        <Section>
-          <div className="home-categories" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            {categories.map(({ label, to, icon, count, color, bg }) => (
-              <Link
-                key={to}
-                to={to}
-                style={{ textDecoration: 'none' }}
-              >
-                <div
-                  className="card"
-                  style={{ padding: '28px 24px', display: 'flex', alignItems: 'center', gap: 18, cursor: 'pointer' }}
-                >
-                  <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color, flexShrink: 0 }}>
-                    {icon}
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)', marginBottom: 4 }}>{label}</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{count} products</p>
-                  </div>
-                  <ChevronRight size={18} style={{ color: 'var(--text-muted)', marginLeft: 'auto' }} />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      {/* ── NEW RELEASES (VINYL) ─────────────────────────────────────── */}
-      {featuredVinyl.length > 0 && (
-        <div className="container-main section">
-          <Section>
-            <FeaturedProducts
-              products={featuredVinyl}
-              title="New Releases"
-              subtitle="🎵 Vinyl Records"
-              viewAllLink="/vinyl"
-              columns={4}
-            />
-          </Section>
+    <div style={{ background: 'var(--bg-primary)', overflowX: 'hidden' }}>
+      
+      {/* ── HERO SECTION ─────────────────────────────────────────────── */}
+      <section className="px-margin-mobile md:px-margin-desktop py-16 md:py-24 relative">
+        {/* Abstract Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 opacity-30">
+          <div className="absolute top-20 -left-20 w-96 h-96 bg-accent-secondary rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-3xl"></div>
+          <div className="absolute top-1/3 -right-20 w-80 h-80 bg-accent rounded-[60%_40%_30%_70%/60%_30%_70%_40%] blur-3xl"></div>
         </div>
-      )}
 
-      {/* ── TRENDING BANNER ─────────────────────────────────────────── */}
-      <div style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="container-main section">
-          <Section>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 48 }}>
-              <span className="section-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <TrendingUp size={12} /> Trending Now
-              </span>
-              <h2 className="section-title">What Everyone's Playing</h2>
-            </div>
-
-            <div className="home-trending" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-              {trendingAll.map((p, i) => (
-                <div key={p.id} style={{ opacity: 0, animation: `fadeUp 0.5s ease ${i * 0.08}s forwards` }}>
-                  <Link to={`/product/${p.id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 14,
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-lg)',
-                      padding: '14px 16px',
-                      transition: 'all 0.25s ease',
-                      cursor: 'pointer',
-                    }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}
-                    >
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--accent)', fontWeight: 700, minWidth: 24 }}>#{i + 1}</span>
-                      <img src={p.imgUrl} alt={p.title} style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-                      <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</p>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{p.artist}</p>
-                      </div>
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginLeft: 'auto', flexShrink: 0 }}>${p.price.toFixed(2)}</span>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </Section>
-        </div>
-      </div>
-
-      {/* ── CDs ─────────────────────────────────────────────────────── */}
-      {featuredCDs.length > 0 && (
-        <div className="container-main section">
-          <Section>
-            <FeaturedProducts
-              products={featuredCDs}
-              title="Compact Discs"
-              subtitle="💿 Digital Audio"
-              viewAllLink="/cd"
-              columns={4}
-            />
-          </Section>
-        </div>
-      )}
-
-      {/* ── STATS BANNER ─────────────────────────────────────────────── */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%)',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-      }}>
-        <div className="container-main" style={{ padding: '56px 32px' }}>
-          <Section>
-            <div className="home-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, textAlign: 'center' }}>
-              {stats.map(({ label, value }, i) => (
-                <div key={i}>
-                  <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 800, color: 'var(--accent)', marginBottom: 8 }}>{value}</p>
-                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{label}</p>
-                </div>
-              ))}
-            </div>
-          </Section>
-        </div>
-      </div>
-
-      {/* ── MERCH ───────────────────────────────────────────────────── */}
-      {featuredMerch.length > 0 && (
-        <div className="container-main section">
-          <Section>
-            <FeaturedProducts
-              products={featuredMerch}
-              title="Official Merch"
-              subtitle="👕 Merchandise"
-              viewAllLink="/merch"
-              columns={4}
-            />
-          </Section>
-        </div>
-      )}
-
-      {/* ── PROMO STRIP ─────────────────────────────────────────────── */}
-      <div className="container-main" style={{ paddingBottom: 80 }}>
-        <Section>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(29,185,84,0.15) 0%, rgba(139,92,246,0.08) 50%, rgba(245,158,11,0.08) 100%)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'clamp(32px, 5vw, 56px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexWrap: 'wrap', gap: 24,
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <Zap size={20} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--accent)' }}>Limited Time</span>
-              </div>
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: 8 }}>
-                Free Shipping on Orders<br />Over $100
-              </h3>
-              <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Delivered anywhere in Vietnam — 3–7 business days</p>
-            </div>
-            <Link
-              to="/vinyl"
-              style={{
-                background: 'var(--accent)', color: '#000',
-                borderRadius: 'var(--radius-full)',
-                padding: '16px 32px',
-                fontWeight: 700, fontSize: 15,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                boxShadow: 'var(--shadow-accent)',
-              }}
-            >
-              Shop Now
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-gutter">
+          {/* Left Column: Text Content */}
+          <div className="w-full md:w-1/2 flex flex-col items-start gap-6 -rotate-2 relative z-10 pl-4 md:pl-12">
+            <div className="absolute -top-6 -left-6 bg-accent-secondary/20 w-16 h-16 rounded-full mix-blend-multiply opacity-80 blob-mask-1"></div>
+            <h1 className="font-display text-5xl md:text-7xl uppercase leading-[0.9] tracking-tighter text-text-primary" style={{ fontWeight: 900 }}>
+              Stay Strange,<br /><span className="text-accent">Paw Pal.</span>
+            </h1>
+            <p className="font-sans text-base text-text-secondary max-w-md bg-secondary p-4 border-2 border-text-primary blob-mask-2">
+              Embrace the goofy, the wobbly, and the beautifully imperfect companions in your life. Normal is boring anyway.
+            </p>
+            <Link to="/bones">
+              <button className="organic-brutalism-btn bg-accent text-text-primary font-display text-lg font-black px-8 py-4 blob-mask-1 mt-4 cursor-pointer">
+                Fetch the Weird
+              </button>
             </Link>
           </div>
-        </Section>
-      </div>
+
+          {/* Right Column: Dog Image & Sticker */}
+          <div className="w-full md:w-1/2 relative flex justify-center mt-12 md:mt-0">
+            <div className="w-72 h-72 md:w-96 md:h-96 bg-accent-secondary/40 blob-mask-1 absolute -z-10 rotate-12 opacity-80 border-4 border-text-primary shadow-[8px_8px_0px_0px_#8B9A46]"></div>
+            <div className="w-64 h-64 md:w-80 md:h-80 bg-accent overflow-hidden blob-mask-2 border-4 border-text-primary relative group">
+              <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                alt="A portrait of a highly expressive, goofy-looking dog"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8Tk318lcuiTYh6EY8Pf1kfqm0yy-m2-IQ4y6_agiyuMDK17jTzzXzFqxauAQSWze_Z-HOZgBKQA8m9a4qhnosVScinGAuJ4jluL2hpPxclmsSWKFNu0N5gn--RwHLXmU-L58hl3OrtI7xvRwlgDenEan4erntDeZ1qKDAKCRF1uySxPcvYxHFFE9HXO3JunSEF8McF1Fb_UjxVOJz2uQgmlB7lw8bKjvNcxVVZmfOoTaKJOwrQshZ5Yi06A-ugDKa0Awc3iLRORY" />
+            </div>
+            {/* Sticker Tag */}
+            <div className="absolute -bottom-4 right-8 bg-secondary font-mono text-xs px-4 py-2 border-2 border-text-primary blob-mask-1 rotate-12 font-bold shadow">
+              Ngáo Level: Max
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURED CATEGORIES (ROTATED STRIP) ─────────────────────── */}
+      <section className="px-margin-mobile md:px-margin-desktop py-16 bg-secondary rounded-[40px] border-y-4 border-text-primary transform -rotate-1 mx-2 md:mx-12 my-12 relative" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+        <h2 className="font-display text-3xl md:text-4xl text-center font-black uppercase mb-12 transform rotate-1 text-text-primary">Pick Your Peculiarity</h2>
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-gutter transform rotate-1 justify-items-center">
+          
+          {/* Category 1 */}
+          <Link className="flex flex-col items-center gap-4 group text-decoration-none" to="/paws">
+            <div className="w-32 h-32 bg-card border-3 border-text-primary blob-mask-1 flex items-center justify-center organic-brutalism-card shadow-[6px_6px_0px_0px_#FF6B35]">
+              <span className="material-symbols-outlined text-[64px] text-accent" style={{ fontVariationSettings: "'FILL' 1" }}>pets</span>
+            </div>
+            <span className="font-display text-sm font-black text-center bg-accent-soft text-text-primary px-3 py-1 border-2 border-text-primary -rotate-2 uppercase">Adopt a Dog</span>
+          </Link>
+
+          {/* Category 2 */}
+          <Link className="flex flex-col items-center gap-4 group mt-8 md:mt-0 text-decoration-none" to="/bones">
+            <div className="w-32 h-32 bg-card border-3 border-text-primary blob-mask-2 flex items-center justify-center organic-brutalism-card shadow-[6px_6px_0px_0px_#8B9A46]">
+              <span className="material-symbols-outlined text-[64px] text-accent-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant</span>
+            </div>
+            <span className="font-display text-sm font-black text-center bg-accent-soft text-text-primary px-3 py-1 border-2 border-text-primary rotate-3 uppercase">Dog Food</span>
+          </Link>
+
+          {/* Category 3 */}
+          <Link className="flex flex-col items-center gap-4 group text-decoration-none" to="/toys">
+            <div className="w-32 h-32 bg-card border-3 border-text-primary blob-mask-1 flex items-center justify-center organic-brutalism-card shadow-[6px_6px_0px_0px_#FF6B35]">
+              <span className="material-symbols-outlined text-[64px] text-accent" style={{ fontVariationSettings: "'FILL' 1" }}>sports_baseball</span>
+            </div>
+            <span className="font-display text-sm font-black text-center bg-accent-soft text-text-primary px-3 py-1 border-2 border-text-primary -rotate-1 uppercase">Dog Toys</span>
+          </Link>
+
+          {/* Category 4 */}
+          <Link className="flex flex-col items-center gap-4 group mt-8 md:mt-0 text-decoration-none" to="/clothes">
+            <div className="w-32 h-32 bg-card border-3 border-text-primary blob-mask-2 flex items-center justify-center organic-brutalism-card shadow-[6px_6px_0px_0px_#8B9A46]">
+              <span className="material-symbols-outlined text-[64px] text-accent-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>checkroom</span>
+            </div>
+            <span className="font-display text-sm font-black text-center bg-accent-soft text-text-primary px-3 py-1 border-2 border-text-primary rotate-2 uppercase">Dog Clothes</span>
+          </Link>
+
+        </div>
+      </section>
+
+      {/* ── STORYTELLING SECTION ─────────────────────────────────────── */}
+      <section className="px-margin-mobile md:px-margin-desktop py-24 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center gap-16">
+          {/* Left Text */}
+          <div className="w-full md:w-1/2 flex flex-col items-end text-right gap-6 rotate-1 relative z-10 pr-4 md:pr-12">
+            <h2 className="font-display text-4xl md:text-5xl font-black uppercase leading-tight text-text-primary">
+              Celebrating the <br />
+              <span className="text-accent-secondary bg-accent-soft px-2 blob-mask-2 border-2 border-text-primary" style={{ display: 'inline-block' }}>
+                Weirdos
+              </span>
+            </h2>
+            <p className="font-sans text-base text-text-secondary max-w-md bg-secondary p-6 border-4 border-text-primary rounded-[10px_40px_20px_30px] shadow-[-6px_8px_0px_0px_#8B9A46]">
+              Every snort, every sideways run, every confused head tilt is a masterpiece. We don't do pedigree perfection here. We outfit the oddballs, the delightfully dimwitted, and the fiercely strange companions that make life colorful.
+            </p>
+            <Link to="/faq" className="font-display text-lg text-accent flex items-center gap-2 hover:gap-4 transition-all wavy-line-divider font-bold text-decoration-none">
+              Read Our Manifest-no <span style={{ fontSize: 20 }}>➔</span>
+            </Link>
+          </div>
+
+          {/* Right Masonry Gallery */}
+          <div className="w-full md:w-1/2 relative">
+            <div className="grid grid-cols-2 gap-4 auto-rows-[150px]">
+              <div className="col-span-1 row-span-2 bg-secondary border-4 border-text-primary blob-mask-1 overflow-hidden organic-brutalism-card">
+                <img className="w-full h-full object-cover" alt="Goofy dog shaking" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfQu_F6xF79ldDndLmXLRsv4AKM4FfmUCusu9x_-bCQzt6yLNXt3U7VtFGH7gLFUpGo7LS9yBd98PEyI_CEM7e-Ame1FCGE5tfP1V4o5Vx907XhbXljPq7O7PjUO2iKPz-DFkfKMdis1p5hf9knbA03zluDi8rixPRMluqZJGSZAnfpuUWBv0Nz-LqG75cY7xWy5yzaveOVEihDizgncvIkHq2oEm_JoYZ8Uq3A0PU6c0TRl7BtSKiVh48foiFvy6RhdgbDgqNGZs" />
+              </div>
+              <div className="col-span-1 row-span-1 bg-secondary border-4 border-text-primary blob-mask-2 overflow-hidden organic-brutalism-card mt-8">
+                <img className="w-full h-full object-cover" alt="Grumpy face cat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjDmUpEdqnazLbimV12rxB43CEhnNo41LRE0MKMVMh01zc0Jh6OppJlNqJWifnJdMX9coif7uuOm7ZxVWtWraXY4-frT_7J6IN3Q0YZppHmU3R2hqyKzTk31MRoZKPAm_UpTYkIscwiewbADbBDZllPgJ1sYxXhJno-QuGqPp1mFjbG0Tjq8isk1jUr9Rss7_0zwsC7e2l4OhBwtF9WVhP5HqIJeMivpuwiWxBGYmHY9iBjLMUSuTGwvFkvlca_cdpmJv1vLivvTE" />
+              </div>
+              <div className="col-span-1 row-span-2 bg-secondary border-4 border-text-primary blob-mask-1 overflow-hidden organic-brutalism-card -mt-8">
+                <img className="w-full h-full object-cover" alt="Playful dog on back" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5ehdUKb2EuVAqeu9RkihtyrYI3QsJqKjxiU6yQai2qHlK34m94w8eQpn1zUbFGQJmdGVbezmf2Ki1CWcDUoh3jd16XN7UnuZ146Z6sNiCtN_rxx_H1MgOZ1fYLCGF_RenpKk-fBsst6vzi5Rzkdwf5t89KlXaB3yOfRsb3qETo8cM47nhN3iSM3YeIERDTg17AMHFMtO2EnGO53gjeV1PfmDXj2tdGXjwnNL9aJEdjLbXy2rcx5BwfxfUi1lAF69Ljlvf3LuQ-Fk" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };
 
-// Responsive styles for Home grids
-const HomeStyles = () => (
-  <style>{`
-    @media (max-width: 900px) {
-      .home-categories { grid-template-columns: repeat(2, 1fr) !important; }
-      .home-trending { grid-template-columns: repeat(2, 1fr) !important; }
-      .home-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
-    }
-    @media (max-width: 560px) {
-      .home-categories { grid-template-columns: 1fr !important; }
-      .home-trending { grid-template-columns: 1fr !important; }
-    }
-  `}</style>
-);
-
-const HomeWithStyles: React.FC = () => (
-  <>
-    <Home />
-    <HomeStyles />
-  </>
-);
-
-export default HomeWithStyles;
+export default Home;

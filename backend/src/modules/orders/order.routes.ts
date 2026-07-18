@@ -14,3 +14,9 @@ orderRoutes.post('/webhook/payos', webhookLimiter, orderController.payosWebhook)
 
 // Verify payment status after PayOS redirect — frontend calls this instead of trusting URL params
 orderRoutes.get('/verify-payment/:orderCode', orderController.verifyPayment);
+
+// Track order with id or code and contact details (email or phone) verification
+orderRoutes.get('/track/:idOrCode', strictLimiter, orderController.trackOrder);
+
+// Cancel order
+orderRoutes.post('/cancel/:idOrCode', strictLimiter, orderController.cancelOrder);

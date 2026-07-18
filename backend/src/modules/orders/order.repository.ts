@@ -36,6 +36,10 @@ export const orderRepository = {
       // - PayOS: order is PENDING_PAYMENT until webhook confirms payment
       const status = paymentMethod === 'payos' ? 'PENDING_PAYMENT' : 'PENDING';
 
+      if (totalAmount > 0 && totalAmount < 100) {
+        totalAmount += 2.0;
+      }
+
       return tx.order.create({
         data: {
           userId,
@@ -75,10 +79,61 @@ export const orderRepository = {
       include: { orderItems: { include: { product: true } } },
     }),
 
+  findOrderByIdOrCode: (idOrCode: string) => {
+    const code = parseInt(idOrCode, 10);
+    if (!isNaN(code) && String(code) === idOrCode) {
+      return prisma.order.findUnique({
+        where: { orderCode: code },
+        include: { orderItems: { include: { product: true } } },
+      });
+    }
+    // Search by full ID or prefix startsWith (case-insensitive)
+    return prisma.order.findFirst({
+      where: {
+        id: {
+          startsWith: idOrCode,
+          mode: 'insensitive',
+        },
+      },
+      include: { orderItems: { include: { product: true } } },
+    });
+  },
+
   findMyOrders: (userId: string) =>
     prisma.order.findMany({
       where: { userId },
       include: { orderItems: { include: { product: true } } },
       orderBy: { createdAt: 'desc' },
+    }),
+
+  // Cancel an order by ID and record the reason
+  cancelOrder: (orderId: string, cancelReason: string) =>
+    prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { orderItems: true }
+      });
+      if (!order) {
+        throw new Error('Order not found');
+      }
+
+      // If the order was already CANCELLED, do not restore stock again
+      if (order.status !== 'CANCELLED') {
+        for (const item of order.orderItems) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } }
+          });
+        }
+      }
+
+      return tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'CANCELLED',
+          cancelReason,
+        },
+        include: { orderItems: { include: { product: true } } },
+      });
     }),
 };

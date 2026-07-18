@@ -31,7 +31,7 @@ const buildSystemPrompt = (ctx: UserContext, cartItems: any[], path: string): st
         .join(', ')}.`
       : 'Cart is empty.';
 
-  return `You are the AI assistant of the Classic Records store (selling Vinyl, CD, Merch).
+  return `You are the AI assistant of the Felix Doggy store (selling dogs, dog food, toys, clothes).
 Answer in English, short, and friendly. Basic HTML formatting (<br/>, <strong>, <a>) can be used.
 
 USER'S CURRENT ROLE: ${roleLabel}.
@@ -160,12 +160,14 @@ const callGemini = async (
 const simpleFallback = async (message: string): Promise<string> => {
   const lower = message.toLowerCase();
   let category = '';
-  if (lower.includes('vinyl') || lower.includes('records') || lower.includes('đĩa than') || lower.includes('than')) {
-    category = 'VINYL';
-  } else if (lower.includes('cd') || lower.includes('disc') || lower.includes('đĩa cd')) {
-    category = 'CD';
-  } else if (lower.includes('merch') || lower.includes('accessory') || lower.includes('phụ kiện')) {
-    category = 'MERCH';
+  if (lower.includes('chó') || lower.includes('dogs') || lower.includes('adopt') || lower.includes('cún')) {
+    category = 'dogs';
+  } else if (lower.includes('food') || lower.includes('ăn') || lower.includes('treat') || lower.includes('kibble')) {
+    category = 'food';
+  } else if (lower.includes('toy') || lower.includes('chơi') || lower.includes('rope') || lower.includes('squeak')) {
+    category = 'toys';
+  } else if (lower.includes('cloth') || lower.includes('áo') || lower.includes('pant') || lower.includes('hoodie')) {
+    category = 'clothes';
   }
 
   try {
@@ -192,7 +194,7 @@ const simpleFallback = async (message: string): Promise<string> => {
   } catch (err) {
     console.error('Fallback search failed:', err);
   }
-  return 'Sorry, the AI chatbot is currently unavailable or API keys are not configured (DEEPSEEK_API_KEY / GEMINI_API_KEY). Please try again later or contact our Hotline 1800-CLASSIC for quick assistance!';
+  return 'Sorry, the AI chatbot is currently unavailable or API keys are not configured (DEEPSEEK_API_KEY / GEMINI_API_KEY). Please try again later or contact our Hotline 1800-FELIX for quick assistance!';
 };
 
 export interface ChatActionPayload {

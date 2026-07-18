@@ -49,17 +49,17 @@ const PUBLIC_TOOLS: ToolDef[] = [
     function: {
       name: 'search_products',
       description:
-        'Search products in the Classic Records store by keyword, category, or price range. Use when customer asks about products, albums, artists, vinyl, cd, merch, or wants to find by price.',
+        'Search products in the dog store by keyword, category, or price range. Use when customer asks about dogs, dog food, dog toys, dog clothes, or wants to find by price.',
       parameters: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
-            description: 'Search keyword (product name, artist, description). Leave blank if none.',
+            description: 'Search keyword (product name, brand, description). Leave blank if none.',
           },
           category: {
             type: 'string',
-            enum: ['vinyl', 'cd', 'merch'],
+            enum: ['dogs', 'food', 'toys', 'clothes'],
             description: 'Filter by product category.',
           },
           max_price: {

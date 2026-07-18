@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Eye } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'SHIPPED' | 'COMPLETED' | 'CANCELLED'>('ALL');
 
   useEffect(() => {
     fetchOrders();
@@ -30,111 +31,293 @@ const AdminOrders: React.FC = () => {
     }
   };
 
+  // Calculations for Metrics
+  const openOrdersCount = orders.filter(
+    (o) => o.status !== 'COMPLETED' && o.status !== 'DELIVERED' && o.status !== 'CANCELLED'
+  ).length;
+
+  const avgWeirdnessValue =
+    orders.length > 0
+      ? orders.reduce((sum, o) => sum + o.totalAmount, 0) / orders.length
+      : 0;
+
+  const shippingHurdlesCount = orders.filter((o) => o.status === 'PENDING').length;
+
+  // Filter and Search logic
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.user?.fullName &&
+        order.user.fullName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.customerEmail &&
+        order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      order.status.toUpperCase() === statusFilter ||
+      (statusFilter === 'COMPLETED' && order.status.toUpperCase() === 'DELIVERED');
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
-    <div className="space-y-6">
-      <div className="pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-        <h1 className="text-3xl font-display font-bold uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Order Management</h1>
-        <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Track and update order status</p>
+    <div className="space-y-12 bg-[#fff8f0]" style={{ fontFamily: "'Work Sans', sans-serif" }}>
+      {/* CSS Utilities */}
+      <style>{`
+        .blob-border {
+          border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+        .blob-card-1 {
+          border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+        .blob-card-2 {
+          border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+        .blob-card-3 {
+          border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+        }
+        .wavy-border {
+          border-bottom: 2px solid #1e1b14;
+          border-image: url("data:image/svg+xml,%3Csvg width='100' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 2 Q 25 0, 50 2 T 100 2' stroke='black' stroke-width='2' fill='none'/%3E%3C/svg%3E") 2 stretch;
+        }
+        .hard-shadow {
+          box-shadow: 4px 4px 0px 0px #576415;
+        }
+        .hard-shadow-table {
+          box-shadow: 6px 6px 0px 0px #1e1b14;
+        }
+      `}</style>
+
+      {/* Header Section */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="font-sans text-3xl font-black text-[#1e1b14] uppercase tracking-tight mb-2">The Loot List</h2>
+          <p className="font-sans text-sm text-[#594139] font-bold">Tracking the strange journeys of every order.</p>
+        </div>
+        {/* Search */}
+        <div className="flex flex-col sm:flex-row gap-4 items-end w-full md:w-auto">
+          <div className="relative group w-full sm:w-64">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#594139] group-focus-within:text-[#ab3500] transition-colors pointer-events-none">
+              search
+            </span>
+            <input
+              className="pl-10 pr-4 py-2 bg-[#f5ede0] rounded-none border-2 border-[#1e1b14] focus:border-[#ab3500] focus:ring-0 font-mono text-xs w-full focus:outline-none text-[#1e1b14]"
+              placeholder="Search weirdness..."
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Metrics Row */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {/* Metric 1 */}
+        <div className="bg-[#fbf3e6] border-2 border-[#1e1b14] p-6 blob-card-1 hard-shadow flex flex-col items-center justify-center text-center transform -rotate-1">
+          <span className="material-symbols-outlined text-4xl text-[#ab3500] mb-2 font-bold">package_2</span>
+          <h3 className="font-sans text-3xl font-black text-[#1e1b14]">{openOrdersCount}</h3>
+          <p className="font-mono text-[10px] text-[#594139] font-black uppercase tracking-wider mt-1">Open Orders</p>
+        </div>
+
+        {/* Metric 2 */}
+        <div className="bg-[#daeb8d] border-2 border-[#1e1b14] p-6 blob-card-2 hard-shadow flex flex-col items-center justify-center text-center transform rotate-2">
+          <span className="material-symbols-outlined text-4xl text-[#576415] mb-2 font-bold">price_check</span>
+          <h3 className="font-sans text-3xl font-black text-[#181e00]">${avgWeirdnessValue.toFixed(2)}</h3>
+          <p className="font-mono text-[10px] text-[#594139] font-black uppercase tracking-wider mt-1">Avg. Weirdness Value</p>
+        </div>
+
+        {/* Metric 3 */}
+        <div className="bg-[#ffdad6] border-2 border-[#1e1b14] p-6 blob-card-3 hard-shadow flex flex-col items-center justify-center text-center transform -rotate-2">
+          <span className="material-symbols-outlined text-4xl text-[#ba1a1a] mb-2 font-bold">warning</span>
+          <h3 className="font-sans text-3xl font-black text-[#93000a]">{shippingHurdlesCount}</h3>
+          <p className="font-mono text-[10px] text-[#594139] font-black uppercase tracking-wider mt-1 font-bold">Shipping Hurdles</p>
+        </div>
+      </section>
+
+      {/* Filter Chips */}
+      <div className="flex flex-wrap gap-3">
+        {(['ALL', 'PENDING', 'SHIPPED', 'COMPLETED', 'CANCELLED'] as const).map((status) => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`font-mono text-xs px-4 py-2 rounded-full border-2 border-[#1e1b14] transition-all cursor-pointer ${
+              statusFilter === status
+                ? 'bg-[#576415] text-white shadow-[2px_2px_0px_0px_#1e1b14]'
+                : 'bg-[#f5ede0] hover:bg-[#efe7da] text-[#1e1b14]'
+            }`}
+          >
+            {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+          </button>
+        ))}
       </div>
 
-      <div className="overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <table className="w-full text-left">
-          <thead>
-            <tr className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              <th className="p-5 font-bold">Order ID</th>
-              <th className="p-5 font-bold">Customer</th>
-              <th className="p-5 font-bold">Date Placed</th>
-              <th className="p-5 font-bold">Total Price</th>
-              <th className="p-5 font-bold">Status</th>
-              <th className="p-5 font-bold text-right">Details</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm" style={{ color: 'var(--text-primary)' }}>
-            {orders.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td 
-                  className="p-5 font-bold cursor-pointer transition-colors" 
-                  title="Click to copy full order ID"
-                  onClick={() => {
-                    navigator.clipboard.writeText(item.id);
-                    toast.success('Full order ID copied!');
-                  }}
-                >
-                  #{item.id.substring(0, 8)}...
-                </td>
-                <td className="p-5">
-                  <p className="font-bold mb-1">{item.user?.fullName || 'Guest'}</p>
-                  <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{item.customerEmail}</p>
-                </td>
-                <td className="p-5">{new Date(item.createdAt).toLocaleDateString()}</td>
-                <td className="p-5 font-bold">${item.totalAmount.toFixed(2)}</td>
-                <td className="p-5">
-                  <select 
-                    value={item.status}
-                    onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                    className="bg-transparent p-2 text-[10px] uppercase tracking-widest font-bold focus:outline-none cursor-pointer"
-                    style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="SHIPPED">Shipped</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
-                </td>
-                <td className="p-5 text-right">
-                  <button onClick={() => setSelectedOrder(item)} className="inline-flex transition-colors" style={{ color: 'var(--text-secondary)' }}>
-                    <Eye size={18} />
-                  </button>
-                </td>
+      {/* Data Table Container */}
+      <div className="bg-white border-4 border-[#1e1b14] p-4 sm:p-8 hard-shadow-table overflow-hidden relative" style={{ borderRadius: '16px 24px 12px 32px' }}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b-4 border-[#1e1b14] font-sans text-sm font-black text-[#1e1b14] uppercase tracking-wide">
+                <th className="p-4 whitespace-nowrap">Order ID</th>
+                <th className="p-4 whitespace-nowrap">Date</th>
+                <th className="p-4 whitespace-nowrap">Customer</th>
+                <th className="p-4 whitespace-nowrap">Total</th>
+                <th className="p-4 whitespace-nowrap">Status</th>
+                <th className="p-4 text-center whitespace-nowrap">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {orders.length === 0 && <p className="text-sm p-5 text-center" style={{ color: 'var(--text-secondary)' }}>No orders yet.</p>}
+            </thead>
+            <tbody className="font-sans text-sm text-[#1e1b14]">
+              {filteredOrders.map((item) => (
+                <tr key={item.id} className="wavy-border hover:bg-[#fbf3e6] transition-colors group">
+                  <td
+                    className="p-4 font-mono text-xs text-[#ab3500] font-black cursor-pointer hover:underline"
+                    title="Click to copy full order ID"
+                    onClick={() => {
+                      navigator.clipboard.writeText(item.id);
+                      toast.success('Full order ID copied!');
+                    }}
+                  >
+                    #W-{item.id.substring(0, 5).toUpperCase()}
+                  </td>
+                  <td className="p-4 text-[#594139] font-mono text-xs">
+                    {new Date(item.createdAt).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#f5ede0] border-2 border-[#1e1b14] flex items-center justify-center shrink-0 blob-border overflow-hidden">
+                        <span className="material-symbols-outlined text-[#1e1b14] text-lg font-bold">person</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm">{item.user?.fullName || 'Guest'}</span>
+                        <span className="font-mono text-[10px] text-[#594139] font-bold">{item.customerEmail}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4 font-mono text-xs font-black">${item.totalAmount.toFixed(2)}</td>
+                  <td className="p-4">
+                    <div className="relative inline-block">
+                      <select
+                        value={item.status.toUpperCase()}
+                        onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                        className="bg-[#daeb8d] text-[#181e00] border-2 border-[#1e1b14] font-mono text-[10px] font-black uppercase pl-3 pr-8 py-1 rounded-full cursor-pointer focus:outline-none appearance-none hover:bg-[#becf74] transition-all"
+                        style={{
+                          backgroundColor:
+                            item.status.toUpperCase() === 'PENDING'
+                              ? '#ffdbd0'
+                              : item.status.toUpperCase() === 'CANCELLED'
+                              ? '#ffdad6'
+                              : '#daeb8d',
+                          color:
+                            item.status.toUpperCase() === 'PENDING'
+                              ? '#5f1900'
+                              : item.status.toUpperCase() === 'CANCELLED'
+                              ? '#93000a'
+                              : '#181e00',
+                        }}
+                      >
+                        <option value="PENDING">Out there</option>
+                        <option value="SHIPPED">On road</option>
+                        <option value="COMPLETED">Delivered</option>
+                        <option value="CANCELLED">Boxed up</option>
+                      </select>
+                      {/* Down arrow marker */}
+                      <span className="material-symbols-outlined absolute right-2 top-1.5 text-xs text-[#1e1b14] pointer-events-none font-bold">
+                        keyboard_arrow_down
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-center">
+                    <button
+                      onClick={() => setSelectedOrder(item)}
+                      className="p-2 rounded-full hover:bg-[#efe7da] text-[#1e1b14] transition-colors cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-lg font-bold">visibility</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {filteredOrders.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <span className="material-symbols-outlined text-6xl text-[#594139]/40 mb-2">sentiment_dissatisfied</span>
+                    <p className="font-mono text-sm text-[#594139] font-bold">No orders found.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Order Details Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="p-4 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <h2 className="text-xl font-bold uppercase tracking-widest mb-6 pb-4" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}>
-              Order Details #{selectedOrder.id.substring(0, 8)}
-            </h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm mb-8 p-4 sm:p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <div className="bg-[#fff8f0] border-4 border-[#1e1b14] p-6 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[8px_8px_0px_0px_#1e1b14] rounded-[24px]">
+            <div className="text-xl font-sans font-black uppercase tracking-wider mb-6 pb-4 border-b-4 border-[#1e1b14] text-[#1e1b14] flex justify-between items-center">
+              <span>Order Details #W-{selectedOrder.id.substring(0, 5).toUpperCase()}</span>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="text-[#1e1b14] hover:text-[#ab3500] cursor-pointer flex"
+              >
+                <span className="material-symbols-outlined text-xl font-bold">close</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm mb-8 p-6 bg-[#efe7da] border-2 border-[#1e1b14] blob-border">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Customer</p>
-                <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{selectedOrder.user?.fullName || 'Guest'}</p>
-                <p style={{ color: 'var(--text-secondary)' }}>{selectedOrder.customerEmail}</p>
-                <p style={{ color: 'var(--text-secondary)' }}>{selectedOrder.customerPhone || 'No phone number'}</p>
+                <p className="font-mono text-[10px] uppercase font-black text-[#594139] mb-1">Customer</p>
+                <p className="font-bold text-[#1e1b14]">{selectedOrder.user?.fullName || 'Guest'}</p>
+                <p className="font-mono text-xs text-[#594139]">{selectedOrder.customerEmail}</p>
+                <p className="font-mono text-xs text-[#594139]">{selectedOrder.customerPhone || 'No phone number'}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Shipping Address</p>
-                <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedOrder.shippingAddr || 'No shipping address'}</p>
+                <p className="font-mono text-[10px] uppercase font-black text-[#594139] mb-1">Shipping Address</p>
+                <p className="font-mono text-xs text-[#594139] leading-relaxed">
+                  {selectedOrder.shippingAddr || 'No shipping address'}
+                </p>
               </div>
             </div>
-            
-            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-secondary)' }}>Ordered Items</h3>
-            <div className="mb-8" style={{ border: '1px solid var(--border)' }}>
+
+            <h3 className="font-mono text-[10px] font-black uppercase text-[#594139] mb-4">Ordered Items</h3>
+            <div className="mb-8 border-2 border-[#1e1b14] bg-white rounded-xl overflow-hidden">
               {selectedOrder.orderItems?.map((item: any) => (
-                <div key={item.id} className="flex justify-between items-center p-4 text-sm" style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+                <div key={item.id} className="flex justify-between items-center p-4 border-b-2 border-[#1e1b14]/10 hover:bg-[#fff8f0]">
                   <div className="flex gap-4 items-center">
-                    <img src={item.product?.imgUrl} alt={item.product?.title} className="w-10 h-10 object-cover" style={{ border: '1px solid var(--border)' }} />
+                    <img
+                      src={item.product?.imgUrl}
+                      alt={item.product?.title}
+                      className="w-10 h-10 object-cover border-2 border-[#1e1b14] rounded-lg"
+                    />
                     <div className="flex flex-col">
-                      <span className="font-bold uppercase tracking-wider text-[11px]">{item.product?.title || `Product #${item.productId}`}</span>
-                      <span className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>{item.product?.artist} | QUANTITY: {item.quantity}</span>
+                      <span className="font-sans text-xs font-black uppercase text-[#1e1b14]">
+                        {item.product?.title || `Product #${item.productId}`}
+                      </span>
+                      <span className="font-mono text-[9px] uppercase font-bold text-[#594139]">
+                        {item.product?.artist} | Qty: {item.quantity}
+                      </span>
                     </div>
                   </div>
-                  <span className="font-bold">${(item.priceAtTime * item.quantity).toFixed(2)}</span>
+                  <span className="font-mono text-xs font-black text-[#1e1b14]">
+                    ${(item.priceAtTime * item.quantity).toFixed(2)}
+                  </span>
                 </div>
               ))}
-              <div className="p-4 flex justify-between items-center" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-                <span className="font-bold uppercase tracking-widest text-[11px]">Total</span>
-                <span className="font-bold text-lg">${selectedOrder.totalAmount.toFixed(2)}</span>
+              <div className="p-4 flex justify-between items-center bg-[#efe7da] border-t-2 border-[#1e1b14] text-[#1e1b14]">
+                <span className="font-mono text-[10px] font-black uppercase">Total</span>
+                <span className="font-sans text-lg font-black">${selectedOrder.totalAmount.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="flex justify-end pt-6" style={{ borderTop: '1px solid var(--border)' }}>
-              <button onClick={() => setSelectedOrder(null)} className="px-6 py-3 text-[11px] font-bold uppercase tracking-widest transition-colors" style={{ background: 'var(--text-primary)', color: 'var(--text-inverse)' }}>
+            <div className="flex justify-end pt-6 border-t-2 border-[#1e1b14]/20">
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="px-6 py-2.5 bg-[#ab3500] hover:bg-[#ff6b35] text-white font-mono text-xs font-bold border-2 border-[#1e1b14] shadow-[3px_3px_0px_0px_#1e1b14] hover:shadow-[5px_5px_0px_0px_#1e1b14] cursor-pointer uppercase tracking-wider"
+              >
                 Close
               </button>
             </div>
