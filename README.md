@@ -75,6 +75,15 @@
   <em>Admin Analytics Dashboard — Revenue trends, order statistics, and real-time inventory tracking</em>
 </p>
 
+<br />
+
+<p align="center">
+  <img src="./.github/screenshots/admin_statistics.png" width="88%" alt="Admin Statistics Dashboard" style="border-radius: 8px;" />
+</p>
+<p align="center">
+  <em>Admin Statistics Dashboard — Detailed product statistics and revenue analytics charts</em>
+</p>
+
 <details>
   <summary>🔍 View More Screenshots (Details & Forms)</summary>
   <br />

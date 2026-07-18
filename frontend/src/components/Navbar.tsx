@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
     { to: '/toys', label: 'Dog Toys' },
     { to: '/clothes', label: 'Dog Clothes' },
     { to: '/about', label: 'About Us' },
-    { to: '/faq', label: 'Manifesto' },
+    { to: '/faq', label: 'FAQ' },
   ];
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');

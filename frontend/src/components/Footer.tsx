@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
               </span>
             </div>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24, maxWidth: 260 }}>
-              Embrace the goofy, the wobbly, and the beautifully imperfect companions in your life. Normal is boring anyway.
+              Your one-stop dog shop for adoption, premium food, toys, and clothes. Everything your loyal companion needs.
             </p>
             {/* Social */}
             <div style={{ display: 'flex', gap: 8 }}>
@@ -92,8 +92,8 @@ const Footer: React.FC = () => {
                 { to: '/about', label: 'About Us' },
                 { to: '/contact', label: 'Contact Us' },
                 { to: '/shipping-returns', label: 'Shipping & Delivery' },
-                { to: '/faq', label: 'Manifest-no (FAQ)' },
-                { to: '/account', label: 'Weirdo Dashboard' },
+                { to: '/faq', label: 'FAQ' },
+                { to: '/account', label: 'My Account' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
@@ -111,7 +111,7 @@ const Footer: React.FC = () => {
 
           {/* Contact info */}
           <div>
-            <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Stay Strange</h4>
+            <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Felix Doggy</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 { Icon: Mail, text: 'support@felixdoggy.com' },
@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
 
             {/* Newsletter mini */}
             <div style={{ marginTop: 24 }}>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Subscribe for weird updates</p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Subscribe for latest updates</p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   placeholder="Your email"

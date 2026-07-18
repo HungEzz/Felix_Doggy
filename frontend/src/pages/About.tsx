@@ -58,20 +58,20 @@ const About: React.FC = () => {
         <section className="max-w-7xl mx-auto px-6 md:px-12 py-20 relative overflow-hidden flex flex-col md:flex-row items-center gap-12 min-h-[600px]">
           <div className="w-full md:w-1/2 z-10 md:pr-10">
             <h1 className="font-sans text-4xl md:text-5xl font-black text-[#1e1b14] mb-6 leading-tight uppercase tracking-tight">
-              We're Weird. <br />
+              We Love Dogs. <br />
               <span className="text-[#FF6B35] relative inline-block">
-                So Are Your Pets.
+                So Do You.
                 <span className="absolute -bottom-2 left-0 w-full h-3 bg-[#8B9A46]/40 -z-10 rounded-full rotate-2"></span>
               </span>
             </h1>
             <p className="font-sans text-lg text-[#594139] max-w-md font-semibold leading-relaxed">
-              Embrace the goofy, the wobbly, and the beautifully imperfect. Because normal is boring, and perfect doesn't exist.
+              Welcome to Felix Doggy! We are dedicated to providing everything your dog needs, from adoption services to premium food, toys, and outfits.
             </p>
             <Link 
               to="/bones" 
               className="mt-8 bg-[#FF6B35] text-white font-mono text-xs font-bold py-4 px-8 border-2 border-[#1e1b14] rounded-full hard-shadow hard-shadow-hover jiggle-hover uppercase tracking-widest inline-flex items-center gap-2 no-underline cursor-pointer"
             >
-              Shop the Weird
+              Shop Now
               <span className="material-symbols-outlined text-white text-sm font-bold">arrow_forward</span>
             </Link>
           </div>

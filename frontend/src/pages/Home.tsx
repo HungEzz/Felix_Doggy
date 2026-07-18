@@ -18,14 +18,14 @@ const Home: React.FC = () => {
           <div className="w-full md:w-1/2 flex flex-col items-start gap-6 -rotate-2 relative z-10 pl-4 md:pl-12">
             <div className="absolute -top-6 -left-6 bg-accent-secondary/20 w-16 h-16 rounded-full mix-blend-multiply opacity-80 blob-mask-1"></div>
             <h1 className="font-display text-5xl md:text-7xl uppercase leading-[0.9] tracking-tighter text-text-primary" style={{ fontWeight: 900 }}>
-              Stay Strange,<br /><span className="text-accent">Paw Pal.</span>
+              Your One-Stop<br /><span className="text-accent">Dog Shop.</span>
             </h1>
             <p className="font-sans text-base text-text-secondary max-w-md bg-secondary p-4 border-2 border-text-primary blob-mask-2">
-              Embrace the goofy, the wobbly, and the beautifully imperfect companions in your life. Normal is boring anyway.
+              Find your next furry best friend, premium dog food, playful toys, and stylish dog outfits. Everything your dog needs, all in one place!
             </p>
-            <Link to="/bones">
+            <Link to="/paws">
               <button className="organic-brutalism-btn bg-accent text-text-primary font-display text-lg font-black px-8 py-4 blob-mask-1 mt-4 cursor-pointer">
-                Fetch the Weird
+                Adopt & Shop Now
               </button>
             </Link>
           </div>
@@ -92,16 +92,16 @@ const Home: React.FC = () => {
           {/* Left Text */}
           <div className="w-full md:w-1/2 flex flex-col items-end text-right gap-6 rotate-1 relative z-10 pr-4 md:pr-12">
             <h2 className="font-display text-4xl md:text-5xl font-black uppercase leading-tight text-text-primary">
-              Celebrating the <br />
+              We Care For <br />
               <span className="text-accent-secondary bg-accent-soft px-2 blob-mask-2 border-2 border-text-primary" style={{ display: 'inline-block' }}>
-                Weirdos
+                Every Pup
               </span>
             </h2>
             <p className="font-sans text-base text-text-secondary max-w-md bg-secondary p-6 border-4 border-text-primary rounded-[10px_40px_20px_30px] shadow-[-6px_8px_0px_0px_#8B9A46]">
-              Every snort, every sideways run, every confused head tilt is a masterpiece. We don't do pedigree perfection here. We outfit the oddballs, the delightfully dimwitted, and the fiercely strange companions that make life colorful.
+              Whether you are looking to adopt a new family member, feed them healthy food, or find the perfect toys and clothing, we make it easy to find high-quality products tailored for your loyal companion.
             </p>
             <Link to="/faq" className="font-display text-lg text-accent flex items-center gap-2 hover:gap-4 transition-all wavy-line-divider font-bold text-decoration-none">
-              Read Our Manifest-no <span style={{ fontSize: 20 }}>➔</span>
+              Have Questions? Check FAQ <span style={{ fontSize: 20 }}>➔</span>
             </Link>
           </div>
 
