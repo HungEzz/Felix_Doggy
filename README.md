@@ -255,7 +255,7 @@ Client Request
 | [JSON Web Token](https://github.com/auth0/node-jsonwebtoken)                  | 9.x     | Stateless authentication         |
 | [bcryptjs](https://github.com/dcodeIO/bcrypt.js)                              | 3.x     | Password hashing                 |
 | [Multer](https://github.com/expressjs/multer)                                 | 2.x     | Multipart file upload handling   |
-| [Nodemailer](https://nodemailer.com/)                                         | 8.x     | Email delivery (OTP)             |
+| [Resend](https://resend.com/)                                                 | HTTP API| Email delivery (OTP & Orders)    |
 | [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/) | 30.x    | Unit testing framework           |
 
 ### Infrastructure
@@ -468,7 +468,7 @@ The checkout endpoint wraps the entire operation (stock validation, stock decrem
 
 ### 3. JWT Authentication + Email OTP Verification
 
-- **Registration** → Creates unverified account → Generates cryptographically secure 6-digit OTP (`crypto.randomInt`) → Sends styled HTML email via Nodemailer → User verifies OTP to activate account
+- **Registration** → Creates unverified account → Generates cryptographically secure 6-digit OTP (`crypto.randomInt`) → Sends styled HTML email via Resend HTTP API → User verifies OTP to activate account
 - **Login** → Validates credentials → Issues JWT (7-day expiry) → RBAC middleware (`verifyAdmin`) guards admin routes
 - **Password Reset** → OTP-based flow with anti-enumeration response (always returns generic message regardless of email existence)
 - **Security controls:** OTP cooldown (60s), hourly rate limit (5 OTPs/email/hour), bcrypt hashing for both passwords and OTPs

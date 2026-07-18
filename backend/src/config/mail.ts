@@ -1,58 +1,39 @@
-import nodemailer from 'nodemailer';
-import dns from 'dns';
 import { env } from './env';
 
-// Cache the transporter and resolved IP to avoid DNS queries on every send
-let cachedTransporter: nodemailer.Transporter | null = null;
-let lastResolvedIp: string | null = null;
-
-async function getTransporter(): Promise<nodemailer.Transporter> {
-  try {
-    // Force resolving smtp.gmail.com via IPv4 exclusively
-    const ips = await dns.promises.resolve4('smtp.gmail.com');
-    if (ips && ips.length > 0) {
-      const ip = ips[0];
-      
-      if (cachedTransporter && lastResolvedIp === ip) {
-        return cachedTransporter;
-      }
-      
-      lastResolvedIp = ip;
-      cachedTransporter = nodemailer.createTransport({
-        host: ip,
-        port: 587,
-        secure: false, // Use STARTTLS on port 587
-        auth: {
-          user: env.SMTP_USER,
-          pass: env.SMTP_PASS,
-        },
-        tls: {
-          rejectUnauthorized: false,
-          servername: 'smtp.gmail.com', // Crucial for matching TLS certificate of Gmail SMTP
-        },
-      });
-      return cachedTransporter;
-    }
-  } catch (error) {
-    console.error('Failed to resolve smtp.gmail.com via IPv4, falling back to hostname resolution:', error);
+async function sendResendEmail(to: string, subject: string, html: string): Promise<void> {
+  const apiKey = env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('[RESEND] API Key is not configured. Falling back to console logging.');
+    console.log(`
+========================================================================
+[RESEND MOCK]
+- To: ${to}
+- Subject: ${subject}
+========================================================================
+    `);
+    return;
   }
 
-  // Fallback if DNS resolution fails
-  if (!cachedTransporter) {
-    cachedTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+  const from = env.RESEND_FROM || 'onboarding@resend.dev';
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: `Felix Doggy <${from}>`,
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Resend API error (${response.status}): ${errorText}`);
   }
-  return cachedTransporter;
 }
 
 /**
@@ -114,18 +95,12 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   `.trim();
 
   try {
-    const transporter = await getTransporter();
-    await transporter.sendMail({
-      from: `"Felix Doggy" <${env.SMTP_USER}>`,
-      to,
-      subject: `[Felix Doggy] OTP Verification Code: ${otp}`,
-      html,
-    });
+    await sendResendEmail(to, `[Felix Doggy] OTP Verification Code: ${otp}`, html);
   } catch (error: any) {
-    console.error('Failed to send OTP email via SMTP:', error.message || error);
+    console.error('Failed to send OTP email via Resend:', error.message || error);
     console.log(`
 ========================================================================
-[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED (Possibly due to Render blocking SMTP port)
+[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED
 - Recipient email: ${to}
 - Your OTP code: ${otp}
 Please use this OTP code to complete the verification on the web UI.
@@ -192,18 +167,12 @@ export async function sendPasswordResetOtpEmail(to: string, otp: string): Promis
   `.trim();
 
   try {
-    const transporter = await getTransporter();
-    await transporter.sendMail({
-      from: `"Felix Doggy" <${env.SMTP_USER}>`,
-      to,
-      subject: `[Felix Doggy] Password Reset Code`,
-      html,
-    });
+    await sendResendEmail(to, `[Felix Doggy] Password Reset Code`, html);
   } catch (error: any) {
-    console.error('Failed to send password reset email via SMTP:', error.message || error);
+    console.error('Failed to send password reset email via Resend:', error.message || error);
     console.log(`
 ========================================================================
-[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED (Possibly due to Render blocking SMTP port)
+[MAIL FALLBACK] EMAIL SEND FAILURE DETECTED
 - Recipient email: ${to}
 - Password reset OTP code: ${otp}
 Please use this OTP code to complete your password reset.
@@ -306,18 +275,12 @@ export async function sendOrderConfirmationEmail(to: string, order: any): Promis
   `.trim();
 
   try {
-    const transporter = await getTransporter();
-    await transporter.sendMail({
-      from: `"Felix Doggy" <${env.SMTP_USER}>`,
-      to,
-      subject: `[Felix Doggy] Order Confirmation #${displayId}`,
-      html,
-    });
+    await sendResendEmail(to, `[Felix Doggy] Order Confirmation #${displayId}`, html);
   } catch (error: any) {
-    console.error('Failed to send order confirmation email via SMTP:', error.message || error);
+    console.error('Failed to send order confirmation email via Resend:', error.message || error);
     console.log(`
 ========================================================================
-[MAIL FALLBACK] ORDER CONFIRMATION SEND FAILURE (SMTP block)
+[MAIL FALLBACK] ORDER CONFIRMATION SEND FAILURE
 - Recipient email: ${to}
 - Order Reference: #${displayId}
 - Total Amount: $${order.totalAmount.toFixed(2)}

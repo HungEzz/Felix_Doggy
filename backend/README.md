@@ -51,7 +51,7 @@ The system supports both guest and authenticated checkout, role-based access con
 | **Cache**         | Redis (via `ioredis`)                               |
 | **Authentication**| JWT (`jsonwebtoken`) + bcrypt (`bcryptjs`)           |
 | **Validation**    | Custom service-layer validation                     |
-| **Email**         | Nodemailer (Gmail SMTP)                             |
+| **Email**         | Resend (HTTP API)                                   |
 | **File Upload**   | Multer (disk storage)                               |
 | **Rate Limiting** | `express-rate-limit`                                |
 | **AI Integration**| DeepSeek API (function-calling / tool-use)           |
@@ -330,7 +330,7 @@ backend/
 │   │   ├── env.ts             # Centralized environment variable access with validation
 │   │   ├── prisma.ts          # Singleton PrismaClient with PG adapter
 │   │   ├── redis.ts           # Redis client with retry/reconnection strategy
-│   │   └── mail.ts            # Nodemailer transporter + HTML email templates (OTP, password reset)
+│   │   └── mail.ts            # Resend API client + HTML email templates (OTP, password reset, order confirmation)
 │   ├── middlewares/
 │   │   ├── auth.ts            # JWT verification: verifyUser, verifyAdmin
 │   │   ├── rateLimit.ts       # Rate limiters: general, strict, OTP
@@ -380,8 +380,8 @@ Each module follows a consistent file convention:
 | `CLOUDINARY_API_SECRET` | Cloudinary API Secret (for product image uploads) | ✅ Yes    |
 | `PORT`             | HTTP server port                                    | No (default: `3000`) |
 | `REDIS_URL`        | Redis connection URL                                | No (default: `redis://localhost:6379`) |
-| `SMTP_USER`        | Gmail address for sending OTP emails                | No (emails will fail silently) |
-| `SMTP_PASS`        | Gmail App Password for SMTP authentication          | No (emails will fail silently) |
+| `RESEND_API_KEY`   | Resend API Key for sending emails                   | No (emails will log to console if not set) |
+| `RESEND_FROM`      | Sender email address for Resend                      | No (default: `onboarding@resend.dev`) |
 | `DEEPSEEK_API_KEY` | DeepSeek API key for AI chatbot                     | No (chatbot falls back to keyword search) |
 | `DEEPSEEK_API_URL` | DeepSeek API endpoint                               | No (default: `https://api.deepseek.com/chat/completions`) |
 | `DEEPSEEK_MODEL`   | DeepSeek model identifier                           | No (default: `deepseek-chat`) |
@@ -405,8 +405,8 @@ GOOGLE_CLIENT_ID="your-google-client-id-here"
 CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
 CLOUDINARY_API_KEY="your-cloudinary-api-key"
 CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
-SMTP_USER="your-email@gmail.com"
-SMTP_PASS="your-app-password"
+RESEND_API_KEY="re_your_api_key_here"
+RESEND_FROM="onboarding@resend.dev"
 DEEPSEEK_API_KEY="your-deepseek-key"
 CORS_ORIGIN="http://localhost:5173"
 
@@ -480,13 +480,13 @@ sequenceDiagram
     participant C as Customer (Client)
     participant S as Express Server
     participant DB as PostgreSQL
-    participant E as Nodemailer (SMTP)
+    participant E as Resend API
 
     C->>S: POST /api/auth/register (email, password)
     S->>DB: Create user (isVerified: false)
     S->>S: Generate 6-digit OTP & bcrypt hash
     S->>DB: Save hashed OTP (expires in 5 min)
-    S->>E: Send OTP code email (Console log fallback)
+    S->>E: Send OTP code email (via Resend HTTP API)
     S-->>C: Response (requireOtp: true, message: OTP Sent)
     
     C->>S: POST /api/auth/verify-otp (email, code)
@@ -840,7 +840,7 @@ docker-compose down
 | **File Storage**      | Product images are stored on local disk (`uploads/`). Not suitable for horizontal scaling or CDN-backed delivery. |
 | **Image URLs**        | Upload endpoint generates `http://localhost:PORT/uploads/...` URLs, which won't work in production without URL rewriting. |
 | **Search**            | Product search (in chat) uses in-memory string matching on full product list. No full-text search index. |
-| **Email Provider**    | Hardcoded to Gmail SMTP (`smtp.gmail.com:465`). Switching providers requires code changes. |
+| **Email Provider**    | Uses Resend HTTP API (bypasses SMTP restrictions). |
 | **No Pagination on Products** | The `GET /api/products` endpoint returns all products without pagination. |
 | **CORS**              | `cors()` is called with no origin restrictions — all origins are allowed.          |
 | **Error Handling**    | Error classification relies on string matching of error messages rather than typed error classes. |
