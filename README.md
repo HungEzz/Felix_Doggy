@@ -245,18 +245,18 @@ Client Request
 
 ### Backend
 
-| Technology                                                                    | Version | Purpose                          |
-| ----------------------------------------------------------------------------- | ------- | -------------------------------- |
-| [Node.js](https://nodejs.org/)                                                | 20.x    | JavaScript runtime               |
-| [Express](https://expressjs.com/)                                             | 5.x     | Web framework                    |
-| [TypeScript](https://www.typescriptlang.org/)                                 | 6.0     | Type-safe server code            |
-| [Prisma](https://www.prisma.io/)                                              | 7.x     | Type-safe ORM with migrations    |
-| [ioredis](https://github.com/redis/ioredis)                                   | 5.x     | Redis client with auto-reconnect |
-| [JSON Web Token](https://github.com/auth0/node-jsonwebtoken)                  | 9.x     | Stateless authentication         |
-| [bcryptjs](https://github.com/dcodeIO/bcrypt.js)                              | 3.x     | Password hashing                 |
-| [Multer](https://github.com/expressjs/multer)                                 | 2.x     | Multipart file upload handling   |
-| [Resend](https://resend.com/)                                                 | HTTP API| Email delivery (OTP & Orders)    |
-| [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/) | 30.x    | Unit testing framework           |
+| Technology                                                                    | Version  | Purpose                          |
+| ----------------------------------------------------------------------------- | -------- | -------------------------------- |
+| [Node.js](https://nodejs.org/)                                                | 20.x     | JavaScript runtime               |
+| [Express](https://expressjs.com/)                                             | 5.x      | Web framework                    |
+| [TypeScript](https://www.typescriptlang.org/)                                 | 6.0      | Type-safe server code            |
+| [Prisma](https://www.prisma.io/)                                              | 7.x      | Type-safe ORM with migrations    |
+| [ioredis](https://github.com/redis/ioredis)                                   | 5.x      | Redis client with auto-reconnect |
+| [JSON Web Token](https://github.com/auth0/node-jsonwebtoken)                  | 9.x      | Stateless authentication         |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js)                              | 3.x      | Password hashing                 |
+| [Multer](https://github.com/expressjs/multer)                                 | 2.x      | Multipart file upload handling   |
+| [Resend](https://resend.com/)                                                 | HTTP API | Email delivery (OTP & Orders)    |
+| [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/) | 30.x     | Unit testing framework           |
 
 ### Infrastructure
 
@@ -448,8 +448,8 @@ npm run test:coverage   # Run with coverage report
 
 An interactive Swagger UI is built into the backend to allow quick discovery and testing of all API endpoints.
 
-- **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway), or [https://felix-doggy-ecommerce.onrender.com/api-docs](https://felix-doggy-ecommerce.onrender.com/api-docs) (Production Backend)
-- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json](https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json)
+- **Swagger UI URL:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Direct Backend), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Nginx API Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
+- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
 
 > [!NOTE]
 > For complete instructions on authentication flows, role-based authorization, common API workflows, and payload examples, please refer to the comprehensive [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/Felix_Doggy_Ecommerce/backend/README.md#10-api-documentation).

@@ -26,6 +26,7 @@ Single-page application for **Felix Doggy**, an e-commerce platform for dogs, do
 Felix Doggy is a full-featured dog-themed storefront and admin panel where:
 
 **Customers can:**
+
 - Browse dogs, dog food, toys, and clothes with search, sort, and filter
 - View detailed product pages with stock awareness
 - Add products to a persistent shopping cart with quantity control
@@ -36,6 +37,7 @@ Felix Doggy is a full-featured dog-themed storefront and admin panel where:
 - Chat with an AI assistant that can search products and add items to cart
 
 **Admins can:**
+
 - Manage products (CRUD with image upload)
 - Manage orders (view, update status)
 - Manage users (list, role management)
@@ -48,15 +50,15 @@ Felix Doggy is a full-featured dog-themed storefront and admin panel where:
 
 ## 2. Tech Stack
 
-| Category             | Technology                                                          |
-| -------------------- | ------------------------------------------------------------------- |
+| Category             | Technology                                                         |
+| -------------------- | ------------------------------------------------------------------ |
 | **UI Library**       | React 19 (with React DOM 19)                                       |
-| **Language**          | TypeScript 6.x (strict mode, ES2023 target)                       |
-| **Build Tool**       | Vite 8 (`@vitejs/plugin-react`)                                   |
+| **Language**         | TypeScript 6.x (strict mode, ES2023 target)                        |
+| **Build Tool**       | Vite 8 (`@vitejs/plugin-react`)                                    |
 | **Styling**          | Tailwind CSS 4 (Vite plugin) + CSS custom properties design system |
-| **State Management** | Redux Toolkit 2 + React-Redux 9                                   |
+| **State Management** | Redux Toolkit 2 + React-Redux 9                                    |
 | **Routing**          | React Router DOM 7 (BrowserRouter)                                 |
-| **HTTP Client**      | Axios 1.14 (with interceptors)                                    |
+| **HTTP Client**      | Axios 1.14 (with interceptors)                                     |
 | **Charts**           | Recharts 2.15 (LineChart, BarChart, PieChart, AreaChart)           |
 | **Icons**            | Lucide React + React Icons (Font Awesome subset)                   |
 | **Notifications**    | React Hot Toast 2.6                                                |
@@ -136,6 +138,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 ### Customer Features
 
 #### Product Browsing & Search
+
 - **Home page** with hero banner carousel (5 slides, auto-play, pause on hover), category cards, trending section, featured collections, and promotional banner
 - **Category pages** (Paws, Bones, Toys, Clothes) with search, sort (featured/price/alphabetical), and filter bars
 - **Product detail page** with full-size image, stock display, quantity selector, and add-to-cart
@@ -143,6 +146,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 - **Intersection Observer** scroll-triggered fade-up animations on the home page
 
 #### Shopping Cart
+
 - **Persistent cart** — survives page refreshes via localStorage + Redux subscription
 - **Quick-add modal** — select quantity before adding, with real-time stock and in-cart quantity checks
 - **Cart page** — quantity adjustment, item removal, item selection for partial checkout
@@ -150,6 +154,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 - **Wishlist toggle** (UI-only, heart icon on product cards)
 
 #### Checkout
+
 - **Guest and authenticated checkout** — autofills name, email, phone, address from user profile when logged in
 - **Multiple payment options** — supports Cash on Delivery (COD) and Online Payment via **PayOS** (QR Code, bank transfer)
 - **Selective checkout** — choose which cart items to include in the order (passed via React Router state)
@@ -157,6 +162,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 - **Post-checkout & Payment Verification** — COD orders navigate immediately to success and clear the cart. PayOS orders redirect to the secure payment page, and verify the payment status securely with the backend upon return before clearing the cart and updating inventory.
 
 #### Authentication & Account
+
 - **Multi-tab auth** — OTP verification flow (register → verify OTP → auto-login)
 - **Account page** with tab navigation: Profile, Orders, Addresses, Security (password change), Settings
 - **Order history** — fetched via `AccountContext`, displays items with product images, status badges, and totals
@@ -164,6 +170,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 - **Forgot/reset password** — OTP-based password reset flow
 
 #### Theme & UX
+
 - **Dark/light theme** — toggleable via context, persisted to localStorage, respects system preference on first visit
 - **Glassmorphism navbar** — transparent on top, blurred glass effect on scroll
 - **Toast notifications** — positioned bottom-right, 2-second duration
@@ -171,6 +178,7 @@ The frontend follows a **layered component architecture** with unidirectional da
 - **Mobile responsive** — hamburger menu, responsive grid breakpoints
 
 #### AI Chatbot
+
 - **Floating chat widget** — fixed position, minimizable, closable, unread count badge
 - **DeepSeek V3.2 integration** — sends message + conversation history + cart context + current path
 - **Cart actions** — AI can add products to cart via action payloads dispatched to Redux
@@ -185,34 +193,40 @@ The frontend follows a **layered component architecture** with unidirectional da
 > All admin routes are protected by `ProtectedRoute` which checks `isAdminLoggedIn` + role from Redux.
 
 #### Dashboard
+
 - **Summary cards** — total revenue, order count, user count, product count
 - **Recent orders table** — clickable order ID (copies to clipboard), customer, date, total, status
 
 #### Product Management
+
 - **CRUD interface** — create/edit products with title, artist, price, stock, category, description, image URL
 - **Image upload** — via admin upload endpoint
 - **Delete protection** — blocked if product has order items (error toast)
 
 #### Order Management
+
 - **Paginated order list** — with user details, product line items, totals
 - **Status updates** — change order status (PENDING / COMPLETED / CANCELLED)
 
 #### User Management
+
 - **User list** — name, email, role, registration date
 - **Role management** — promote/demote users (USER ↔ ADMIN)
 
 #### Statistics Dashboard (5 modules)
+
 All statistics pages share common infrastructure from `StatsUtils.tsx`:
 
-| Module       | Charts                                     | Features                           |
-| ------------ | ------------------------------------------ | ---------------------------------- |
-| **Revenue**  | Line chart (daily trend), Bar chart (daily) | Summary cards, data table, export |
-| **Orders**   | Line chart, status breakdown               | Period filtering, export           |
-| **Products** | Bar chart (top sellers), Pie chart (category) | Category performance, export    |
-| **Users**    | Area chart (registrations), top customers  | User growth analysis, export       |
-| **Inventory**| Stock levels, low-stock alerts             | Category breakdown, valuation      |
+| Module        | Charts                                        | Features                          |
+| ------------- | --------------------------------------------- | --------------------------------- |
+| **Revenue**   | Line chart (daily trend), Bar chart (daily)   | Summary cards, data table, export |
+| **Orders**    | Line chart, status breakdown                  | Period filtering, export          |
+| **Products**  | Bar chart (top sellers), Pie chart (category) | Category performance, export      |
+| **Users**     | Area chart (registrations), top customers     | User growth analysis, export      |
+| **Inventory** | Stock levels, low-stock alerts                | Category breakdown, valuation     |
 
 **Shared utilities:**
+
 - `useStatsData<T>` — custom hook for fetching statistics with period-based filtering (`today`, `week`, `month`, `year`, `custom` date range)
 - `exportToExcel()` — generates CSV with BOM for Excel UTF-8 compatibility, triggered via download button
 - `StatCard`, `ChartCard`, `StatsSkeleton`, `EmptyState`, `OrderStatusBadge` — reusable presentation components
@@ -256,20 +270,20 @@ The store is configured in `store/index.ts` with three slices:
 
 ### Slice Details
 
-| Slice          | State                          | Persistence Strategy                     |
-| -------------- | ------------------------------ | ---------------------------------------- |
-| **cartSlice**  | `items: CartItem[]`            | Read from `localStorage('cart')` on init. Saved on every change via `store.subscribe()` in `main.tsx`. |
-| **productSlice** | `items`, `stock`, `status`   | Not persisted — fetched from API on app mount via `createAsyncThunk`. Stock map is derived from the product list for O(1) lookups. |
-| **userSlice**  | User + Admin sessions          | Read from `localStorage('token'/'user'/'admin_token'/'admin_user')` on init. Written by login/logout handlers in components (not via subscribe). |
+| Slice            | State                      | Persistence Strategy                                                                                                                             |
+| ---------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **cartSlice**    | `items: CartItem[]`        | Read from `localStorage('cart')` on init. Saved on every change via `store.subscribe()` in `main.tsx`.                                           |
+| **productSlice** | `items`, `stock`, `status` | Not persisted — fetched from API on app mount via `createAsyncThunk`. Stock map is derived from the product list for O(1) lookups.               |
+| **userSlice**    | User + Admin sessions      | Read from `localStorage('token'/'user'/'admin_token'/'admin_user')` on init. Written by login/logout handlers in components (not via subscribe). |
 
 ### Dual Session Architecture
 
 The `userSlice` maintains **two independent sessions**:
 
-| Session | localStorage Keys          | Redux State                  | Purpose                        |
-| ------- | -------------------------- | ---------------------------- | ------------------------------ |
-| User    | `token`, `user`            | `isLoggedIn`, `profile`      | Storefront pages (`/account`)  |
-| Admin   | `admin_token`, `admin_user` | `isAdminLoggedIn`, `adminProfile` | Admin panel (`/admin/*`)  |
+| Session | localStorage Keys           | Redux State                       | Purpose                       |
+| ------- | --------------------------- | --------------------------------- | ----------------------------- |
+| User    | `token`, `user`             | `isLoggedIn`, `profile`           | Storefront pages (`/account`) |
+| Admin   | `admin_token`, `admin_user` | `isAdminLoggedIn`, `adminProfile` | Admin panel (`/admin/*`)      |
 
 This prevents the admin session from being overwritten when an admin also browses the storefront as a regular user.
 
@@ -278,10 +292,12 @@ This prevents the admin session from being overwritten when an admin also browse
 ## 6. API Integration
 
 ### Backend API Documentation
+
 For detailed specification of all backend endpoints, payload examples, and interactive testing:
-* **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Gateway), or [https://felix-doggy-ecommerce.onrender.com/api-docs](https://felix-doggy-ecommerce.onrender.com/api-docs) (Production Backend)
-* **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json](https://felix-doggy-ecommerce.onrender.com/api-docs/spec.json)
-* **Full Spec Guide:** [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/Felix_Doggy_Ecommerce/backend/README.md#10-api-documentation)
+
+- **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local), [http://localhost:8080/api-docs](http://localhost:8080/api-docs) (via Gateway), or [https://record-store-ecommerce-xyah.onrender.com/api-docs](https://record-store-ecommerce-xyah.onrender.com/api-docs) (Production Backend)
+- **Raw Spec JSON:** [http://localhost:3000/api-docs/spec.json](http://localhost:3000/api-docs/spec.json) or [https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json](https://record-store-ecommerce-xyah.onrender.com/api-docs/spec.json)
+- **Full Spec Guide:** [Backend README API Documentation](file:///c:/Users/HungEz/Downloads/Felix_Doggy_Ecommerce/backend/README.md#10-api-documentation)
 
 ### Axios Configuration (`services/api.ts`)
 
@@ -289,9 +305,9 @@ The API layer is a single Axios instance with comprehensive middleware:
 
 ```typescript
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 ```
 
@@ -308,13 +324,13 @@ This ensures admin API calls use the admin JWT while storefront calls use the us
 
 The response interceptor implements exponential backoff retry for transient failures:
 
-| Config                    | Value                                                          |
-| ------------------------- | -------------------------------------------------------------- |
-| **Retryable statuses**    | `500`, `502`, `503`, `504`                                     |
-| **Network errors**        | Retried (except `ECONNABORTED` timeouts)                       |
-| **Max attempts**          | 3                                                              |
-| **Backoff formula**       | `min(500ms × 2^(attempt-1), 8000ms)` → 500ms, 1s, 2s          |
-| **Non-retryable**         | `401` (auth), `429` (rate limit), `4xx` (client errors)        |
+| Config                 | Value                                                   |
+| ---------------------- | ------------------------------------------------------- |
+| **Retryable statuses** | `500`, `502`, `503`, `504`                              |
+| **Network errors**     | Retried (except `ECONNABORTED` timeouts)                |
+| **Max attempts**       | 3                                                       |
+| **Backoff formula**    | `min(500ms × 2^(attempt-1), 8000ms)` → 500ms, 1s, 2s    |
+| **Non-retryable**      | `401` (auth), `429` (rate limit), `4xx` (client errors) |
 
 ### Session Expiry Handling
 
@@ -413,27 +429,28 @@ frontend/
 
 ### Naming Conventions
 
-| Convention           | Example                                    | Purpose                                              |
-| -------------------- | ------------------------------------------ | ---------------------------------------------------- |
-| PascalCase files     | `ProductCard.tsx`, `AdminDashboard.tsx`     | React components (one component per file)            |
-| camelCase files      | `cartSlice.ts`, `api.ts`                   | Non-component modules (slices, services, types)      |
-| Context suffix       | `ThemeContext.tsx`, `AccountContext.tsx`     | React Context providers with `useXxx()` hook exports |
-| Slice suffix         | `cartSlice.ts`, `userSlice.ts`             | Redux Toolkit slices                                 |
+| Convention       | Example                                  | Purpose                                              |
+| ---------------- | ---------------------------------------- | ---------------------------------------------------- |
+| PascalCase files | `ProductCard.tsx`, `AdminDashboard.tsx`  | React components (one component per file)            |
+| camelCase files  | `cartSlice.ts`, `api.ts`                 | Non-component modules (slices, services, types)      |
+| Context suffix   | `ThemeContext.tsx`, `AccountContext.tsx` | React Context providers with `useXxx()` hook exports |
+| Slice suffix     | `cartSlice.ts`, `userSlice.ts`           | Redux Toolkit slices                                 |
 
 ---
 
 ## 8. Environment Variables
 
-| Variable         | Description                                         | Required | Default                         |
-| ---------------- | --------------------------------------------------- | -------- | ------------------------------- |
-| `VITE_API_URL`   | Backend API base URL (must include `/api` prefix)   | No       | `http://localhost:3000/api`     |
-| `VITE_GOOGLE_CLIENT_ID` | OAuth2 Client ID from Google Cloud Console (for Google login display) | ✅ Yes (if Google login enabled) | `""` |
+| Variable                | Description                                                           | Required                         | Default                     |
+| ----------------------- | --------------------------------------------------------------------- | -------------------------------- | --------------------------- |
+| `VITE_API_URL`          | Backend API base URL (must include `/api` prefix)                     | No                               | `http://localhost:3000/api` |
+| `VITE_GOOGLE_CLIENT_ID` | OAuth2 Client ID from Google Cloud Console (for Google login display) | ✅ Yes (if Google login enabled) | `""`                        |
 
 > [!IMPORTANT]
-> **Vite embeds environment variables at build-time.** 
-> * **Docker Compose:** The `VITE_GOOGLE_CLIENT_ID` must be passed as a build argument (`args: - VITE_GOOGLE_CLIENT_ID=...`) under the `frontend` service in `docker-compose.yml` to be injected into the static build.
-> * **Vercel Deployment:** The variable must be added on the Vercel dashboard as `VITE_GOOGLE_CLIENT_ID` (make sure it has the `VITE_` prefix). If you add/change this variable on Vercel, you **must trigger a redeploy/rebuild** of the project for it to take effect.
-> * **Google Cloud Console:** You must also add your deployment domain (e.g. `https://your-app.vercel.app`) to the **Authorized JavaScript origins** list in the Google Cloud Console for the button to load correctly.
+> **Vite embeds environment variables at build-time.**
+>
+> - **Docker Compose:** The `VITE_GOOGLE_CLIENT_ID` must be passed as a build argument (`args: - VITE_GOOGLE_CLIENT_ID=...`) under the `frontend` service in `docker-compose.yml` to be injected into the static build.
+> - **Vercel Deployment:** The variable must be added on the Vercel dashboard as `VITE_GOOGLE_CLIENT_ID` (make sure it has the `VITE_` prefix). If you add/change this variable on Vercel, you **must trigger a redeploy/rebuild** of the project for it to take effect.
+> - **Google Cloud Console:** You must also add your deployment domain (e.g. `https://your-app.vercel.app`) to the **Authorized JavaScript origins** list in the Google Cloud Console for the button to load correctly.
 
 **Docker Compose:** Sets `VITE_API_URL=/api` and passes `VITE_GOOGLE_CLIENT_ID` at build time.
 
@@ -492,6 +509,7 @@ npm run build
 ```
 
 This runs:
+
 1. `tsc -b` — TypeScript type checking (no emit, project references)
 2. `vite build` — Bundles, tree-shakes, minifies, and outputs to `dist/`
 
@@ -519,6 +537,7 @@ The Dockerfile uses a **multi-stage build**:
 ```
 
 **Key details:**
+
 - The Nginx config includes `try_files $uri /index.html` for React Router client-side routing support
 - Static assets are hashed by Vite for cache-busting
 - Final image is ~30MB (nginx:alpine + built assets)
@@ -537,35 +556,35 @@ The frontend is accessible through the Nginx API gateway at `http://localhost:80
 
 ## 11. Scripts
 
-| Script              | Command          | Purpose                                            |
-| ------------------- | ---------------- | -------------------------------------------------- |
-| `npm run dev`       | `vite`           | Start Vite dev server with HMR                     |
-| `npm run build`     | `tsc -b && vite build` | Type-check + production bundle to `dist/`    |
-| `npm run lint`      | `eslint .`       | Lint all TypeScript/TSX files                      |
-| `npm run preview`   | `vite preview`   | Serve the production build locally for testing     |
+| Script            | Command                | Purpose                                        |
+| ----------------- | ---------------------- | ---------------------------------------------- |
+| `npm run dev`     | `vite`                 | Start Vite dev server with HMR                 |
+| `npm run build`   | `tsc -b && vite build` | Type-check + production bundle to `dist/`      |
+| `npm run lint`    | `eslint .`             | Lint all TypeScript/TSX files                  |
+| `npm run preview` | `vite preview`         | Serve the production build locally for testing |
 
 ---
 
 ## 12. Future Improvements
 
-| Priority | Improvement                                                                                        |
-| -------- | -------------------------------------------------------------------------------------------------- |
-| 🔴 High  | **Lazy loading** — Code-split routes with `React.lazy()` + `Suspense` to reduce initial bundle size. |
-| 🔴 High  | **Error boundaries** — Add React Error Boundaries to prevent full-app crashes from component errors. |
+| Priority | Improvement                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------- |
+| 🔴 High  | **Lazy loading** — Code-split routes with `React.lazy()` + `Suspense` to reduce initial bundle size.          |
+| 🔴 High  | **Error boundaries** — Add React Error Boundaries to prevent full-app crashes from component errors.          |
 | 🔴 High  | **Accessibility (a11y)** — Add ARIA labels, keyboard navigation, focus management, and screen reader support. |
-| 🟡 Med   | **Product pagination** — Replace loading all products at once with paginated/infinite scroll.       |
-| 🟡 Med   | **Image optimization** — Use responsive `srcset`, lazy loading attributes, and WebP format.         |
-| 🟡 Med   | **Form library** — Replace manual form validation with React Hook Form + Zod for declarative schemas. |
-| 🟡 Med   | **Wishlist persistence** — Store wishlist state server-side instead of component-local state.        |
-| 🟡 Med   | **SEO** — Add React Helmet for meta tags, Open Graph data, and structured data markup.              |
-| 🟡 Med   | **Internationalization (i18n)** — Formalize the bilingual UI with a library like `react-i18next`.   |
-| 🟡 Med   | **Unit tests** — Add Vitest + Testing Library for component and hook testing.                       |
-| 🟢 Low   | **PWA support** — Add service worker and manifest for offline capability and install prompts.        |
-| 🟢 Low   | **State persistence library** — Replace manual localStorage sync with `redux-persist`.              |
-| 🟢 Low   | **Admin responsive layout** — The admin panel sidebar is fixed-width and not mobile-friendly.        |
-| 🟢 Low   | **Storybook** — Create a component library with Storybook for isolated development and documentation. |
-| 🟢 Low   | **E2E tests** — Add Playwright or Cypress for end-to-end user flow testing.                         |
+| 🟡 Med   | **Product pagination** — Replace loading all products at once with paginated/infinite scroll.                 |
+| 🟡 Med   | **Image optimization** — Use responsive `srcset`, lazy loading attributes, and WebP format.                   |
+| 🟡 Med   | **Form library** — Replace manual form validation with React Hook Form + Zod for declarative schemas.         |
+| 🟡 Med   | **Wishlist persistence** — Store wishlist state server-side instead of component-local state.                 |
+| 🟡 Med   | **SEO** — Add React Helmet for meta tags, Open Graph data, and structured data markup.                        |
+| 🟡 Med   | **Internationalization (i18n)** — Formalize the bilingual UI with a library like `react-i18next`.             |
+| 🟡 Med   | **Unit tests** — Add Vitest + Testing Library for component and hook testing.                                 |
+| 🟢 Low   | **PWA support** — Add service worker and manifest for offline capability and install prompts.                 |
+| 🟢 Low   | **State persistence library** — Replace manual localStorage sync with `redux-persist`.                        |
+| 🟢 Low   | **Admin responsive layout** — The admin panel sidebar is fixed-width and not mobile-friendly.                 |
+| 🟢 Low   | **Storybook** — Create a component library with Storybook for isolated development and documentation.         |
+| 🟢 Low   | **E2E tests** — Add Playwright or Cypress for end-to-end user flow testing.                                   |
 
 ---
 
-*Last updated: June 2026*
+_Last updated: June 2026_
